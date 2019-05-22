@@ -4,12 +4,13 @@
 #ifndef SMART_GARDEN_GLOBAL_H
 #define SMART_GARDEN_GLOBAL_H
 
+#include <SocketIoClient.h>
 
 /* Global Variables */
 
 #define CHECK_BYTE '\xff'
 
-#define SERVER_PORT 4445
+#define SERVER_PORT 4000
 #define GARDEN_SIGNAL "moidoiten"
 #define GARDEN_WIFI_PASSWORD "passla123"
 #define LOOP_DELAY_TIME 100
@@ -20,11 +21,12 @@
 {\
   \"id\": \"A1-01\", \
   \"role\": \"station\", \
-  \"name\": \"Bản Mẫu Alpha Once\", \
+  \"name\": \"Alpha Once\", \
   \"type\": \"A1\", \
   \"env_type\": [\"hydroponics\"], \
   \"roles\": [\"pump\", \"misting\", \"sensors\"], \
-  \"equipments\": [\"sensors\"]\
+  \"physical_address\": [\"STA_A1_01\"], \
+  \"secret_key\": \"Secret_STA_A1_01\"\
 }"
 /*
   role: [<station>, <equipment>] Vai trò trong vườn
@@ -35,5 +37,7 @@
 
 */
 
+bool wsConnected = false;
+SocketIoClient webSocket;
 
 #endif

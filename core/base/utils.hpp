@@ -4,9 +4,6 @@
 #ifndef SMART_GARDEN_UTILS_H
 #define SMART_GARDEN_UTILS_H
 
-#include "global.hpp"
-#include "list.hpp"
-
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <string.h>
@@ -14,14 +11,17 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-// #include "garden_protocol.hpp"
+#include "../variables/global.hpp"
+#include "./list.hpp"
 
 const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 
 /*           LED           */
 #define led1 2
 #define led2 16
-#define setupLed pinMode(led1, OUTPUT); pinMode(led2, OUTPUT);
+#define useIn(pin) pinMode(led1, INPUT);
+#define useOut(pin) pinMode(led1, OUTPUT);
+#define setupLed useOut(led1); useOut(led2);
 
 #define onLed1 digitalWrite(led1, 0);
 #define offLed1 digitalWrite(led1, 1);
@@ -30,9 +30,7 @@ const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 #define then
 
 #define sleep(sec) delay(sec*1000);
-
-#define ON LOW
-#define OFF HIGH
+#define d(ms) delay(ms);
 
 /*           Print           */
 #define pr(...) Serial.print(__VA_ARGS__);

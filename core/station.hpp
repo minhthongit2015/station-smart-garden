@@ -6,7 +6,8 @@
 
 #include "./base/utils.hpp"
 #include "./base/wifi.hpp"
-#include "./base/socket_io.hpp"
+#include "./socket_io.hpp"
+#include "./emulator.hpp"
 
 /**********************************************************************************************************
  *                                         Hướng dẫn thiết đặt ESP                                        *
@@ -38,6 +39,8 @@ void SmartGardenStation::setup() {
   this->wifi.setup();
 
   websocketSetup();
+
+  emulator.setup();
 }
 
 
@@ -47,6 +50,9 @@ void SmartGardenStation::loop() {
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
   websocketLoop();
+  
+  emulator.loop();
+
   delay(LOOP_DELAY_TIME);
 }
 

@@ -3,10 +3,14 @@
 #ifndef SMART_GARDEN_CONNECT_HANDLER_H
 #define SMART_GARDEN_CONNECT_HANDLER_H
 
-#include <ArduinoJson.h>
+#include "../base/utils.hpp"
+
 
 void handleConnectEvent(const char * payload, size_t length) {
-  Serial.printf("Connected to Websocket Server: %s\n", payload);
+  wsConnected = true;
+  prl("Connected to Server");
+  webSocket.emit("stationConnect", DEVICE_INFO);
 }
+
 
 #endif

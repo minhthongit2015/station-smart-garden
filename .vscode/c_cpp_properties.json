@@ -7,6 +7,7 @@
                 "${env:USERPROFILE}\\Documents\\Arduino\\hardware\\esp8266com\\esp8266\\**",
                 "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\ArduinoJson\\src",
                 "C:\\Program Files (x86)\\Arduino\\hardware\\**",
+                "C:/Users/thongnmtran/Documents/Arduino/hardware/**",
                 "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\**",
                 "C:\\Program Files (x86)\\Arduino\\libraries\\**",
                 "${workspaceFolder}/core/**"
