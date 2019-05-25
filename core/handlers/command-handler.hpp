@@ -18,6 +18,7 @@ void handleCommandEvent(const char * payload, size_t length) {
   state.misting = doc["fan"];
   state.nutri = doc["nutri"];
   controller.executeCommand();
+  prl(payload);
 }
 
 #endif
