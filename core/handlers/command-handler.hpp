@@ -17,8 +17,8 @@ void handleCommandEvent(const char * payload, size_t length) {
   state.fan = doc["fan"];
   state.misting = doc["fan"];
   state.nutri = doc["nutri"];
+  prl(state.toJSON());
   controller.executeCommand();
-  prl(payload);
 }
 
 #endif

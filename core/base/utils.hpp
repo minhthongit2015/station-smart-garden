@@ -19,8 +19,8 @@ const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 /*           LED           */
 #define led1 2
 #define led2 16
-#define useIn(pin) pinMode(led1, INPUT);
-#define useOut(pin) pinMode(led1, OUTPUT);
+#define useIn(pin) pinMode(pin, INPUT);
+#define useOut(pin) pinMode(pin, OUTPUT);
 #define setupLed useOut(led1); useOut(led2);
 
 #define onLed1 digitalWrite(led1, 0);

@@ -8,6 +8,7 @@
 #include "./base/wifi.hpp"
 #include "./socket_io.hpp"
 #include "./emulator.hpp"
+#include "./modules/Controller.hpp"
 
 /**********************************************************************************************************
  *                                         Hướng dẫn thiết đặt ESP                                        *
@@ -33,6 +34,8 @@ class SmartGardenStation {
 /*                   Setup                  */
 void SmartGardenStation::setup() {
   prl(" <1> Smart Garden Station Setup!");
+
+  controller.setup();
 
   WiFi.mode(WIFI_STA);
 

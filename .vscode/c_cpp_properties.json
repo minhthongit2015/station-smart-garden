@@ -10,7 +10,8 @@
                 "C:/Users/thongnmtran/Documents/Arduino/hardware/**",
                 "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\**",
                 "C:\\Program Files (x86)\\Arduino\\libraries\\**",
-                "${workspaceFolder}/core/**"
+                "${workspaceFolder}/core/**",
+                "C:\\Users\\thongnmtran\\Documents\\Arduino\\hardware\\esp8266com\\esp8266\\**"
             ],
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [],
