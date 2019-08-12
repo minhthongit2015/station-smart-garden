@@ -4,10 +4,13 @@
 #ifndef SMART_GARDEN_STATION_STATE_H
 #define SMART_GARDEN_STATION_STATE_H
 
+#include <string.h>
+
 struct StationState {
   float temperature;
   float humidity;
   float light;
+  bool movement;
 
   bool pump;
   bool led;
@@ -36,6 +39,6 @@ struct StationState {
       nutri);
     return buf;
   }
-} state;
+} state = {0};
 
 #endif

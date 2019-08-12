@@ -8,6 +8,8 @@ void setup()
   helperSetup();
   prl("Hello!");
   setupLed then sleep(2) offLed1 offLed2
+  
+  performanceDisable(0);
   station.setup();
 }
 

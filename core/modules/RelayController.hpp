@@ -4,9 +4,9 @@
 #define SMART_GARDEN_CONTROLLER_H
 
 #include "../base/utils.hpp"
-#include "../stationstate.hpp"
+#include "../variables/state.hpp"
 
-class StationController {
+class RelayController {
 
 public:
   int pump = 13;
@@ -16,7 +16,7 @@ public:
   int nutri = -1;
 
   void setup() {
-    prl("[Controller] <*> Setup");
+    logStart("Relay Controller");
     useOut(pump);
     useOut(led);
     useOut(fan);
@@ -56,6 +56,6 @@ public:
     digitalWrite(nutri, !isOn ? HIGH : LOW);
     // prf("Nutri %s\r\n", !isOn ? "ON" : "OFF");
   }
-} controller;
+};
 
 #endif

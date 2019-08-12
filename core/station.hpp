@@ -7,8 +7,8 @@
 #include "./base/utils.hpp"
 #include "./base/wifi.hpp"
 #include "./socket_io.hpp"
-#include "./emulator.hpp"
-#include "./modules/Controller.hpp"
+#include "./watcher.hpp"
+#include "./variables/global.hpp"
 
 /**********************************************************************************************************
  *                                         Hướng dẫn thiết đặt ESP                                        *
@@ -20,6 +20,11 @@
  * "#define SENSOR_HC_SR501 <pin>" để thiết đặt là đọc dữ liệu cảm biến HC_SR501 trên <pin>
  * 
  **********************************************************************************************************/
+
+void onKeyDown(uint8_t key) {
+  lcd.lcd.printf(" %d", key);
+}
+
 
 class SmartGardenStation {
   private:
@@ -34,8 +39,17 @@ class SmartGardenStation {
 /*                   Setup                  */
 void SmartGardenStation::setup() {
   prl(" <1> Smart Garden Station Setup!");
+  #ifdef ARDUINO
+    Serial.println(ARDUINO);
+  #endif
 
-  controller.setup();
+  i2cScanner();
+
+  lcd.setup();
+  touchPad.setup();
+  touchPad.onKeyDown = onKeyDown;
+  relayCtl.setup(); // relay
+  watcher.setup();  // sensors...
 
   WiFi.mode(WIFI_STA);
 
@@ -43,7 +57,6 @@ void SmartGardenStation::setup() {
 
   websocketSetup();
 
-  emulator.setup();
 }
 
 
@@ -52,10 +65,23 @@ void SmartGardenStation::loop() {
   // static unsigned long timer = millis();
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
+
+  performance("websocketLoop");
   websocketLoop();
   
-  emulator.loop();
+  performance("lcd");
+  lcd.loop();
+  
+  performance("touchPad");
+  touchPad.loop();
+  
+  performance("relayCtl");
+  relayCtl.loop();
+  
+  performance("watcher");
+  watcher.loop();
 
+  performance("end loop ------\r\n");
   delay(LOOP_DELAY_TIME);
 }
 

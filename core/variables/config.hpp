@@ -1,34 +1,46 @@
 
-#ifndef DEVICE_ID
-#define DEVICE_ID "ESP_Device"
-#endif
+#pragma once
+#ifndef SMART_STATION_CONFIG_H
+#define SMART_STATION_CONFIG_H
 
-#ifndef CONTROL
-#define CONTROL {}
-#endif
 
-#ifdef SENSOR_DHT22
-#include "DHT.h"
-#ifndef DHTTYPE
-#define DHTTYPE DHT22
-#endif
-DHT dht(SENSOR_DHT22, DHTTYPE);
-#endif
+// #define ARDUINO 100
 
-#ifdef SENSOR_BH1750
-#include <Wire.h>
-#include <BH1750.h>
-BH1750 lightMeter(0x23);
-#ifndef SDA
-#define SDA 4
-#endif
-#ifndef SCL
-#define SCL 5
-#endif
-#endif
+/* Device Info */
+#define DEVICE_ID "Alpha One"
+#define DEVICE_INFO "\
+{\
+  \"id\": \"A1-01\", \
+  \"role\": \"station\", \
+  \"name\": \"Alpha Once\", \
+  \"type\": \"A1\", \
+  \"env_type\": [\"hydroponics\"], \
+  \"roles\": [\"pump\", \"misting\", \"sensors\"], \
+  \"physical_address\": [\"STA_A1_01\"], \
+  \"secret_key\": \"Secret_STA_A1_01\"\
+}"
+/*
+  role: [<station>, <equipment>] Vai trò trong vườn
+  type: Tên kiểu mẫu
+  env_type: chỉ dùng cho station - loại môi trườnrg
+  name: Tên mặc định thiết bị
+  roles: Các khả năng
 
-#ifdef SENSOR_HC_SR501
-int sensorPin = 12;    // select the input pin for the potentiometer
-int ledPin = 2;      // select the pin for the LED
-int sensorValue = 0;  // variable to store the value coming from the sensor
+*/
+
+#define CHECK_BYTE '\xff'
+
+// #define GARDEN_SIGNAL "Garden_"
+// #define GARDEN_WIFI_PASSWORD "12345678"
+// #define GARDEN_SIGNAL "IUHYRA"
+// #define GARDEN_WIFI_PASSWORD "iuhyra@12345"
+#define LOOP_DELAY_TIME 100
+
+
+const char GARDEN_HOST[] = "192.168.1.12";
+const long GARDEN_PORT = 4000;
+const char GARDEN_SIGNAL[] = "moidoiten";
+const char GARDEN_WIFI_PASSWORD[] = "passla123";
+
+
 #endif

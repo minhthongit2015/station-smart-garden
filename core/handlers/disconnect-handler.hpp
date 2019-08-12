@@ -4,6 +4,7 @@
 #define SMART_GARDEN_DISCONNECT_HANDLER_H
 
 #include "../base/utils.hpp"
+#include "../variables/global.hpp"
 
 
 void handleDisconnectEvent(const char * payload, size_t length) {

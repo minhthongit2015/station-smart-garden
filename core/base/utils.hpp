@@ -10,9 +10,10 @@
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
 #include <ArduinoJson.h>
+#include <Wire.h>
 
-#include "../variables/global.hpp"
-#include "./list.hpp"
+#include "../variables/pinmap.hpp"
+#include "../variables/config.hpp"
 
 const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 
@@ -36,7 +37,21 @@ const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 #define pr(...) Serial.print(__VA_ARGS__);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
-#define log(moduleName, message) { pr("[" moduleName "] > "); prl(message); }
+#define log(moduleName, message) { pr("[" moduleName "] > ") prl(message) }
+#define logStart(moduleName) log(moduleName, "<*> Start!")
+
+
+/*         Performance       */
+static unsigned long perf_last[10] = {0};
+static bool perf_disable[10] = {false};
+#define performance2(action, channel) {\
+  if (!perf_disable[channel]) {\
+    prf("[%d] +%d ms -> %s\r\n", channel, millis() - perf_last[channel], action);\
+    perf_last[channel] = millis();\
+  }\
+}
+#define performance(action) performance2(action, 0);
+#define performanceDisable(channel) perf_disable[channel] = true;
 
 /*           Setup           */
 void helperSetup() {
@@ -60,6 +75,26 @@ void reset() {
   prl("[Sys] </> Restarting....");
   prl("-----------------------------------\r\n");
   _reset();
+}
+
+
+/*           i2c Scanner           */
+void i2cScanner() {
+  prl("[I2C] Start scanning I2C...");
+  Wire.begin(SDA, SCL);
+  byte error, address;
+  for(address = 1; address < 127; address++) {
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+    if (error == 0) {
+      pr("[I2C] device found at address 0x");
+      if (address < 16) pr("0"); prl(address, HEX);
+    } else if (error == 4) {
+      pr("Unknown error at address 0x");
+      if (address < 16) pr("0"); prl(address, HEX);
+    }
+  }
+  prl("[I2C] Scanning I2C done!");
 }
 
 

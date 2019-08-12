@@ -4,8 +4,8 @@
 #define SMART_GARDEN_COMMAND_HANDLER_H
 
 #include "../base/utils.hpp"
-#include "../stationstate.hpp"
-#include "../modules/Controller.hpp"
+#include "../variables/global.hpp"
+#include "../variables/state.hpp"
 
 DynamicJsonDocument doc(1024);
 
@@ -18,7 +18,7 @@ void handleCommandEvent(const char * payload, size_t length) {
   state.misting = doc["fan"];
   state.nutri = doc["nutri"];
   prl(state.toJSON());
-  controller.executeCommand();
+  relayCtl.executeCommand();
 }
 
 #endif
