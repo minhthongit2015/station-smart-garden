@@ -4,7 +4,7 @@
 #define SMART_STATION_CONFIG_H
 
 
-// #define ARDUINO 100
+#define ARDUINO 10809
 
 /* Device Info */
 #define DEVICE_ID "Alpha One"
@@ -34,7 +34,7 @@
 // #define GARDEN_WIFI_PASSWORD "12345678"
 // #define GARDEN_SIGNAL "IUHYRA"
 // #define GARDEN_WIFI_PASSWORD "iuhyra@12345"
-#define LOOP_DELAY_TIME 100
+#define LOOP_DELAY_TIME 10
 
 
 const char GARDEN_HOST[] = "192.168.1.12";

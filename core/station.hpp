@@ -9,6 +9,7 @@
 #include "./socket_io.hpp"
 #include "./watcher.hpp"
 #include "./variables/global.hpp"
+#include "./controllers/ScreenController.hpp"
 
 /**********************************************************************************************************
  *                                         Hướng dẫn thiết đặt ESP                                        *
@@ -39,15 +40,12 @@ class SmartGardenStation {
 /*                   Setup                  */
 void SmartGardenStation::setup() {
   prl(" <1> Smart Garden Station Setup!");
-  #ifdef ARDUINO
-    Serial.println(ARDUINO);
-  #endif
 
   i2cScanner();
 
-  lcd.setup();
+  screenCtl.setup();
   touchPad.setup();
-  touchPad.onKeyDown = onKeyDown;
+  touchPad.onKeyDown(onKeyDown);
   relayCtl.setup(); // relay
   watcher.setup();  // sensors...
 
@@ -69,11 +67,11 @@ void SmartGardenStation::loop() {
   performance("websocketLoop");
   websocketLoop();
   
-  performance("lcd");
-  lcd.loop();
-  
   performance("touchPad");
   touchPad.loop();
+
+  performance("screenCtl");
+  screenCtl.loop();
   
   performance("relayCtl");
   relayCtl.loop();

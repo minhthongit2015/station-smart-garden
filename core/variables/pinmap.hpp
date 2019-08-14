@@ -11,6 +11,13 @@
 //   #define D4 2
 // #endif
 
+// #ifndef D7
+//   #define D7 13
+// #endif
+// #ifndef D8
+//   #define D8 15
+// #endif
+
 #define SCL 5
 #define SDA 4
 

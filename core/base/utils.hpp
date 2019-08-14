@@ -38,7 +38,7 @@ const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
 #define log(moduleName, message) { pr("[" moduleName "] > ") prl(message) }
-#define logStart(moduleName) log(moduleName, "<*> Start!")
+#define logStart(moduleName) prl("<*> [Start] " moduleName)
 
 
 /*         Performance       */
