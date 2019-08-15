@@ -7,7 +7,7 @@
 #include "./base/utils.hpp"
 #include "./base/wifi.hpp"
 #include "./socket_io.hpp"
-#include "./watcher.hpp"
+#include "./controllers/watcher.hpp"
 #include "./variables/global.hpp"
 #include "./controllers/ScreenController.hpp"
 
@@ -63,21 +63,21 @@ void SmartGardenStation::loop() {
   // static unsigned long timer = millis();
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
-
-  performance("websocketLoop");
-  websocketLoop();
+  
+  performance("watcher");
+  watcher.loop();
+  
+  performance("relayCtl");
+  relayCtl.loop();
   
   performance("touchPad");
   touchPad.loop();
 
   performance("screenCtl");
   screenCtl.loop();
-  
-  performance("relayCtl");
-  relayCtl.loop();
-  
-  performance("watcher");
-  watcher.loop();
+
+  performance("websocketLoop");
+  websocketLoop();
 
   performance("end loop ------\r\n");
   delay(LOOP_DELAY_TIME);

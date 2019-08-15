@@ -3,6 +3,7 @@
 #ifndef SMART_BOARD_PIN_MAP_H
 #define SMART_BOARD_PIN_MAP_H
 
+#include <Arduino.h>
 
 // #ifndef D3
 //   #define D3 0
@@ -11,6 +12,12 @@
 //   #define D4 2
 // #endif
 
+#ifndef D5
+  #define D5 14
+#endif
+#ifndef D6
+  #define D6 12
+#endif
 // #ifndef D7
 //   #define D7 13
 // #endif

@@ -29,4 +29,10 @@ RelayController relayCtl;
 #include "../modules/DHT22.hpp"
 HuTempDHT22 dht;
 
+#include "../modules/BH1750.hpp"
+LightBH1750 bh1750;
+
+#include "../modules/HCSR501.hpp"
+MovingHCSR501 hcsr501;
+
 #endif

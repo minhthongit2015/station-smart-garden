@@ -7,11 +7,14 @@
 #include "../base/utils.hpp"
 #include <DHT.h>
 
-#define DHTPIN 12 // D6
+#define DHTPIN D6
 #define DHTTYPE DHT22
+
+typedef void (*onHutempChangeListener)(float temperature, float humidity);
 
 class HuTempDHT22 {
   private:
+    std::set<onHutempChangeListener> _onChange;
   public:
     DHT dht;
     float prevHumidity = 80;
@@ -29,9 +32,8 @@ class HuTempDHT22 {
     void setup();
     void loop();
 
-    std::function<void (float temperature, float humidity)> _onChange = NULL;
-    void onChange(std::function<void (float temperature, float humidity)> __onChange) {
-      this->_onChange = __onChange;
+    void onChange(onHutempChangeListener callback) {
+      this->_onChange.insert(callback);
     }
 
     bool read();
@@ -46,7 +48,7 @@ void HuTempDHT22::loop() {
   if (!read()) return;
   if ((prevTemperature != temperature
       || prevHumidity != humidity)
-      && _onChange) {
+      && _onChange.size() > 0) {
     dispatchEvent(temperature, humidity);
   }
   prevTemperature = temperature;
@@ -78,7 +80,9 @@ bool HuTempDHT22::read() {
 }
 
 void HuTempDHT22::dispatchEvent(float temperature, float humidity) {
-  _onChange(temperature, humidity);
+	for (std::set<onHutempChangeListener>::iterator p = _onChange.begin(); p != _onChange.end(); ++p) {
+    (*p)(temperature, humidity);
+  }
 }
 
 #endif

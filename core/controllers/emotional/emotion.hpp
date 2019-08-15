@@ -5,8 +5,8 @@
 #define SMART_GARDEN_EMOTION_H
 
 #include <set>
-#include "../base/types.hpp"
-#include "../modules/LCDScreen.hpp"
+#include "../../base/types.hpp"
+#include "../../modules/LCDScreen.hpp"
 
 typedef void (*emotionEndEventListener)();
 
@@ -21,7 +21,7 @@ class Emotion {
     uint8_t offsetX = 0;
     uint8_t offsetY = 0;
 
-    Emotion(LCDScreen &screen) {
+    void setup(LCDScreen &screen) {
       this->_screen = &screen;
       curFrame = frames.end();
       prevFrame = frames.end();
@@ -60,17 +60,13 @@ void Emotion::play() {
 
 void Emotion::drawFrame(ScreenFrame *frame) {
   clearPrevFrame();
-
-  (*_screen).lcd.setCursor(0,0);
-  (*_screen).lcd.printstr("Hello!");
-
   prepareFrame(frame);
 
   uint8_t size = (*frame).size;
   uint8_t *coords = (*frame).coords;
 
   for (int i = 0; i < size; i++) {
-    (*_screen).lcd.setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
+    (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
     (*_screen).lcd.write(coords[i*3 + 2]);
   }
 }
@@ -91,7 +87,7 @@ void Emotion::clearPrevFrame() {
   uint8_t *coords = (**prevFrame).coords;
 
   for (int i = 0; i < size; i++) {
-    (*_screen).lcd.setCursor(coords[i*3], coords[i*3 + 1]);
+    (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
     (*_screen).lcd.print(' ');
   }
 }

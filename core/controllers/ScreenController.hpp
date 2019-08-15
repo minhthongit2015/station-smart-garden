@@ -5,36 +5,30 @@
 
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
-#include "./pikachu1.hpp"
-#include "./pikachu2.hpp"
-#include "./pikachu3.hpp"
-#include "./emotion.hpp"
+#include "./emotional/pikachu.hpp"
+#include "./emotional/emotion.hpp"
 
 void screenOnKeyDown(uint8_t key);
+void screenOnHuTempChange(float temperature, float humidity);
+void screenOnLightChange(uint16_t light);
+
+void printMovingDetection();
 
 class ScreenController {
   public:
     bool busy = false;
     Emotion pikachuEmotion;
 
-    ScreenController()
-      :pikachuEmotion(lcd)
-    {
-
-    }
-
     void setup();
     void loop();
-} screenCtl;
 
-void screenOnKeyDown(uint8_t key) {
-  if (key == 16) {
-    screenCtl.busy = false;
-  }
-}
+    void printStationState();
+} screenCtl;
 
 void ScreenController::setup() {
   touchPad.onKeyDown(screenOnKeyDown);
+  dht.onChange(screenOnHuTempChange);
+  bh1750.onChange(screenOnLightChange);
   
   lcd.setup();
   lcd.lcd.noCursor();
@@ -49,13 +43,67 @@ void ScreenController::setup() {
   delay(2000);
   lcd.clear();
 
+  pikachuEmotion.setup(lcd);
   pikachuEmotion.insert(&pikachu1);
   pikachuEmotion.insert(&pikachu2);
   pikachuEmotion.insert(&pikachu3);
+  pikachuEmotion.offsetX = 4;
 }
 
 void ScreenController::loop() {
   pikachuEmotion.play();
+  printStationState();
+}
+
+// --------------------------------------------------
+
+void screenOnKeyDown(uint8_t key) {
+  if (key == 16) {
+    screenCtl.busy = false;
+    lcd.lcd.clear();
+    lcd.printCenterLine("Resetting...", 1);
+    lcd.printCenterLine("(._.)zZ", 2);
+    delay(1000);
+    reset();
+  }
+}
+
+void screenOnHuTempChange(float temperature, float humidity) {
+  screenCtl.printStationState();
+}
+
+void screenOnLightChange(uint16_t light) {
+  screenCtl.printStationState();
+}
+
+// --------------------------------------------------
+
+void ScreenController::printStationState() {
+  lcd.setCursor(0, 0);
+  lcd.lcd.printf("%5.2f ", state.temperature); lcd.lcd.print('\xdf'); lcd.lcd.print('C');
+  lcd.setCursor(0, 1);
+  lcd.lcd.printf("%5.2f %%", state.humidity);
+  lcd.setCursor(0, 2);
+  lcd.lcd.printf("%5d lx", state.light);
+  lcd.setCursor(2, 3);
+  if (state.moving) {
+    printMovingDetection();
+  } else {
+    lcd.print("----");
+  }
+}
+
+void printMovingDetection() {
+  static unsigned long last = 0;
+  static uint8_t posMap[4] = {0};
+  static uint8_t lastPos = 0;
+  if (millis() - last > 200) {
+    for (int i=0; i < 4; ++i) {
+      lcd.lcd.printf("%c", i == lastPos ? '>' : ' ');
+    }
+    last = millis();
+    lastPos = ++lastPos % 4;
+  }
 }
 
 #endif

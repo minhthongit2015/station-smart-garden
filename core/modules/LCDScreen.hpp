@@ -29,9 +29,11 @@ class LCDScreen {
     // void vScroll(const char *message, int delayTime, int shiftRow = 1, int8_t col = -1);
     
     void clear();
+    void setCursor(uint8_t x = 0, uint8_t y = 0);
     void print(const char *text);
     void printc(char c);
-    void printCenterLine(const char *text, uint8_t line);
+    void printCenterLine(const char *text, uint8_t line, uint8_t lineLength = 20);
+    void printLeftLine(const char *text, uint8_t line, uint8_t lineLength = 20);
     void printCenter(const char *text, uint8_t x = 0, uint8_t y = 0, uint8_t width = 20, uint8_t height = 4);
     void printLeft(const char *text, uint8_t x = 0, uint8_t y = 0, uint8_t width = 20, uint8_t height = 4);
     void printRight(const char *text, uint8_t x = 0, uint8_t y = 0, uint8_t width = 20, uint8_t height = 4);
@@ -66,6 +68,9 @@ void LCDScreen::loop() {
 void LCDScreen::clear() {
   lcd.clear();
 }
+void LCDScreen::setCursor(uint8_t x, uint8_t y) {
+  lcd.setCursor(x, y);
+}
 
 void LCDScreen::print(const char *text) {
   lcd.printstr(text);
@@ -75,9 +80,14 @@ void LCDScreen::printc(char c) {
   lcd.print(c);
 }
 
-void LCDScreen::printCenterLine(const char *text, uint8_t line) {
+void LCDScreen::printCenterLine(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
-  lcd.setCursor((width - length) / 2, line);
+  lcd.setCursor((lineLength - length) / 2, line);
+  lcd.print(text);
+}
+void LCDScreen::printLeftLine(const char *text, uint8_t line, uint8_t lineLength) {
+  uint8_t length = strlen(text);
+  lcd.setCursor(0, line);
   lcd.print(text);
 }
 void LCDScreen::printCenter(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {

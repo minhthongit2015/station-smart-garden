@@ -2,7 +2,7 @@
  #ifndef SMART_GARDEN_EMOTION_PIKACHU2_H
  #define SMART_GARDEN_EMOTION_PIKACHU2_H
 
- #include "../base/types.hpp"
+ #include "../../base/types.hpp"
  
  unsigned char pikachu2_cells[] = {
  0b00000000,0b00000000,0b00000000,0b00000000,0b00000011,0b00000110,0b00001100,0b00000000,

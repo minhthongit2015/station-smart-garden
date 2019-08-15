@@ -9,8 +9,8 @@
 struct StationState {
   float temperature;
   float humidity;
-  float light;
-  bool movement;
+  uint16_t light;
+  bool moving;
 
   bool pump;
   bool led;
@@ -25,6 +25,7 @@ struct StationState {
         "\"temperature\": %f,"
         "\"humidity\": %f,"
         "\"light\": %f,"
+        "\"moving\": %s,"
         "\"pump\": %s,"
         "\"led\": %s,"
         "\"fan\": %s,"
@@ -32,6 +33,7 @@ struct StationState {
         "\"nutri\": %d"
       "}",
       temperature, humidity, light,
+      moving ? "true" : "false",
       pump ? "true" : "false",
       led ? "true" : "false",
       fan ? "true" : "false",
