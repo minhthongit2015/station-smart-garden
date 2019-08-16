@@ -6,6 +6,7 @@
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
 #include "./emotional/pikachu.hpp"
+#include "./emotional/sleep.hpp"
 #include "./emotional/emotion.hpp"
 
 void screenOnKeyDown(uint8_t key);
@@ -18,6 +19,8 @@ class ScreenController {
   public:
     bool busy = false;
     Emotion pikachuEmotion;
+    Emotion sleepEmotion;
+    Emotion *prevEmotion = NULL;
 
     void setup();
     void loop();
@@ -47,11 +50,32 @@ void ScreenController::setup() {
   pikachuEmotion.insert(&pikachu1);
   pikachuEmotion.insert(&pikachu2);
   pikachuEmotion.insert(&pikachu3);
-  pikachuEmotion.offsetX = 4;
+  pikachuEmotion.insert(&pikachu4);
+
+  sleepEmotion.setup(lcd);
+  sleepEmotion.insert(&sleep1);
+  sleepEmotion.insert(&sleep2);
+  sleepEmotion.insert(&sleep3);
+  sleepEmotion.insert(&sleep4);
+  sleepEmotion.insert(&sleep5);
+
+  prevEmotion = &sleepEmotion;
 }
 
 void ScreenController::loop() {
-  pikachuEmotion.play();
+  if (state.moving) {
+    if (prevEmotion != &pikachuEmotion) {
+      (*prevEmotion).clearPrevFrame();
+      prevEmotion = &pikachuEmotion;
+    }
+    pikachuEmotion.play();
+  } else {
+    if (prevEmotion != &sleepEmotion) {
+      (*prevEmotion).clearPrevFrame();
+      prevEmotion = &sleepEmotion;
+    }
+    sleepEmotion.play();
+  }
   printStationState();
 }
 

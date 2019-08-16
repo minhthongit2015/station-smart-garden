@@ -14,6 +14,7 @@ typedef void (*onMovementListener)(bool moving);
 class MovingHCSR501 {
   private:
     std::set<onMovementListener> _onChange;
+    std::set<onMovementListener> _onAfterMoving;
   public:
     bool prevMoving = false;
     bool moving = false;
@@ -25,6 +26,9 @@ class MovingHCSR501 {
 
     void onChange(onMovementListener callback) {
       this->_onChange.insert(callback);
+    }
+    void onAfterMoving(onMovementListener callback, unsigned long timeout = 0) {
+      this->_onAfterMoving.insert(callback);
     }
 
     bool read();

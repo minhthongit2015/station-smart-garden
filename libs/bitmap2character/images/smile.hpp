@@ -2,7 +2,7 @@
  #ifndef SMART_GARDEN_EMOTION_SMILE_H
  #define SMART_GARDEN_EMOTION_SMILE_H
 
- #include "../base/types.hpp"
+ #include "../../base/types.hpp"
  
  unsigned char smile_cells[] = {
  0b00000000,0b00000011,0b00000111,0b00001110,0b00011100,0b00011000,0b00011000,0b00010000,

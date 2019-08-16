@@ -104,7 +104,7 @@ class Converter {
       #ifndef SMART_GARDEN_EMOTION_${frameName.toUpperCase()}_H
       #define SMART_GARDEN_EMOTION_${frameName.toUpperCase()}_H
 
-      #include "../base/types.hpp"
+      #include "../../base/types.hpp"
       
       unsigned char ${frameName}_cells[] = {
         ${cellMap.join(',\r\n  ')}
