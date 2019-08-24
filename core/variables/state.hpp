@@ -41,6 +41,6 @@ struct StationState {
       nutri);
     return buf;
   }
-} state = {0};
+};
 
 #endif

@@ -18,7 +18,8 @@
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [],
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++11",
+            "intelliSenseCacheSize": 0
         }
     ],
     "version": 4

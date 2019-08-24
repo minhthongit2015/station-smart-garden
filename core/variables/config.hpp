@@ -3,10 +3,13 @@
 #ifndef SMART_STATION_CONFIG_H
 #define SMART_STATION_CONFIG_H
 
+#include <string>
+#include <DHT.h>
+#include "../base/fs.hpp"
 
 #define ARDUINO 10809
 
-/* Device Info */
+
 #define DEVICE_ID "Alpha One"
 #define DEVICE_INFO "\
 {\
@@ -19,28 +22,41 @@
   \"physical_address\": [\"STA_A1_01\"], \
   \"secret_key\": \"Secret_STA_A1_01\"\
 }"
-/*
-  role: [<station>, <equipment>] Vai trò trong vườn
-  type: Tên kiểu mẫu
-  env_type: chỉ dùng cho station - loại môi trườnrg
-  name: Tên mặc định thiết bị
-  roles: Các khả năng
-
-*/
 
 #define CHECK_BYTE '\xff'
-
-// #define GARDEN_SIGNAL "Garden_"
-// #define GARDEN_WIFI_PASSWORD "12345678"
-// #define GARDEN_SIGNAL "IUHYRA"
-// #define GARDEN_WIFI_PASSWORD "iuhyra@12345"
 #define LOOP_DELAY_TIME 10
 
+class Config {
+  public:
+    static String gardenHost;
+    static long gardenPort;
+    static String gardenWifiSignal;
+    static String gardenWifiPassword;
 
-const char GARDEN_HOST[] = "192.168.1.12";
-const long GARDEN_PORT = 4000;
-const char GARDEN_SIGNAL[] = "moidoiten";
-const char GARDEN_WIFI_PASSWORD[] = "passla123";
+    static uint8_t DhtPin;
+    static uint8_t DhtType;
+    static uint8_t HcSr501Pin;
+    static uint8_t TTP229SclPin;
+    static uint8_t TTP229SdoPin;
 
+    static void loadConfig(FileSystem &fsz);
+};
+
+String Config::gardenHost = "192.168.1.12";
+long Config::gardenPort = 4000;
+String Config::gardenWifiSignal = "moidoiten";
+String Config::gardenWifiPassword = "passla123";
+
+uint8_t Config::DhtPin = D6;
+uint8_t Config::DhtType = DHT22;
+uint8_t Config::HcSr501Pin = D5;
+uint8_t Config::TTP229SclPin = D4;
+uint8_t Config::TTP229SdoPin = D3;
+
+void Config::loadConfig(FileSystem &fsz) {
+  if (fsz.fs.exists("/config.json")) {
+
+  }
+}
 
 #endif

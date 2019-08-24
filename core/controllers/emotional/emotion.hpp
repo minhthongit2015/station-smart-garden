@@ -67,7 +67,7 @@ void Emotion::drawFrame(ScreenFrame *frame) {
 
   for (int i = 0; i < size; i++) {
     (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
-    (*_screen).lcd.write(coords[i*3 + 2]);
+    (*_screen).lcd->write(coords[i*3 + 2]);
   }
 }
 
@@ -76,7 +76,7 @@ void Emotion::prepareFrame(pScreenFrame frame) {
   uint8_t *cells = (*frame).cells;
 
   for (uint8_t i = 0; i < size; i++) {
-    (*_screen).lcd.createChar(i, &cells[i * 8]);
+    (*_screen).lcd->createChar(i, &cells[i * 8]);
   }
 }
 
@@ -88,7 +88,7 @@ void Emotion::clearPrevFrame() {
 
   for (int i = 0; i < size; i++) {
     (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
-    (*_screen).lcd.print(' ');
+    (*_screen).lcd->print(' ');
   }
 }
 

@@ -18,7 +18,7 @@ class MovingHCSR501 {
   public:
     bool prevMoving = false;
     bool moving = false;
-    uint8_t sensorPin = D5;
+    uint8_t sensorPin = Config::HcSr501Pin;
     unsigned long delayTime = 0;
 
     void setup();
@@ -36,6 +36,7 @@ class MovingHCSR501 {
 };
 
 void MovingHCSR501::setup() {
+  logStart("Motion Detector (HC-SR501)");
 }
 
 void MovingHCSR501::loop() {

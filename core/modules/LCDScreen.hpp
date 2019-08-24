@@ -15,13 +15,7 @@ class LCDScreen {
     char screen[4][20] = {
       {0}, {0}, {0}, {0}
     };
-    LiquidCrystal_I2C lcd;
-
-    LCDScreen()
-      :lcd(0x27, 20, 4)
-    {
-
-    }
+    LiquidCrystal_I2C *lcd;
 
     void setup();
     void loop();
@@ -41,60 +35,62 @@ class LCDScreen {
 };
 
 void LCDScreen::setup() {
-  logStart("LCD Screen - LiquidCrystal_I2C 20x4");
+  logStart("Display (LiquidCrystal_I2C 20x4)");
 
-  lcd.init();
-  lcd.backlight(); delay(500);
-  lcd.noBacklight(); delay(500);
-  lcd.backlight();
+  lcd = new LiquidCrystal_I2C(0x27, 20, 4);
+
+  lcd->init();
+  lcd->backlight(); delay(500);
+  lcd->noBacklight(); delay(500);
+  lcd->backlight();
   
-  lcd.cursor();
-  lcd.blink();
+  lcd->cursor();
+  lcd->blink();
 }
 
 void LCDScreen::loop() {
   static int rowIndex = 0;
   if (Serial.available()) {
-    lcd.setCursor(0, rowIndex % 4);
+    lcd->setCursor(0, rowIndex % 4);
     while (Serial.available() > 0) {
       char c = Serial.read();
       if (c == '\n') rowIndex++;
       if (c != '\n' && c != '\r')
-        lcd.write(c);
+        lcd->write(c);
     }
   }
 }
 
 void LCDScreen::clear() {
-  lcd.clear();
+  lcd->clear();
 }
 void LCDScreen::setCursor(uint8_t x, uint8_t y) {
-  lcd.setCursor(x, y);
+  lcd->setCursor(x, y);
 }
 
 void LCDScreen::print(const char *text) {
-  lcd.printstr(text);
+  lcd->printstr(text);
 }
 
 void LCDScreen::printc(char c) {
-  lcd.print(c);
+  lcd->print(c);
 }
 
 void LCDScreen::printCenterLine(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
-  lcd.setCursor((lineLength - length) / 2, line);
-  lcd.print(text);
+  lcd->setCursor((lineLength - length) / 2, line);
+  lcd->print(text);
 }
 void LCDScreen::printLeftLine(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
-  lcd.setCursor(0, line);
-  lcd.print(text);
+  lcd->setCursor(0, line);
+  lcd->print(text);
 }
 void LCDScreen::printCenter(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
 } 
 void LCDScreen::printLeft(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
-  lcd.setCursor(x, y);
-  lcd.print(text);
+  lcd->setCursor(x, y);
+  lcd->print(text);
 }
 void LCDScreen::printRight(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
 
@@ -109,8 +105,8 @@ void LCDScreen::printBottom(const char *text, uint8_t x, uint8_t y, uint8_t widt
 //   } 
 //   message = message + " "; 
 //   for (int pos = 0; pos < message.length(); pos++) {
-//     lcd.setCursor(0, row);
-//     lcd.print(message.substring(pos, pos + lcdColumns));
+//     lcd->setCursor(0, row);
+//     lcd->print(message.substring(pos, pos + lcdColumns));
 //     delay(delayTime);
 //   }
 // }

@@ -13,9 +13,6 @@
 #include <Wire.h>
 
 #include "../variables/pinmap.hpp"
-#include "../variables/config.hpp"
-
-const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 
 /*           LED           */
 #define led1 2
@@ -37,8 +34,8 @@ const String GARDEN_SIGNAL_STRING = String(GARDEN_SIGNAL);
 #define pr(...) Serial.print(__VA_ARGS__);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
-#define log(moduleName, message) { pr("[" moduleName "] > ") prl(message) }
-#define logStart(moduleName) prl("<*> [Start] " moduleName)
+#define log(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
+#define logStart(moduleName) prl("<*> [" moduleName "]")
 
 
 /*         Performance       */
@@ -80,53 +77,24 @@ void reset() {
 
 /*           i2c Scanner           */
 void i2cScanner() {
-  prl("[I2C] Start scanning I2C...");
+  prf("\r\n<*> [I2C] Start scanning I2C (SCL: %d, SDA: %d)...\r\n", SCL, SDA);
   Wire.begin(SDA, SCL);
+
   byte error, address;
   for(address = 1; address < 127; address++) {
     Wire.beginTransmission(address);
     error = Wire.endTransmission();
+    
     if (error == 0) {
-      pr("[I2C] device found at address 0x");
+      pr("> [I2C] Found: 0x");
       if (address < 16) pr("0"); prl(address, HEX);
     } else if (error == 4) {
-      pr("Unknown error at address 0x");
+      pr("> [I2C] Unknown Error: 0x");
       if (address < 16) pr("0"); prl(address, HEX);
     }
   }
-  prl("[I2C] Scanning I2C done!");
+  prl("</> [I2C] Scanning I2C done!");
 }
 
-
-/*************** EEPROM **************/
-// template<class T> int write(int pos, const T &value) {
-//   const byte *p = (const byte*)&T;
-//   EEPROM.write(addr, val);
-// }
-int writeEEPROM(String &value, int pos=0) {
-  EEPROM.write(pos++, CHECK_BYTE); // check byte
-
-  byte *p = (byte*)(value.c_str());
-  int end = pos + value.length();
-  for (register int i = pos; i < end; ++i) {
-    EEPROM.write(i, *p++);
-  }
-}
-
-String readEEPROM(int pos = 0) {
-  String rs;
-  if (EEPROM.read(pos++) != CHECK_BYTE) return rs;
-
-  char c;
-  while (c = EEPROM.read(pos)) {
-    if (!isAlphaNumeric(c)) break;
-    rs += c;
-  }
-  return rs;
-}
-
-bool checkGardenSignal(String ssid) {
-  return ssid.indexOf(GARDEN_SIGNAL) >= 0;
-}
 
 #endif

@@ -6,24 +6,15 @@
 
 #include "./base/utils.hpp"
 #include "./base/wifi.hpp"
-#include "./socket_io.hpp"
-#include "./controllers/watcher.hpp"
 #include "./variables/global.hpp"
+#include "./controllers/RelayController.hpp"
+#include "./controllers/SensorsController.hpp"
 #include "./controllers/ScreenController.hpp"
+#include "./controllers/WebsocketController.hpp"
 
-/**********************************************************************************************************
- *                                         Hướng dẫn thiết đặt ESP                                        *
- * 
- * "#define DEVICE_ID" để xác định id của thiết bị
- * "#define CONTROL {pin1, pin2,...}" để thiết đặt là trạm này dùng để nhận lệnh điều khiển
- * "#define SENSOR_DHT22 <pin>" để thiết đặt là đọc dữ liệu cảm biến DHT22 trên <pin>
- * "#define SENSOR_BH1750 <pin>" để thiết đặt là đọc dữ liệu cảm biến BH1750 trên <pin>
- * "#define SENSOR_HC_SR501 <pin>" để thiết đặt là đọc dữ liệu cảm biến HC_SR501 trên <pin>
- * 
- **********************************************************************************************************/
 
 void onKeyDown(uint8_t key) {
-  lcd.lcd.printf(" %d", key);
+  Global::lcd.lcd->printf(" %2d", key);
 }
 
 
@@ -39,22 +30,21 @@ class SmartGardenStation {
 
 /*                   Setup                  */
 void SmartGardenStation::setup() {
-  prl(" <1> Smart Garden Station Setup!");
-
+  logStart("Station");
   i2cScanner();
 
-  screenCtl.setup();
-  touchPad.setup();
-  touchPad.onKeyDown(onKeyDown);
-  relayCtl.setup(); // relay
-  watcher.setup();  // sensors...
+  Global::setup();
+  Global::touchPad.onKeyDown(onKeyDown);
 
   WiFi.mode(WIFI_STA);
-
   this->wifi.setup();
 
-  websocketSetup();
+  relayCtl.setup();
+  screenCtl.setup();
+  sensorsCtl.setup();
+  websocketCtl.setup();
 
+  performanceDisable(0);
 }
 
 
@@ -64,24 +54,23 @@ void SmartGardenStation::loop() {
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
   
-  performance("watcher");
-  watcher.loop();
+  performance("sensorsCtl");
+  sensorsCtl.loop();
   
   performance("relayCtl");
   relayCtl.loop();
   
   performance("touchPad");
-  touchPad.loop();
+  Global::touchPad.loop();
 
   performance("screenCtl");
   screenCtl.loop();
 
   performance("websocketLoop");
-  websocketLoop();
+  websocketCtl.loop();
 
   performance("end loop ------\r\n");
   delay(LOOP_DELAY_TIME);
 }
-
 
 #endif

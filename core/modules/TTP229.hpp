@@ -7,13 +7,6 @@
 #include <TTP229.h>
 #include <set>
 
-#ifndef TTP229_SCL_PIN
-  #define TTP229_SCL_PIN D4
-#endif
-#ifndef TTP229_SDO_PIN
-  #define TTP229_SDO_PIN D3
-#endif
-
 typedef void (*keyListener)(uint8_t key);
 
 // typedef std::set<std::function<void (uint8_t key)>> keyListener;
@@ -39,7 +32,7 @@ class TouchPadTTP229 {
     void triggerEvent(std::set<keyListener> callbackSet, uint8_t key);
 
     TouchPadTTP229()
-      :ttp229(TTP229_SCL_PIN, TTP229_SDO_PIN)
+      :ttp229(Config::TTP229SclPin, Config::TTP229SdoPin)
     {}
 
     void setup();
@@ -53,7 +46,7 @@ class TouchPadTTP229 {
 
 void TouchPadTTP229::setup()
 {
-  logStart("Touch Pad TTP229");
+  logStart("Touch Pad (TTP229)");
 }
 
 void TouchPadTTP229::loop()
@@ -90,12 +83,12 @@ void TouchPadTTP229::resolveKey(uint8_t key) {
 
     if (key && _onKeyDown.size() > 0) triggerEvent(_onKeyDown, key);
     if (key > 0) keys[key - 1] = false;
+
+    oldKey = key;
   } else {
     // Key press
     last = millis();
   }
-
-  oldKey = key;
 }
 
 

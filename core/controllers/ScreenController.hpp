@@ -5,9 +5,10 @@
 
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
+
+#include "./emotional/emotion.hpp"
 #include "./emotional/pikachu.hpp"
 #include "./emotional/sleep.hpp"
-#include "./emotional/emotion.hpp"
 
 void screenOnKeyDown(uint8_t key);
 void screenOnHuTempChange(float temperature, float humidity);
@@ -29,30 +30,30 @@ class ScreenController {
 } screenCtl;
 
 void ScreenController::setup() {
-  touchPad.onKeyDown(screenOnKeyDown);
-  dht.onChange(screenOnHuTempChange);
-  bh1750.onChange(screenOnLightChange);
+  Global::touchPad.onKeyDown(screenOnKeyDown);
+  Global::dht.onChange(screenOnHuTempChange);
+  Global::bh1750.onChange(screenOnLightChange);
   
-  lcd.setup();
-  lcd.lcd.noCursor();
-  lcd.lcd.noBlink();
+  Global::lcd.setup();
+  Global::lcd.lcd->noCursor();
+  Global::lcd.lcd->noBlink();
 
-  lcd.printCenterLine("(^-^)", 2); delay(200);
-  lcd.printCenterLine("Hello I Am Baymax!", 1); delay(250);
-  lcd.printCenterLine("                  ", 1); delay(250);
-  lcd.printCenterLine("Hello I Am Baymax!", 1); delay(250);
-  lcd.printCenterLine("                  ", 1); delay(250);
-  lcd.printCenterLine("Hello I Am Baymax!", 1);
+  Global::lcd.printCenterLine("(^-^)", 2); delay(200);
+  Global::lcd.printCenterLine("Hello I Am Baymax!", 1); delay(250);
+  Global::lcd.printCenterLine("                  ", 1); delay(250);
+  Global::lcd.printCenterLine("Hello I Am Baymax!", 1); delay(250);
+  Global::lcd.printCenterLine("                  ", 1); delay(250);
+  Global::lcd.printCenterLine("Hello I Am Baymax!", 1);
   delay(2000);
-  lcd.clear();
+  Global::lcd.clear();
 
-  pikachuEmotion.setup(lcd);
+  pikachuEmotion.setup(Global::lcd);
   pikachuEmotion.insert(&pikachu1);
   pikachuEmotion.insert(&pikachu2);
   pikachuEmotion.insert(&pikachu3);
   pikachuEmotion.insert(&pikachu4);
 
-  sleepEmotion.setup(lcd);
+  sleepEmotion.setup(Global::lcd);
   sleepEmotion.insert(&sleep1);
   sleepEmotion.insert(&sleep2);
   sleepEmotion.insert(&sleep3);
@@ -63,7 +64,7 @@ void ScreenController::setup() {
 }
 
 void ScreenController::loop() {
-  if (state.moving) {
+  if (Global::state.moving) {
     if (prevEmotion != &pikachuEmotion) {
       (*prevEmotion).clearPrevFrame();
       prevEmotion = &pikachuEmotion;
@@ -84,9 +85,9 @@ void ScreenController::loop() {
 void screenOnKeyDown(uint8_t key) {
   if (key == 16) {
     screenCtl.busy = false;
-    lcd.lcd.clear();
-    lcd.printCenterLine("Resetting...", 1);
-    lcd.printCenterLine("(._.)zZ", 2);
+    Global::lcd.lcd->clear();
+    Global::lcd.printCenterLine("Resetting...", 1);
+    Global::lcd.printCenterLine("(._.)zZ", 2);
     delay(1000);
     reset();
   }
@@ -103,17 +104,19 @@ void screenOnLightChange(uint16_t light) {
 // --------------------------------------------------
 
 void ScreenController::printStationState() {
-  lcd.setCursor(0, 0);
-  lcd.lcd.printf("%5.2f ", state.temperature); lcd.lcd.print('\xdf'); lcd.lcd.print('C');
-  lcd.setCursor(0, 1);
-  lcd.lcd.printf("%5.2f %%", state.humidity);
-  lcd.setCursor(0, 2);
-  lcd.lcd.printf("%5d lx", state.light);
-  lcd.setCursor(2, 3);
-  if (state.moving) {
+  Global::lcd.setCursor(0, 0);
+  Global::lcd.lcd->printf("%5.2f ", Global::state.temperature);
+    Global::lcd.lcd->print('\xdf');
+    Global::lcd.lcd->print('C');
+  Global::lcd.setCursor(0, 1);
+  Global::lcd.lcd->printf("%5.2f %%", Global::state.humidity);
+  Global::lcd.setCursor(0, 2);
+  Global::lcd.lcd->printf("%5d lx", Global::state.light);
+  Global::lcd.setCursor(2, 3);
+  if (Global::state.moving) {
     printMovingDetection();
   } else {
-    lcd.print("----");
+    Global::lcd.print("----");
   }
 }
 
@@ -123,7 +126,7 @@ void printMovingDetection() {
   static uint8_t lastPos = 0;
   if (millis() - last > 200) {
     for (int i=0; i < 4; ++i) {
-      lcd.lcd.printf("%c", i == lastPos ? '>' : ' ');
+      Global::lcd.lcd->printf("%c", i == lastPos ? '>' : ' ');
     }
     last = millis();
     lastPos = ++lastPos % 4;

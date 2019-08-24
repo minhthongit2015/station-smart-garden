@@ -37,6 +37,7 @@ class LightBH1750 {
 };
 
 void LightBH1750::setup() {
+  logStart("Light Sensor (BH1750)");
   bh1750.begin();
 }
 

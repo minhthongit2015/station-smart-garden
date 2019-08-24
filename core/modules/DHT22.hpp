@@ -5,10 +5,8 @@
 #define SMART_GARDEN_DHT22_H
 
 #include "../base/utils.hpp"
+#include "../variables/config.hpp"
 #include <DHT.h>
-
-#define DHTPIN D6
-#define DHTTYPE DHT22
 
 typedef void (*onHutempChangeListener)(float temperature, float humidity);
 
@@ -24,7 +22,7 @@ class HuTempDHT22 {
     unsigned long delayTime = 2000;
 
     HuTempDHT22()
-      :dht(DHTPIN, DHTTYPE)
+      :dht(Config::DhtPin, Config::DhtType)
     {
 
     }
@@ -41,6 +39,7 @@ class HuTempDHT22 {
 };
 
 void HuTempDHT22::setup() {
+  logStart("HuTemp Sensor (DHT22)");
   dht.begin();
 }
 

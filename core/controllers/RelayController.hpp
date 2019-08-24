@@ -5,6 +5,7 @@
 
 #include "../base/utils.hpp"
 #include "../variables/state.hpp"
+#include "../variables/global.hpp"
 
 class RelayController {
 
@@ -29,11 +30,11 @@ public:
   }
 
   void executeCommand() {
-    this->setPump(state.pump);
-    this->setLed(state.led);
-    this->setFan(state.fan);
-    this->setMisting(state.misting);
-    this->setNutri(state.nutri);
+    this->setPump(Global::state.pump);
+    this->setLed(Global::state.led);
+    this->setFan(Global::state.fan);
+    this->setMisting(Global::state.misting);
+    this->setNutri(Global::state.nutri);
   }
 
   void setPump(bool isOn) {
@@ -56,6 +57,6 @@ public:
     digitalWrite(nutri, !isOn ? HIGH : LOW);
     // prf("Nutri %s\r\n", !isOn ? "ON" : "OFF");
   }
-};
+} relayCtl;
 
 #endif
