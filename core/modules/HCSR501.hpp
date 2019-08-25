@@ -11,7 +11,7 @@ typedef void (*onMovementListener)(bool moving);
 
 #define HCSR501_DELAY 6000
 
-class MovingHCSR501 {
+class MotionDetectorHCSR501 {
   private:
     std::set<onMovementListener> _onChange;
     std::set<onMovementListener> _onAfterMoving;
@@ -35,11 +35,11 @@ class MovingHCSR501 {
     void dispatchEvent(bool moving);
 };
 
-void MovingHCSR501::setup() {
+void MotionDetectorHCSR501::setup() {
   logStart("Motion Detector (HC-SR501)");
 }
 
-void MovingHCSR501::loop() {
+void MotionDetectorHCSR501::loop() {
   if (!read()) return;
   if ((prevMoving != moving)
       && _onChange.size() > 0) {
@@ -48,7 +48,7 @@ void MovingHCSR501::loop() {
   prevMoving = moving;
 }
 
-bool MovingHCSR501::read() {
+bool MotionDetectorHCSR501::read() {
   static unsigned long now = 0;
   static unsigned long last = 0;
   static unsigned long dif = 0;
@@ -76,7 +76,7 @@ bool MovingHCSR501::read() {
   return false;
 }
 
-void MovingHCSR501::dispatchEvent(bool moving) {
+void MotionDetectorHCSR501::dispatchEvent(bool moving) {
 	for (std::set<onMovementListener>::iterator p = _onChange.begin(); p != _onChange.end(); ++p) {
     (*p)(moving);
   }

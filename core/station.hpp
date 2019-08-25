@@ -9,12 +9,32 @@
 #include "./variables/global.hpp"
 #include "./controllers/RelayController.hpp"
 #include "./controllers/SensorsController.hpp"
-#include "./controllers/ScreenController.hpp"
+#include "./controllers/DisplayController.hpp"
 #include "./controllers/WebsocketController.hpp"
 
 
 void onKeyDown(uint8_t key) {
   Global::lcd.lcd->printf(" %2d", key);
+  switch (key)
+  {
+  case 1:
+    Global::fsz.listingFiles();
+    break;
+  case 2:
+    Global::cfg.loadConfigurations();
+    break;
+  case 3:
+    Global::cfg.saveConfigurations();
+    break;
+  case 4: 
+    Global::fsz.format();
+    break;
+  case 5:
+    Global::fsz.showInfo();
+    break;
+  default:
+    break;
+  }
 }
 
 
@@ -45,6 +65,7 @@ void SmartGardenStation::setup() {
   websocketCtl.setup();
 
   performanceDisable(0);
+  toggleLogChannel(1, false);
 }
 
 

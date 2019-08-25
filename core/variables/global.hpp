@@ -23,13 +23,14 @@ class Global {
     static TouchPadTTP229 touchPad;
     static HuTempDHT22 dht;
     static LightBH1750 bh1750;
-    static MovingHCSR501 hcsr501;
+    static MotionDetectorHCSR501 hcsr501;
 
     static void setup() {
       logStart("Global");
 
       fsz.setup();
-      cfg.loadConfig(fsz);
+      cfg.setup(fsz);
+      cfg.loadConfigurations();
       touchPad.setup();
     }
 };
@@ -41,7 +42,7 @@ LCDScreen Global::lcd;
 TouchPadTTP229 Global::touchPad;
 HuTempDHT22 Global::dht;
 LightBH1750 Global::bh1750;
-MovingHCSR501 Global::hcsr501;
+MotionDetectorHCSR501 Global::hcsr501;
 
 
 #endif

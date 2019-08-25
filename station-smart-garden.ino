@@ -6,6 +6,12 @@ SmartGardenStation station;
 void setup()
 {
   helperSetup();
+
+  prl("\x1B[2J\r\n\r\n\r\n\r\n");
+  prl("           - - - - - - <*> - - - - - -");
+  prl("           -     Smart Garden V1     -");
+  prl("           - - - - - - - - - - - - - -\r\n");
+
   #ifdef ARDUINO
     pr("\r\n ---> ARDUINO: "); prl(ARDUINO);
   #endif

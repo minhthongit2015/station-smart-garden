@@ -6,14 +6,13 @@
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
 
-#include "./ScreenController.hpp"
+#include "./DisplayController.hpp"
 #include "./WebsocketController.hpp"
 
 
 void onHuTempChange(float temperature, float humidity);
 void onLightChange(uint16_t light);
 void onMovingChange(bool moving);
-
 
 class SensorsController {
   private:
@@ -27,6 +26,7 @@ class SensorsController {
     }
 
     void setup() {
+      logStart("Sensors Controller");
       randomSeed(analogRead(0));
       Global::dht.setup();
       Global::dht.onChange(onHuTempChange);
@@ -40,8 +40,6 @@ class SensorsController {
       static unsigned long last = millis();
       static unsigned long dif = 0;
 
-      dirty = false;
-
       Global::dht.loop();
       Global::bh1750.loop();
       Global::hcsr501.loop();
@@ -54,25 +52,26 @@ class SensorsController {
       
       if (dirty && websocketCtl.connected) {
         websocketCtl.emit("environment", Global::state.toJSON());
+        dirty = false;
       }
     }
 } sensorsCtl;
 
 void onHuTempChange(float temperature, float humidity) {
-  prf("Temp: %.2f | Humi: %.2f\r\n", temperature, humidity);
+  if (logChannels[1]) prf("Temp: %.2f | Humi: %.2f\r\n", temperature, humidity);
   Global::state.temperature = temperature;
   Global::state.humidity = humidity;
   sensorsCtl.dirty = true;
 }
 
 void onLightChange(uint16_t light) {
-  prf("Light: %d\r\n", light);
+  if (logChannels[1]) prf("Light: %d\r\n", light);
   Global::state.light = light;
   sensorsCtl.dirty = true;
 }
 
 void onMovingChange(bool moving) {
-  prf("Moving: %s\r\n", moving ? "true" : "false");
+  if (logChannels[1]) prf("Moving: %s\r\n", moving ? "true" : "false");
   Global::state.moving = moving;
   sensorsCtl.dirty = true;
 }

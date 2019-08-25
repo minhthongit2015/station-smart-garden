@@ -42,7 +42,7 @@ void GardenWifi::setup() {
   
   // Kiểm tra thông tin mạng có thay đổi không
   if (!checkGardenSignal(WiFi.SSID())) {
-    log("Wifi", "Garden Signal changes -> disconnect().");
+    logz("Wifi", "Garden Signal changes -> disconnect().");
     WiFi.disconnect();
   }
 
@@ -65,7 +65,7 @@ void GardenWifi::setup() {
         this->connectWifi(this->wifiList[i], true);
     }
   } else {
-    prf("<*> [Wifi] Connected -> %s:%s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
+    prf("> [Wifi] Connected ---> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
   }
 }
 
@@ -78,7 +78,7 @@ void GardenWifi::loop() {
 
 
 int GardenWifi::getWifiList(bool debug) {
-  if (debug) log("Wifi", "Scanning...");
+  if (debug) logz("Wifi", "Scanning...");
   int n = WiFi.scanNetworks();
 
   if (n > 0) {

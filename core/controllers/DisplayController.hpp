@@ -1,7 +1,7 @@
 
 #pragma once
-#ifndef SMART_GARDEN_SCREEN_CONTROLLER_H
-#define SMART_GARDEN_SCREEN_CONTROLLER_H
+#ifndef SMART_GARDEN_DISPLAY_CONTROLLER_H
+#define SMART_GARDEN_DISPLAY_CONTROLLER_H
 
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
@@ -16,7 +16,7 @@ void screenOnLightChange(uint16_t light);
 
 void printMovingDetection();
 
-class ScreenController {
+class DisplayController {
   public:
     bool busy = false;
     Emotion pikachuEmotion;
@@ -29,7 +29,7 @@ class ScreenController {
     void printStationState();
 } screenCtl;
 
-void ScreenController::setup() {
+void DisplayController::setup() {
   Global::touchPad.onKeyDown(screenOnKeyDown);
   Global::dht.onChange(screenOnHuTempChange);
   Global::bh1750.onChange(screenOnLightChange);
@@ -63,7 +63,7 @@ void ScreenController::setup() {
   prevEmotion = &sleepEmotion;
 }
 
-void ScreenController::loop() {
+void DisplayController::loop() {
   if (Global::state.moving) {
     if (prevEmotion != &pikachuEmotion) {
       (*prevEmotion).clearPrevFrame();
@@ -103,7 +103,7 @@ void screenOnLightChange(uint16_t light) {
 
 // --------------------------------------------------
 
-void ScreenController::printStationState() {
+void DisplayController::printStationState() {
   Global::lcd.setCursor(0, 0);
   Global::lcd.lcd->printf("%5.2f ", Global::state.temperature);
     Global::lcd.lcd->print('\xdf');

@@ -14,6 +14,8 @@
 
 #include "../variables/pinmap.hpp"
 
+#define DEVELOPMENT
+
 /*           LED           */
 #define led1 2
 #define led2 16
@@ -34,8 +36,12 @@
 #define pr(...) Serial.print(__VA_ARGS__);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
-#define log(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
-#define logStart(moduleName) prl("<*> [" moduleName "]")
+#define logz(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
+#define error(moduleName, errorMessage) { pr("<!> [" moduleName "] ") prl(errorMessage) }
+#define logStart(moduleName) prl("<*> >>> " moduleName)
+
+static bool logChannels[10] = {true};
+#define toggleLogChannel(channel, state) logChannels[channel] = state;
 
 
 /*         Performance       */
@@ -54,9 +60,9 @@ static bool perf_disable[10] = {false};
 void helperSetup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
-  prl() prl() prl()
+  prl("\r\n\r\n");
   for (uint8_t t = 4; t > 0; --t) {
-    prf("[SETUP] BOOT WAIT %d...\n", t);
+    prf("[BOOT] BOOT WAIT %d...\n", t);
     Serial.flush();
     delay(1000);
   }
@@ -69,7 +75,7 @@ void helperSetup() {
 void (*_reset)(void) = 0;
 void reset() {
   prl("\r\n\r\n-----------------------------------");
-  prl("[Sys] </> Restarting....");
+  prl("</> [Sys] Resetting....");
   prl("-----------------------------------\r\n");
   _reset();
 }
@@ -77,7 +83,7 @@ void reset() {
 
 /*           i2c Scanner           */
 void i2cScanner() {
-  prf("\r\n<*> [I2C] Start scanning I2C (SCL: %d, SDA: %d)...\r\n", SCL, SDA);
+  prf("\r\n<*> [I2C] Start scanning I2C (SCL: %d, SDA: %d)\r\n", SCL, SDA);
   Wire.begin(SDA, SCL);
 
   byte error, address;
@@ -93,7 +99,7 @@ void i2cScanner() {
       if (address < 16) pr("0"); prl(address, HEX);
     }
   }
-  prl("</> [I2C] Scanning I2C done!");
+  prl("</> [I2C] Scanning I2C done!\r\n");
 }
 
 
