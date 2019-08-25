@@ -64,7 +64,7 @@ void SmartGardenStation::setup() {
   sensorsCtl.setup();
   websocketCtl.setup();
 
-  performanceDisable(0);
+  togglePerformanceChannel(0, true);
   toggleLogChannel(1, false);
 }
 

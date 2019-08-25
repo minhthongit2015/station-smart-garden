@@ -25,15 +25,11 @@ class TouchPadTTP229 {
     std::set<keyListener> _onKeyPress;
     bool keys[16] = {0};
   public:
-    TTP229 ttp229;
+    TTP229 *ttp229;
 
     void onKeyDown(keyListener callback);
     void onKeyUp(keyListener callback);
     void triggerEvent(std::set<keyListener> callbackSet, uint8_t key);
-
-    TouchPadTTP229()
-      :ttp229(Config::TTP229SclPin, Config::TTP229SdoPin)
-    {}
 
     void setup();
     void loop();
@@ -47,22 +43,24 @@ class TouchPadTTP229 {
 void TouchPadTTP229::setup()
 {
   logStart("Touch Pad (TTP229)");
+  ttp229 = new TTP229(Config::TTP229SclPin, Config::TTP229SdoPin);
 }
 
 void TouchPadTTP229::loop()
 {
+  // performance2("Key loop", 1);
   if (blocking) readKey();
   else getKey();
 }
 
 void TouchPadTTP229::getKey() {
-  uint8_t key = ttp229.GetKey16(); // Non Blocking
+  uint8_t key = ttp229->GetKey16(); // Non Blocking
   // prf("-----> getKey( %d );\r\n", key);
   resolveKey(key);
 }
 
 void TouchPadTTP229::readKey() {
-  uint8_t key = ttp229.ReadKey16(); // Blocking
+  uint8_t key = ttp229->ReadKey16(); // Blocking
   resolveKey(key);
 }
 
@@ -82,7 +80,7 @@ void TouchPadTTP229::resolveKey(uint8_t key) {
     if (oldKey > 0) keys[oldKey - 1] = false;
 
     if (key && _onKeyDown.size() > 0) triggerEvent(_onKeyDown, key);
-    if (key > 0) keys[key - 1] = false;
+    if (key > 0) keys[key - 1] = true;
 
     oldKey = key;
   } else {

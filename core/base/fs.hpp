@@ -31,7 +31,7 @@ void FileSystem::setup() {
 }
 
 void FileSystem::listingFiles() {
-  logz("File System", "Listing files");
+  logzBlock("File System", "Listing files");
   Dir root = fs.openDir("/");
   _listingFiles(root);
 }
@@ -39,11 +39,10 @@ void FileSystem::listingFiles() {
 void FileSystem::_listingFiles(Dir &root) {
   while (root.next()) {
     if (root.isFile()) {
-      prf("> [File System] Root: %s\r\n", root.fileName().c_str());
       File file = root.openFile("r");
-      prf("> [File System] %15s / %15s (%d Bytes)\r\n", file.name(), file.fullName(), file.size());
+      prf("> [File System] \"%s\" (%d Bytes)\r\n", file.fullName(), file.size());
     } else {
-      prf("> [File System] Dir: %s\r\n", root.fileName().c_str());
+      prf("> [File System] Dir: \"%s\"\r\n", root.fileName().c_str());
       _listingFiles(root);
     }
   }

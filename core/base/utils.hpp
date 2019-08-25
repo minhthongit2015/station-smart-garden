@@ -37,8 +37,10 @@
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
 #define logz(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
+#define logzBlock(moduleName, message) { pr("> [" moduleName "] ") prl(message ":") }
 #define error(moduleName, errorMessage) { pr("<!> [" moduleName "] ") prl(errorMessage) }
 #define logStart(moduleName) prl("<*> >>> " moduleName)
+#define logEnd(moduleName) prl("</> <<< " moduleName)
 
 static bool logChannels[10] = {true};
 #define toggleLogChannel(channel, state) logChannels[channel] = state;
@@ -54,7 +56,7 @@ static bool perf_disable[10] = {false};
   }\
 }
 #define performance(action) performance2(action, 0);
-#define performanceDisable(channel) perf_disable[channel] = true;
+#define togglePerformanceChannel(channel, state) perf_disable[channel] = state;
 
 /*           Setup           */
 void helperSetup() {
@@ -83,7 +85,7 @@ void reset() {
 
 /*           i2c Scanner           */
 void i2cScanner() {
-  prf("\r\n<*> [I2C] Start scanning I2C (SCL: %d, SDA: %d)\r\n", SCL, SDA);
+  prf("\r\n<*> [I2C] Start scanning I2C (SCL: %d, SDA: %d):\r\n", SCL, SDA);
   Wire.begin(SDA, SCL);
 
   byte error, address;
