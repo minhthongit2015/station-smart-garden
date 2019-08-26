@@ -5,12 +5,13 @@
 #define SMART_GARDEN_WIFI_STA_H
 
 #include "./base/utils.hpp"
-#include "./base/wifi.hpp"
+#include "./controllers/WifiController.hpp"
 #include "./variables/global.hpp"
 #include "./controllers/RelayController.hpp"
 #include "./controllers/SensorsController.hpp"
 #include "./controllers/DisplayController.hpp"
 #include "./controllers/WebsocketController.hpp"
+#include "./controllers/ConfigController.hpp"
 
 
 void onKeyDown(uint8_t key) {
@@ -37,35 +38,35 @@ void onKeyDown(uint8_t key) {
   }
 }
 
+void onConfigChange();
 
 class SmartGardenStation {
-  private:
-  GardenWifi wifi;  // Giữ kết nối đến mạng wifi
-
   public:
-  void setup();
-  void loop();
-};
+    void setup();
+    void loop();
+} station;
 
 
 /*                   Setup                  */
 void SmartGardenStation::setup() {
   logStart("Station");
+
+  togglePerformanceChannel(0, false);
+  toggleLogChannel(1, false); // Hide sensor value
+
   i2cScanner();
 
   Global::setup();
+  configCtl.setup();
+  Global::cfg.onChange(onConfigChange);
+
   Global::touchPad.onKeyDown(onKeyDown);
-
-  WiFi.mode(WIFI_STA);
-  this->wifi.setup();
-
+  displayCtl.setup();
   relayCtl.setup();
-  screenCtl.setup();
   sensorsCtl.setup();
-  websocketCtl.setup();
 
-  togglePerformanceChannel(0, true);
-  toggleLogChannel(1, false);
+  wifiCtl.setup();
+  websocketCtl.setup();
 }
 
 
@@ -74,24 +75,52 @@ void SmartGardenStation::loop() {
   // static unsigned long timer = millis();
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
-  
+
+  #ifndef ENV_PROD
   performance("sensorsCtl");
+  #endif
   sensorsCtl.loop();
   
+  #ifndef ENV_PROD
   performance("relayCtl");
+  #endif
   relayCtl.loop();
   
+  #ifndef ENV_PROD
   performance("touchPad");
+  #endif
   Global::touchPad.loop();
 
-  performance("screenCtl");
-  screenCtl.loop();
+  #ifndef ENV_PROD
+  performance("displayCtl");
+  #endif
+  displayCtl.loop();
 
+  #ifndef ENV_PROD
+  performance("configCtl");
+  #endif
+  configCtl.loop();
+
+  #ifndef ENV_PROD
   performance("websocketLoop");
+  #endif
   websocketCtl.loop();
+  
+  #ifndef ENV_PROD
+  performance("wifiCtl");
+  #endif
+  wifiCtl.loop();
 
+  #ifndef ENV_PROD
   performance("end loop ------\r\n");
+  #endif
   delay(LOOP_DELAY_TIME);
+}
+
+void onConfigChange() {
+  logz("Station", "Configurations change -> resetup wifi");
+  wifiCtl.setup();
+  websocketCtl.setup();
 }
 
 #endif

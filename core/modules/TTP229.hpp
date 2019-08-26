@@ -55,7 +55,6 @@ void TouchPadTTP229::loop()
 
 void TouchPadTTP229::getKey() {
   uint8_t key = ttp229->GetKey16(); // Non Blocking
-  // prf("-----> getKey( %d );\r\n", key);
   resolveKey(key);
 }
 
@@ -75,16 +74,13 @@ void TouchPadTTP229::resolveKey(uint8_t key) {
 
   static uint8_t oldKey = 0;
   if (key != oldKey) {
-    prf("key: %d\r\n", key);
-    if (oldKey && _onKeyUp.size() > 0) triggerEvent(_onKeyUp, oldKey);
+    prf("Key pressed: %d\r\n", key);
     if (oldKey > 0) keys[oldKey - 1] = false;
-
-    if (key && _onKeyDown.size() > 0) triggerEvent(_onKeyDown, key);
     if (key > 0) keys[key - 1] = true;
-
+    if (oldKey && _onKeyUp.size() > 0) triggerEvent(_onKeyUp, oldKey);
+    if (key && _onKeyDown.size() > 0) triggerEvent(_onKeyDown, key);
     oldKey = key;
   } else {
-    // Key press
     last = millis();
   }
 }

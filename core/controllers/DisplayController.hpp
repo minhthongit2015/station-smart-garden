@@ -27,7 +27,7 @@ class DisplayController {
     void loop();
 
     void printStationState();
-} screenCtl;
+} displayCtl;
 
 void DisplayController::setup() {
   Global::touchPad.onKeyDown(screenOnKeyDown);
@@ -84,7 +84,7 @@ void DisplayController::loop() {
 
 void screenOnKeyDown(uint8_t key) {
   if (key == 16) {
-    screenCtl.busy = false;
+    displayCtl.busy = false;
     Global::lcd.lcd->clear();
     Global::lcd.printCenterLine("Resetting...", 1);
     Global::lcd.printCenterLine("(._.)zZ", 2);
@@ -94,11 +94,11 @@ void screenOnKeyDown(uint8_t key) {
 }
 
 void screenOnHuTempChange(float temperature, float humidity) {
-  screenCtl.printStationState();
+  displayCtl.printStationState();
 }
 
 void screenOnLightChange(uint16_t light) {
-  screenCtl.printStationState();
+  displayCtl.printStationState();
 }
 
 // --------------------------------------------------

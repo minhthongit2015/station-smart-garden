@@ -1,8 +1,6 @@
 #include "./core/base/utils.hpp"
 #include "./core/station.hpp"
 
-SmartGardenStation station;
-
 void setup()
 {
   helperSetup();
@@ -13,7 +11,7 @@ void setup()
   prl("           - - - - - - - - - - - - - -\r\n");
 
   #ifdef ARDUINO
-    pr("\r\n ---> ARDUINO: "); prl(ARDUINO);
+    pr("\r\n ---> ARDUINO: "); prl(ARDUINO); prl();
   #endif
 
   // setupLed then sleep(2) offLed1 offLed2

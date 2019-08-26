@@ -1,7 +1,7 @@
 
 #pragma once
-#ifndef SMART_GARDEN_CONTROLLER_H
-#define SMART_GARDEN_CONTROLLER_H
+#ifndef SMART_GARDEN_RELAY_CONTROLLER_H
+#define SMART_GARDEN_RELAY_CONTROLLER_H
 
 #include "../base/utils.hpp"
 #include "../variables/state.hpp"

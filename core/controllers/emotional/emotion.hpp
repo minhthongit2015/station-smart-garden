@@ -6,7 +6,7 @@
 
 #include <set>
 #include "../../base/types.hpp"
-#include "../../modules/LCDScreen.hpp"
+#include "../../modules/LiquidCrystal20x4.hpp"
 
 typedef void (*emotionEndEventListener)();
 
@@ -15,13 +15,13 @@ class Emotion {
     std::set<emotionEndEventListener> _onEnd;
   public:
     std::set<pScreenFrame> frames;
-    LCDScreen *_screen = NULL;
+    LiquidCrystal20x4 *_screen = NULL;
     std::set<pScreenFrame>::iterator curFrame;
     std::set<pScreenFrame>::iterator prevFrame;
     uint8_t offsetX = 0;
     uint8_t offsetY = 0;
 
-    void setup(LCDScreen &screen) {
+    void setup(LiquidCrystal20x4 &screen) {
       this->_screen = &screen;
       curFrame = frames.end();
       prevFrame = frames.end();

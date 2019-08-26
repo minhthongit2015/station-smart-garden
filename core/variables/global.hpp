@@ -8,7 +8,7 @@
 #include "./config.hpp"
 #include "../base/utils.hpp"
 
-#include "../modules/LCDScreen.hpp"
+#include "../modules/LiquidCrystal20x4.hpp"
 #include "../modules/TTP229.hpp"
 #include "../modules/DHT22.hpp"
 #include "../modules/BH1750.hpp"
@@ -19,7 +19,7 @@ class Global {
     static StationState state;
     static FileSystem fsz;
     static Config cfg;
-    static LCDScreen lcd;
+    static LiquidCrystal20x4 lcd;
     static TouchPadTTP229 touchPad;
     static HuTempDHT22 dht;
     static LightBH1750 bh1750;
@@ -38,7 +38,7 @@ class Global {
 StationState Global::state = {0};
 FileSystem Global::fsz;
 Config Global::cfg;
-LCDScreen Global::lcd;
+LiquidCrystal20x4 Global::lcd;
 TouchPadTTP229 Global::touchPad;
 HuTempDHT22 Global::dht;
 LightBH1750 Global::bh1750;

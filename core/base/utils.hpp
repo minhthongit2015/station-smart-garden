@@ -4,6 +4,8 @@
 #ifndef SMART_GARDEN_UTILS_H
 #define SMART_GARDEN_UTILS_H
 
+#define ARDUINO 10809
+
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <string.h>
@@ -14,7 +16,7 @@
 
 #include "../variables/pinmap.hpp"
 
-#define DEVELOPMENT
+#define ENV_PROD
 
 /*           LED           */
 #define led1 2
@@ -47,16 +49,16 @@ static bool logChannels[10] = {true};
 
 
 /*         Performance       */
-static unsigned long perf_last[10] = {0};
-static bool perf_disable[10] = {false};
+static unsigned long perfLast[10] = {0};
+static bool perfChannels[10] = {true};
 #define performance2(action, channel) {\
-  if (!perf_disable[channel]) {\
-    prf("[%d] +%d ms -> %s\r\n", channel, millis() - perf_last[channel], action);\
-    perf_last[channel] = millis();\
+  if (perfChannels[channel]) {\
+    prf("[%d] +%d ms -> %s\r\n", channel, millis() - perfLast[channel], action);\
+    perfLast[channel] = millis();\
   }\
 }
 #define performance(action) performance2(action, 0);
-#define togglePerformanceChannel(channel, state) perf_disable[channel] = state;
+#define togglePerformanceChannel(channel, state) perfChannels[channel] = state;
 
 /*           Setup           */
 void helperSetup() {

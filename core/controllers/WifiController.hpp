@@ -1,95 +1,98 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_WIFI_H
-#define SMART_GARDEN_WIFI_H
+#ifndef SMART_GARDEN_WIFI_CONTROLLER_H
+#define SMART_GARDEN_WIFI_CONTROLLER_H
 
-#include "./utils.hpp"
-#include "./wifi_info.hpp"
+#include "../base/utils.hpp"
+#include "../base/types.hpp"
+#include "../variables/global.hpp"
 
 #define wifiConnected (WiFi.status() == WL_CONNECTED)
 
 bool checkGardenSignal(String ssid) {
-  return ssid.indexOf(Config::gardenWifiSignal) >= 0;
+  return ssid.indexOf(Global::cfg.gardenWifiSignal) >= 0;
 }
 
-/** Đảm bảo kết nối đến mạng wifi vườn.
- * - Không xây dựng cơ chế giao tiếp đặc biệt với AP để có thể tương thích với các modem ngoài.
- * - 
- */
-class GardenWifi {
+class WifiController {
   private:
   public:
   WifiInfo wifiList[30];
 
-  // Lấy danh sách wifi xung quanh
-  int getWifiList(bool debug=false);
+  int scanWifiNetworks(bool debug=false);
   
-  // Kết nối đến mạng wifi
-  wl_status_t _connect(String ssid, String pass);
+  wl_status_t connectWifi(String ssid, String pass);
   bool connectWifi(WifiInfo wifi, bool debug);
   bool connectWifi(WifiInfo wifi, byte maxTry=15, int wait=1000, bool debug=false);
 
+  void scanAndConnect();
+
   void setup();
   void loop();
-};
+} wifiCtl;
 
-
-/*                   Setup                  */
-void GardenWifi::setup() {
+void WifiController::setup() {
   logStart("Wifi");
-  WiFi.hostname(DEVICE_ID);
   
-  // Kiểm tra thông tin mạng có thay đổi không
-  if (!checkGardenSignal(WiFi.SSID())) {
-    logz("Wifi", "Garden Signal changes -> disconnect().");
-    WiFi.disconnect();
-  }
-
+  WiFi.mode(WIFI_STA);
+  WiFi.hostname(DEVICE_ID);
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
+  
+  if (wifiConnected && !checkGardenSignal(WiFi.SSID())) {
+    logz("Wifi", "Garden Signal changes -> disconnect().");
+    WiFi.disconnect(true);
+  }
 
-  if (!wifiConnected) {
-    int n = this->getWifiList(true);
-    
-    int count = 0;
-    for (int i = 0; i < n; ++i) {
-      if (this->wifiList[i].isGarden) {
-        ++count;
-      }
-    }
-    prf("> [Wifi] Found: %d AP (%d garden)\r\n", n, count);
-
-    for (int i = 0; i < n; ++i) {
-      if (this->wifiList[i].isGarden)
-        this->connectWifi(this->wifiList[i], true);
-    }
-  } else {
+  if (wifiConnected) {
     prf("> [Wifi] Connected ---> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
   }
 }
 
+void WifiController::loop() {
+  static unsigned long last = 0;
+  static unsigned long delayTime = 15000;
 
-/*                   Loop                    */
-void GardenWifi::loop() {
-  // Kiểm tra có rớt mạng k, thử kết nối lại nếu cần thiết
-  // Nhưng thường là không cần vì đã có cơ chế tự kết nối ngầm
+  if (!wifiConnected && millis() - last > delayTime) {
+    scanAndConnect();
+    last = millis();
+  }
 }
 
 
-int GardenWifi::getWifiList(bool debug) {
+void WifiController::scanAndConnect() {
+  int n = this->scanWifiNetworks(true);
+  
+  int count = 0;
+  for (int i = 0; i < n; ++i) {
+    if (checkGardenSignal(this->wifiList[i].ssid)) {
+      ++count;
+    }
+  }
+  prf("> [Wifi] Found: %d garden / %d AP\r\n", count, n);
+
+  if (count > 0) {
+    for (int i = 0; i < n; ++i) {
+      if (checkGardenSignal(this->wifiList[i].ssid))
+        this->connectWifi(this->wifiList[i], true);
+    }
+  }
+}
+
+
+int WifiController::scanWifiNetworks(bool debug) {
   if (debug) logz("Wifi", "Scanning...");
   int n = WiFi.scanNetworks();
 
   if (n > 0) {
     for (register int i = 0; i < n; ++i) {
-      wifiList[i].set(i);
+      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), Global::cfg.gardenWifiPassword);
     }
     if (debug) {
       prl("┌────────────────── Scan Result ──────────────────┐");
       for (register int i = 0; i < n; ++i) {
         Serial.printf("├ [%02d] > (%s) %3d : %s\r\n", i + 1,
-          wifiList[i].isGarden ? "Garden" : "------",
+          checkGardenSignal(wifiList[i].ssid) ? "Garden" : "------",
           wifiList[i].rssi,
           wifiList[i].ssid.c_str());
       }
@@ -101,14 +104,14 @@ int GardenWifi::getWifiList(bool debug) {
 }
 
 
-wl_status_t GardenWifi::_connect(String ssid, String pass) {
+wl_status_t WifiController::connectWifi(String ssid, String pass) {
   return WiFi.begin(ssid.c_str(), pass.c_str());
 }
 
-bool GardenWifi::connectWifi(WifiInfo wifi, bool debug) {
+bool WifiController::connectWifi(WifiInfo wifi, bool debug) {
   this->connectWifi(wifi, 14, 500, debug);
 }
-bool GardenWifi::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) {
+bool WifiController::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) {
   if (debug) Serial.printf("> [Wifi] Joining to -~=> %s : %s\r\n", wifi.ssid.c_str(), wifi.pass.c_str());
 
   byte retry1 = maxTry/2;
@@ -118,7 +121,7 @@ bool GardenWifi::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) {
   } prl();
 
   byte retry = maxTry;
-  if (!wifiConnected && _connect(wifi.ssid, wifi.pass) != WL_CONNECTED) {
+  if (!wifiConnected && connectWifi(wifi.ssid, wifi.pass) != WL_CONNECTED) {
     while (!wifiConnected) { // Chờ Kết nối trong 15s
       pr(retry); pr("."); delay(wait);
       if (!--retry) break;

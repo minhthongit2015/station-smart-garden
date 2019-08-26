@@ -1,13 +1,13 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_LCDScreen_H
-#define SMART_GARDEN_LCDScreen_H
+#ifndef SMART_GARDEN_LIQUID_CRYSTAL_I2C_20x4_H
+#define SMART_GARDEN_LIQUID_CRYSTAL_I2C_20x4_H
 
 #include "../base/utils.hpp"
 #include <LiquidCrystal_I2C.h>
 
-class LCDScreen {
+class LiquidCrystal20x4 {
   private:
   public:
     uint8_t width = 20;
@@ -34,7 +34,7 @@ class LCDScreen {
     void printBottom(const char *text, uint8_t x = 0, uint8_t y = 0, uint8_t width = 20, uint8_t height = 4);
 };
 
-void LCDScreen::setup() {
+void LiquidCrystal20x4::setup() {
   logStart("Display (LiquidCrystal_I2C 20x4)");
 
   lcd = new LiquidCrystal_I2C(0x27, 20, 4);
@@ -48,54 +48,44 @@ void LCDScreen::setup() {
   lcd->blink();
 }
 
-void LCDScreen::loop() {
-  static int rowIndex = 0;
-  if (Serial.available()) {
-    lcd->setCursor(0, rowIndex % 4);
-    while (Serial.available() > 0) {
-      char c = Serial.read();
-      if (c == '\n') rowIndex++;
-      if (c != '\n' && c != '\r')
-        lcd->write(c);
-    }
-  }
+void LiquidCrystal20x4::loop() {
 }
 
-void LCDScreen::clear() {
+void LiquidCrystal20x4::clear() {
   lcd->clear();
 }
-void LCDScreen::setCursor(uint8_t x, uint8_t y) {
+void LiquidCrystal20x4::setCursor(uint8_t x, uint8_t y) {
   lcd->setCursor(x, y);
 }
 
-void LCDScreen::print(const char *text) {
+void LiquidCrystal20x4::print(const char *text) {
   lcd->printstr(text);
 }
 
-void LCDScreen::printc(char c) {
+void LiquidCrystal20x4::printc(char c) {
   lcd->print(c);
 }
 
-void LCDScreen::printCenterLine(const char *text, uint8_t line, uint8_t lineLength) {
+void LiquidCrystal20x4::printCenterLine(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
   lcd->setCursor((lineLength - length) / 2, line);
   lcd->print(text);
 }
-void LCDScreen::printLeftLine(const char *text, uint8_t line, uint8_t lineLength) {
+void LiquidCrystal20x4::printLeftLine(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
   lcd->setCursor(0, line);
   lcd->print(text);
 }
-void LCDScreen::printCenter(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void LiquidCrystal20x4::printCenter(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
 } 
-void LCDScreen::printLeft(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void LiquidCrystal20x4::printLeft(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
   lcd->setCursor(x, y);
   lcd->print(text);
 }
-void LCDScreen::printRight(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void LiquidCrystal20x4::printRight(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
 
 }
-void LCDScreen::printBottom(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+void LiquidCrystal20x4::printBottom(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
 
 }
 
