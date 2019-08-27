@@ -35,7 +35,7 @@ class Global {
     }
 };
 
-StationState Global::state = {0};
+StationState Global::state;
 FileSystem Global::fsz;
 Config Global::cfg;
 LiquidCrystal20x4 Global::lcd;

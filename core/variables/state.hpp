@@ -4,43 +4,58 @@
 #ifndef SMART_GARDEN_STATION_STATE_H
 #define SMART_GARDEN_STATION_STATE_H
 
-#include <string.h>
+#include <ArduinoJson.h>
 
-struct StationState {
-  float temperature;
-  float humidity;
-  uint16_t light;
-  bool moving;
+#define toBool(val) (val ? "true" : "false")
 
-  bool pump;
-  bool led;
-  bool fan;
-  bool misting;
-  long nutri; // milli second to open valve
+class StationState {
+  private:
+    static char outputBuffer[256];
+  public:
+    static StaticJsonDocument<256> doc;
+    
+    static float temperature;
+    static float humidity;
+    static uint16_t light;
+    static bool moving;
 
-  char* toJSON() {
-    static char buf[300] = "";
-    sprintf(buf, 
-      "{"
-        "\"temperature\": %f,"
-        "\"humidity\": %f,"
-        "\"light\": %f,"
-        "\"moving\": %s,"
-        "\"pump\": %s,"
-        "\"led\": %s,"
-        "\"fan\": %s,"
-        "\"misting\": %s,"
-        "\"nutri\": %d"
-      "}",
-      temperature, humidity, light,
-      moving ? "true" : "false",
-      pump ? "true" : "false",
-      led ? "true" : "false",
-      fan ? "true" : "false",
-      misting ? "true" : "false",
-      nutri);
-    return buf;
-  }
+    static bool pump;
+    static bool led;
+    static bool fan;
+    static bool misting;
+    static long nutri;
+
+    static char* toJSON();
 };
+
+StaticJsonDocument<256> StationState::doc;
+char StationState::outputBuffer[256] = {0};
+
+float StationState::temperature = 0;
+float StationState::humidity = 0;
+uint16_t StationState::light = 0;
+bool StationState::moving = 0;
+
+bool StationState::pump = 0;
+bool StationState::led = 0;
+bool StationState::fan = 0;
+bool StationState::misting = 0;
+long StationState::nutri = 0;
+
+
+char* StationState::toJSON() {
+  JsonObject obj = doc.to<JsonObject>();
+  obj["temperature"] = temperature;
+  obj["humidity"] = humidity;
+  obj["light"] = light;
+  obj["moving"] = moving;
+  obj["pump"] = pump;
+  obj["led"] = led;
+  obj["fan"] = fan;
+  obj["misting"] = misting;
+  obj["nutri"] = nutri;
+  serializeJson(obj, outputBuffer);
+  return outputBuffer;
+}
 
 #endif

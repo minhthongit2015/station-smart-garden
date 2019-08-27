@@ -8,59 +8,71 @@
 #include "../variables/global.hpp"
 
 
-DynamicJsonDocument doc(1024);
 void handleConnectEvent(const char * payload, size_t length);
 void handleDisconnectEvent(const char * payload, size_t length);
-void handleAcceptedEvent(const char * payload, size_t length);
+void handleAcceptEvent(const char * payload, size_t length);
 void handleCommandEvent(const char * payload, size_t length);
 
 
 class WebsocketController : public SocketIoClient {
   public:
-    bool connected = false;
+    bool connected;
+    WebsocketController()
+      :connected(false)
+    {
 
-    void setup() {
-      on("connect", handleConnectEvent);
-      on("disconnect", handleDisconnectEvent);
-      on("accepted", handleAcceptedEvent);
-      on("command", handleCommandEvent);
-      // webSocket.begin(Config::gardenHost.c_str(), Config::gardenPort);
-      // webSocket.setAuthorization("username", "password");
     }
 
-    void loop() {
-      SocketIoClient::loop();
-      // static unsigned long last = millis();
-      // if (millis() - last > 5000) {
-      //   last = millis();
-      // }
-    }
+    void setup();
+    void loop();
 } websocketCtl;
 
+void WebsocketController::setup() {
+  logStart("Websocket");
+  on("connect", handleConnectEvent);
+  on("disconnect", handleDisconnectEvent);
+  on("accept", handleAcceptEvent);
+  // on("command", handleCommandEvent);
+  prf("> [Websocket] Connect to -~=> %s : %d\r\n",
+    Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
+  begin(Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
+  // webSocket.setAuthorization("username", "password");
+}
+
+void WebsocketController::loop() {
+  SocketIoClient::loop();
+  // static unsigned long last = millis();
+  // if (millis() - last > 5000) {
+  //   last = millis();
+  // }
+}
+
 void handleConnectEvent(const char * payload, size_t length) {
+  logz("Websocket", "Connected to Garden");
   websocketCtl.connected = true;
-  prl("Connected to Server");
-  websocketCtl.emit("stationConnect", DEVICE_INFO);
+  websocketCtl.emit("POST/station", DEVICE_INFO);
 }
 
 void handleDisconnectEvent(const char * payload, size_t length) {
-  websocketCtl.connected = false;
-  prl("Disconnected from Server!");
+  if (websocketCtl.connected) {
+    logz("Websocket", "Disconnected from Garden!");
+    websocketCtl.connected = false;
+  }
 }
 
-void handleAcceptedEvent(const char * payload, size_t length) {
-  prl("Garden accepted");
-  websocketCtl.emit("stationState", Global::state.toJSON());
+void handleAcceptEvent(const char * payload, size_t length) {
+  logz("Websocket", "Garden accepted!");
+  websocketCtl.emit("POST/station/state", Global::state.toJSON());
 }
 
 void handleCommandEvent(const char * payload, size_t length) {
   // prf("got command: %s\n", payload);
-  deserializeJson(doc, payload);
-  Global::state.pump = doc["pump"];
-  Global::state.led = doc["led"];
-  Global::state.fan = doc["fan"];
-  Global::state.misting = doc["fan"];
-  Global::state.nutri = doc["nutri"];
+  deserializeJson(Global::state.doc, payload);
+  Global::state.pump = Global::state.doc["pump"];
+  Global::state.led = Global::state.doc["led"];
+  Global::state.fan = Global::state.doc["fan"];
+  Global::state.misting = Global::state.doc["fan"];
+  Global::state.nutri = Global::state.doc["nutri"];
   prl(Global::state.toJSON());
   relayCtl.executeCommand();
 }
