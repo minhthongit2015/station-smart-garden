@@ -11,7 +11,7 @@
 #define wifiConnected (WiFi.status() == WL_CONNECTED)
 
 bool checkGardenSignal(String ssid) {
-  return ssid.indexOf(Global::cfg.gardenWifiSignal) >= 0;
+  return Global::cfg.gardenWifiSignal.charAt(0) && ssid.indexOf(Global::cfg.gardenWifiSignal) >= 0;
 }
 
 class WifiController {

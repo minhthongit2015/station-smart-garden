@@ -4,7 +4,6 @@
 #define SMART_GARDEN_RELAY_CONTROLLER_H
 
 #include "../base/utils.hpp"
-#include "../variables/state.hpp"
 #include "../variables/global.hpp"
 
 class RelayController {
@@ -18,44 +17,55 @@ public:
 
   void setup() {
     logStart("Relay Controller");
-    useOut(pump);
-    useOut(led);
-    useOut(fan);
-    useOut(misting);
-    useOut(nutri);
+    useOut(Global::cfg.pumpPin);     offRelay(Global::cfg.pumpPin);
+    useOut(Global::cfg.ledPin);      offRelay(Global::cfg.ledPin);
+    useOut(Global::cfg.fanPin);      offRelay(Global::cfg.fanPin);
+    useOut(Global::cfg.mistingPin);  offRelay(Global::cfg.mistingPin);
+    useOut(Global::cfg.nutriPin);    offRelay(Global::cfg.nutriPin);
+    syncState();
   }
 
   void loop() {
     // TODO: Check and stop nutri
   }
 
-  void executeCommand() {
-    this->setPump(Global::state.pump);
-    this->setLed(Global::state.led);
-    this->setFan(Global::state.fan);
-    this->setMisting(Global::state.misting);
-    this->setNutri(Global::state.nutri);
+  void syncState() {
+    if (Global::state.doc.containsKey("pump")) {
+      Global::state.pump = Global::state.doc["pump"];
+      this->setPump(Global::state.pump);
+    }
+    if (Global::state.doc.containsKey("led")) {
+      Global::state.led = Global::state.doc["led"];
+      this->setLed(Global::state.led);
+    }
+    if (Global::state.doc.containsKey("fan")) {
+      Global::state.fan = Global::state.doc["fan"];
+      this->setFan(Global::state.fan);
+    }
+    if (Global::state.doc.containsKey("misting")) {
+      Global::state.misting = Global::state.doc["misting"];
+      this->setMisting(Global::state.misting);
+    }
+    if (Global::state.doc.containsKey("nutri")) {
+      Global::state.nutri = Global::state.doc["nutri"];
+      this->setNutri(Global::state.nutri);
+    }
   }
 
-  void setPump(bool isOn) {
-    digitalWrite(pump, !isOn ? HIGH : LOW);
-    // prf("Pump %s\r\n", !isOn ? "ON" : "OFF");
+  void setPump(bool isEnable) {
+    if (isEnable) onRelay(pump) else offRelay(pump);
   }
-  void setLed(bool isOn) {
-    digitalWrite(led, !isOn ? HIGH : LOW);
-    // prf("Led %s\r\n", !isOn ? "ON" : "OFF");
+  void setLed(bool isEnable) {
+    if (isEnable) onRelay(led) else offRelay(led);
   }
-  void setFan(bool isOn) {
-    digitalWrite(fan, !isOn ? HIGH : LOW);
-    // prf("Fan %s\r\n", !isOn ? "ON" : "OFF");
+  void setFan(bool isEnable) {
+    if (isEnable) onRelay(fan) else offRelay(fan);
   }
-  void setMisting(bool isOn) {
-    digitalWrite(misting, !isOn ? HIGH : LOW);
-    // prf("Misting %s\r\n", !isOn ? "ON" : "OFF");
+  void setMisting(bool isEnable) {
+    if (isEnable) onRelay(misting) else offRelay(misting);
   }
-  void setNutri(bool isOn) {
-    digitalWrite(nutri, !isOn ? HIGH : LOW);
-    // prf("Nutri %s\r\n", !isOn ? "ON" : "OFF");
+  void setNutri(bool isEnable) {
+    if (isEnable) onRelay(nutri) else offRelay(nutri);
   }
 } relayCtl;
 

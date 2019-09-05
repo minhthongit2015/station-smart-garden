@@ -36,5 +36,7 @@
 #define SCL 5
 #define SDA 4
 
+#define SD2 9
+#define SD3 10
 
 #endif

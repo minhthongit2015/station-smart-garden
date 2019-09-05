@@ -7,6 +7,7 @@
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
 
+#define SOCKETIOCLIENT_DEBUG(...)
 
 void handleConnectEvent(const char * payload, size_t length);
 void handleDisconnectEvent(const char * payload, size_t length);
@@ -32,7 +33,7 @@ void WebsocketController::setup() {
   on("connect", handleConnectEvent);
   on("disconnect", handleDisconnectEvent);
   on("accept", handleAcceptEvent);
-  // on("command", handleCommandEvent);
+  on("command", handleCommandEvent);
   prf("> [Websocket] Connect to -~=> %s : %d\r\n",
     Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
   begin(Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
@@ -49,7 +50,6 @@ void WebsocketController::loop() {
 
 void handleConnectEvent(const char * payload, size_t length) {
   logz("Websocket", "Connected to Garden");
-  websocketCtl.connected = true;
   websocketCtl.emit("POST/station", DEVICE_INFO);
 }
 
@@ -62,19 +62,15 @@ void handleDisconnectEvent(const char * payload, size_t length) {
 
 void handleAcceptEvent(const char * payload, size_t length) {
   logz("Websocket", "Garden accepted!");
+  websocketCtl.connected = true;
   websocketCtl.emit("POST/station/state", Global::state.toJSON());
 }
 
 void handleCommandEvent(const char * payload, size_t length) {
-  // prf("got command: %s\n", payload);
+  logz("Websocket", "Garden Command!");
   deserializeJson(Global::state.doc, payload);
-  Global::state.pump = Global::state.doc["pump"];
-  Global::state.led = Global::state.doc["led"];
-  Global::state.fan = Global::state.doc["fan"];
-  Global::state.misting = Global::state.doc["fan"];
-  Global::state.nutri = Global::state.doc["nutri"];
-  prl(Global::state.toJSON());
-  relayCtl.executeCommand();
+  serializeJsonPretty(Global::state.doc, Serial);
+  relayCtl.syncState();
 }
 
 #endif

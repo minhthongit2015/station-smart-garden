@@ -7,6 +7,7 @@
 #include <DHT.h>
 #include <set>
 #include "../base/fs.hpp"
+#include "./pinmap.hpp"
 
 class Config;
 
@@ -52,6 +53,12 @@ class Config {
     static uint8_t HcSr501Pin;
     static uint8_t TTP229SclPin;
     static uint8_t TTP229SdoPin;
+    
+    static uint8_t pumpPin;
+    static uint8_t ledPin;
+    static uint8_t fanPin;
+    static uint8_t mistingPin;
+    static uint8_t nutriPin;
 
     static void setup(FileSystem &pfs);
     static void loadConfigurations();
@@ -70,6 +77,12 @@ String Config::gardenHost = "";
 long Config::gardenPort = 0;
 String Config::gardenWifiSignal = "";
 String Config::gardenWifiPassword = "";
+
+uint8_t Config::pumpPin = D7;
+uint8_t Config::ledPin = D8;
+uint8_t Config::fanPin = SD2;
+uint8_t Config::mistingPin = SD2;
+uint8_t Config::nutriPin = SD3;
 
 uint8_t Config::DhtPin = D6;
 uint8_t Config::DhtType = DHT22;

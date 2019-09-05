@@ -19,12 +19,15 @@
 #define ENV_PROD
 
 /*           LED           */
-#define led1 2
-#define led2 16
 #define useIn(pin) pinMode(pin, INPUT);
 #define useOut(pin) pinMode(pin, OUTPUT);
-#define setupLed useOut(led1); useOut(led2);
 
+#define onRelay(pin) digitalWrite(pin, LOW);
+#define offRelay(pin) digitalWrite(pin, HIGH);
+
+#define led1 2
+#define led2 16
+#define setupLed useOut(led1); useOut(led2);
 #define onLed1 digitalWrite(led1, 0);
 #define offLed1 digitalWrite(led1, 1);
 #define onLed2 digitalWrite(led2, 0);
