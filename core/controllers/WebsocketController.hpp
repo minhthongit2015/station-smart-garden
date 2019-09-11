@@ -34,7 +34,7 @@ void WebsocketController::setup() {
   on("disconnect", handleDisconnectEvent);
   on("accept", handleAcceptEvent);
   on("command", handleCommandEvent);
-  prf("> [Websocket] Connect to -~=> %s : %d\r\n",
+  prf("> [Websocket] Connecting to -~=> %s : %d\r\n",
     Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
   begin(Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
   // webSocket.setAuthorization("username", "password");
@@ -50,7 +50,7 @@ void WebsocketController::loop() {
 
 void handleConnectEvent(const char * payload, size_t length) {
   logz("Websocket", "Connected to Garden");
-  websocketCtl.emit("POST/station", DEVICE_INFO);
+  websocketCtl.emit(POST stationConnectEndpoint, DEVICE_INFO);
 }
 
 void handleDisconnectEvent(const char * payload, size_t length) {
@@ -63,7 +63,7 @@ void handleDisconnectEvent(const char * payload, size_t length) {
 void handleAcceptEvent(const char * payload, size_t length) {
   logz("Websocket", "Garden accepted!");
   websocketCtl.connected = true;
-  websocketCtl.emit("POST/station/state", Global::state.toJSON());
+  websocketCtl.emit(POST stationStateEndpoint, Global::state.toJSON());
 }
 
 void handleCommandEvent(const char * payload, size_t length) {

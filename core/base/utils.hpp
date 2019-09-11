@@ -15,6 +15,7 @@
 #include <Wire.h>
 
 #include "../variables/pinmap.hpp"
+#include "../variables/constants.hpp"
 
 #define ENV_PROD
 

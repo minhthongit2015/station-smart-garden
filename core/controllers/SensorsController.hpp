@@ -51,7 +51,7 @@ class SensorsController {
       // }
       
       if (dirty && websocketCtl.connected) {
-        websocketCtl.emit("POST/station/state", Global::state.toJSON());
+        websocketCtl.emit(POST stationStateEndpoint, Global::state.toJSON());
         dirty = false;
       }
     }
