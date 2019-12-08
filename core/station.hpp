@@ -5,42 +5,68 @@
 #define SMART_GARDEN_WIFI_STA_H
 
 #include "./base/utils.hpp"
-#include "./base/wifi.hpp"
-#include "./socket_io.hpp"
-#include "./emulator.hpp"
+#include "./controllers/WifiController.hpp"
+#include "./variables/global.hpp"
+#include "./controllers/RelayController.hpp"
+#include "./controllers/SensorsController.hpp"
+#include "./controllers/DisplayController.hpp"
+#include "./controllers/WebsocketController.hpp"
+#include "./controllers/ConfigController.hpp"
 
-/**********************************************************************************************************
- *                                         Hướng dẫn thiết đặt ESP                                        *
- * 
- * "#define DEVICE_ID" để xác định id của thiết bị
- * "#define CONTROL {pin1, pin2,...}" để thiết đặt là trạm này dùng để nhận lệnh điều khiển
- * "#define SENSOR_DHT22 <pin>" để thiết đặt là đọc dữ liệu cảm biến DHT22 trên <pin>
- * "#define SENSOR_BH1750 <pin>" để thiết đặt là đọc dữ liệu cảm biến BH1750 trên <pin>
- * "#define SENSOR_HC_SR501 <pin>" để thiết đặt là đọc dữ liệu cảm biến HC_SR501 trên <pin>
- * 
- **********************************************************************************************************/
+
+void onKeyDown(uint8_t key) {
+  Global::lcd.lcd->printf(" %2d", key);
+  switch (key)
+  {
+  case 1:
+    Global::fsz.listingFiles();
+    break;
+  case 2:
+    Global::cfg.loadConfigurations();
+    break;
+  case 3:
+    Global::cfg.saveConfigurations();
+    break;
+  case 4: 
+    Global::fsz.format();
+    break;
+  case 5:
+    Global::fsz.showInfo();
+    break;
+  default:
+    break;
+  }
+}
+
+void onConfigChange();
 
 class SmartGardenStation {
-  private:
-  GardenWifi wifi;  // Giữ kết nối đến mạng wifi
-
   public:
-  void setup();
-  void loop();
-};
+    void setup();
+    void loop();
+} station;
 
 
 /*                   Setup                  */
 void SmartGardenStation::setup() {
-  prl(" <1> Smart Garden Station Setup!");
+  logStart("Station");
 
-  WiFi.mode(WIFI_STA);
+  togglePerformanceChannel(0, false);
+  toggleLogChannel(1, false); // Hide sensor value
 
-  this->wifi.setup();
+  i2cScanner();
 
-  websocketSetup();
+  Global::setup();
+  configCtl.setup();
+  Global::cfg.onChange(onConfigChange);
 
-  emulator.setup();
+  Global::touchPad.onKeyDown(onKeyDown);
+  displayCtl.setup();
+  relayCtl.setup();
+  sensorsCtl.setup();
+
+  wifiCtl.setup();
+  websocketCtl.setup();
 }
 
 
@@ -49,12 +75,52 @@ void SmartGardenStation::loop() {
   // static unsigned long timer = millis();
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
-  websocketLoop();
-  
-  emulator.loop();
 
+  #ifndef ENV_PROD
+  performance("sensorsCtl");
+  #endif
+  sensorsCtl.loop();
+  
+  #ifndef ENV_PROD
+  performance("relayCtl");
+  #endif
+  relayCtl.loop();
+  
+  #ifndef ENV_PROD
+  performance("touchPad");
+  #endif
+  Global::touchPad.loop();
+
+  #ifndef ENV_PROD
+  performance("displayCtl");
+  #endif
+  displayCtl.loop();
+
+  #ifndef ENV_PROD
+  performance("configCtl");
+  #endif
+  configCtl.loop();
+
+  #ifndef ENV_PROD
+  performance("websocketLoop");
+  #endif
+  websocketCtl.loop();
+  
+  #ifndef ENV_PROD
+  performance("wifiCtl");
+  #endif
+  wifiCtl.loop();
+
+  #ifndef ENV_PROD
+  performance("end loop ------\r\n");
+  #endif
   delay(LOOP_DELAY_TIME);
 }
 
+void onConfigChange() {
+  logz("Station", "Configurations change -> resetup wifi");
+  wifiCtl.setup();
+  websocketCtl.setup();
+}
 
 #endif

@@ -1,45 +1,48 @@
 
-
 #pragma once
 #ifndef SMART_GARDEN_GLOBAL_H
 #define SMART_GARDEN_GLOBAL_H
 
-#include <SocketIoClient.h>
+#include "./state.hpp"
+#include "../base/fs.hpp"
+#include "./config.hpp"
+#include "../base/utils.hpp"
 
-/* Global Variables */
+#include "../modules/LiquidCrystal20x4.hpp"
+#include "../modules/TTP229.hpp"
+#include "../modules/DHT22.hpp"
+#include "../modules/BH1750.hpp"
+#include "../modules/HCSR501.hpp"
 
-#define CHECK_BYTE '\xff'
+class Global {
+  public:
+    static StationState state;
+    static FileSystem fsz;
+    static Config cfg;
+    static LiquidCrystal20x4 lcd;
+    static TouchPadTTP229 touchPad;
+    static HuTempDHT22 dht;
+    static LightBH1750 bh1750;
+    static MotionDetectorHCSR501 hcsr501;
 
-#define SERVER_PORT 4000
-#define GARDEN_SIGNAL "moidoiten"
-#define GARDEN_WIFI_PASSWORD "passla123"
-#define LOOP_DELAY_TIME 100
-#define WEBSOCKET_SERVER "192.168.1.25"
-#define WEBSOCKET_SERVER_PORT 4000
+    static void setup() {
+      logStart("Global");
 
-#define DEVICE_ID "Alpha One"
+      fsz.setup();
+      cfg.setup(fsz);
+      cfg.loadConfigurations();
+      touchPad.setup();
+    }
+};
 
-#define DEVICE_INFO "\
-{\
-  \"id\": \"A1-01\", \
-  \"role\": \"station\", \
-  \"name\": \"Alpha Once\", \
-  \"type\": \"A1\", \
-  \"env_type\": [\"hydroponics\"], \
-  \"roles\": [\"pump\", \"misting\", \"sensors\"], \
-  \"physical_address\": [\"STA_A1_01\"], \
-  \"secret_key\": \"Secret_STA_A1_01\"\
-}"
-/*
-  role: [<station>, <equipment>] Vai trò trong vườn
-  type: Tên kiểu mẫu
-  env_type: chỉ dùng cho station - loại môi trườnrg
-  name: Tên mặc định thiết bị
-  roles: Các khả năng
+StationState Global::state;
+FileSystem Global::fsz;
+Config Global::cfg;
+LiquidCrystal20x4 Global::lcd;
+TouchPadTTP229 Global::touchPad;
+HuTempDHT22 Global::dht;
+LightBH1750 Global::bh1750;
+MotionDetectorHCSR501 Global::hcsr501;
 
-*/
-
-bool wsConnected = false;
-SocketIoClient webSocket;
 
 #endif

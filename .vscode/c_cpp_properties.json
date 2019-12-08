@@ -3,19 +3,23 @@
         {
             "name": "Win32",
             "includePath": [
-                "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\SocketIoClient",
-                "${env:USERPROFILE}\\Documents\\Arduino\\hardware\\esp8266com\\esp8266\\**",
-                "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\ArduinoJson\\src",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\**",
-                "C:/Users/thongnmtran/Documents/Arduino/hardware/**",
-                "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\**",
-                "C:\\Program Files (x86)\\Arduino\\libraries\\**",
-                "${workspaceFolder}/core/**"
+                "C:\\Users\\thongnmtran\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
+                "C:\\Users\\thongnmtran\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\**",
+                "${workspaceFolder}/**",
+                "${env:ProgramFiles(x86)}/Arduino/hardware/**",
+                "${env:ProgramFiles(x86)}/Arduino/libraries/**",
+                "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/tools/**",
+                "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.5.2/**",
+                "${env:USERPROFILE}/Documents/Arduino/libraries/**",
+                "${env:USERPROFILE}/Documents/Arduino/hardware/**",
+                "${env:USERPROFILE}/Documents/Arduino/libraries/ttp229",
+                "${env:USERPROFILE}/Documents/Arduino/libraries/LiquidCrystal_I2C"
             ],
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [],
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++11",
+            "intelliSenseCacheSize": 0
         }
     ],
     "version": 4

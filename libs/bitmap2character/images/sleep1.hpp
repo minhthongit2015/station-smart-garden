@@ -1,0 +1,21 @@
+#pragma once
+ #ifndef SMART_GARDEN_EMOTION_SLEEP1_H
+ #define SMART_GARDEN_EMOTION_SLEEP1_H
+
+ #include "../../base/types.hpp"
+ 
+ unsigned char sleep1_cells[] = {
+ 0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000111,0b00000000,
+  0b00000000,0b00000000,0b00000000,0b00000000,0b00000010,0b00000000,0b00011100,0b00000000,
+  0b00000000,0b00000100,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000
+ };
+ unsigned char sleep1_coords[] = {
+ 15,2,0,
+  17,2,1,
+  16,3,2
+ };
+ ScreenFrame sleep1 = {
+ 3, sleep1_cells, sleep1_coords, 1000
+ };
+
+ #endif
