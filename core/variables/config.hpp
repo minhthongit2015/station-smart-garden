@@ -78,17 +78,17 @@ long Config::gardenPort = 0;
 String Config::gardenWifiSignal = "";
 String Config::gardenWifiPassword = "";
 
-uint8_t Config::pumpPin = D7;
-uint8_t Config::ledPin = D8;
-uint8_t Config::fanPin = SD2;
-uint8_t Config::mistingPin = SD2;
-uint8_t Config::nutriPin = SD3;
+uint8_t Config::pumpPin = D5;
+uint8_t Config::ledPin = D6;
+uint8_t Config::fanPin = D7;
+uint8_t Config::mistingPin = D8;
+uint8_t Config::nutriPin = 0;
 
-uint8_t Config::DhtPin = D6;
+uint8_t Config::DhtPin = D3;
 uint8_t Config::DhtType = DHT22;
-uint8_t Config::HcSr501Pin = D5;
-uint8_t Config::TTP229SclPin = D4;
-uint8_t Config::TTP229SdoPin = D3;
+uint8_t Config::HcSr501Pin = D4;
+uint8_t Config::TTP229SclPin = 0;
+uint8_t Config::TTP229SdoPin = 0;
 
 void Config::setup(FileSystem &pfs) {
   logStart("Config");
