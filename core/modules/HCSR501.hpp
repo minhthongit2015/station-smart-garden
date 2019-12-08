@@ -57,6 +57,7 @@ bool MotionDetectorHCSR501::read() {
 
   static bool newMoving = false;
   newMoving = digitalRead(sensorPin);
+  // prf("isMove: %s\r\n", newMoving ? "true" : "false");
 
   if (dif >= delayTime) {
     moving = newMoving;

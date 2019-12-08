@@ -3,23 +3,24 @@
         {
             "name": "Win32",
             "includePath": [
-                "C:\\Users\\thongnmtran\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
-                "C:\\Users\\thongnmtran\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\**",
                 "${workspaceFolder}/**",
                 "${env:ProgramFiles(x86)}/Arduino/hardware/**",
                 "${env:ProgramFiles(x86)}/Arduino/libraries/**",
                 "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/tools/**",
+                "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.6.2/**",
                 "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.5.2/**",
+                "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/hardware/esp8266/2.4.1/**",
                 "${env:USERPROFILE}/Documents/Arduino/libraries/**",
                 "${env:USERPROFILE}/Documents/Arduino/hardware/**",
-                "${env:USERPROFILE}/Documents/Arduino/libraries/ttp229",
-                "${env:USERPROFILE}/Documents/Arduino/libraries/LiquidCrystal_I2C"
+                "${env:USERPROFILE}/Documents/Arduino/libraries/TTP229",
+                "${env:USERPROFILE}/Documents/Arduino/libraries/LiquidCrystal_I2C",
+                "C:\\Users\\KID\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.6.2\\**",
+                "C:\\Users\\KID\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**"
             ],
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [],
             "cStandard": "c11",
-            "cppStandard": "c++11",
-            "intelliSenseCacheSize": 0
+            "cppStandard": "c++11"
         }
     ],
     "version": 4
