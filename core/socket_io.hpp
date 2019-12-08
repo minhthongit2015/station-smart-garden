@@ -15,7 +15,7 @@ void websocketSetup()
   webSocket.on("disconnect", handleDisconnectEvent);
   webSocket.on("command", handleCommandEvent);
   webSocket.on("stationAccepted", handleGardenConnectedEvent);
-  webSocket.begin("192.168.1.25", 4000, "/socket.io/?transport=websocket");
+  webSocket.begin(WEBSOCKET_SERVER, WEBSOCKET_SERVER_PORT, "/socket.io/?transport=websocket");
   // webSocket.setAuthorization("username", "password");
 }
 

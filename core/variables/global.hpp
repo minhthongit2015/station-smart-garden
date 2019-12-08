@@ -14,6 +14,8 @@
 #define GARDEN_SIGNAL "moidoiten"
 #define GARDEN_WIFI_PASSWORD "passla123"
 #define LOOP_DELAY_TIME 100
+#define WEBSOCKET_SERVER "192.168.1.25"
+#define WEBSOCKET_SERVER_PORT 4000
 
 #define DEVICE_ID "Alpha One"
 
