@@ -5,35 +5,27 @@
 #define SMART_GARDEN_BH1750_H
 
 #include "../base/utils.hpp"
+#include "./_BaseModule.hpp"
 #include <set>
 #include <BH1750FVI.h>
 
-typedef void (*onLightChangeListener)(uint16_t light);
 
-class LightBH1750 {
+class LightBH1750 : public BaseModule {
   private:
-    std::set<onLightChangeListener> _onChange;
   public:
     BH1750FVI bh1750;
-    uint16_t prevLight = 80;
-    uint16_t light = 80;
-    unsigned long delayTime = 2000;
+    Data prevLight = { { 0 } };
+    Data light = { { 0 } };
 
     LightBH1750()
       :bh1750(BH1750FVI::k_DevModeContHighRes)
     {
-
+      CHECK_INTERVAL = 2000;
     }
 
     void setup();
     void loop();
-
-    void onChange(onLightChangeListener callback) {
-      this->_onChange.insert(callback);
-    }
-
-    bool read();
-    void dispatchEvent(uint16_t light);
+    bool fetch();
 };
 
 void LightBH1750::setup() {
@@ -42,34 +34,17 @@ void LightBH1750::setup() {
 }
 
 void LightBH1750::loop() {
-  if (!read()) return;
-  if ((prevLight != light)
-      && _onChange.size() > 0) {
-    dispatchEvent(light);
+  if (!check()) return;
+  if (light.Light != prevLight) {
+    dispatch(light, VALUE_CHANGE);
+    prevLight = light;
   }
-  prevLight = light;
 }
 
-bool LightBH1750::read() {
-  static unsigned long now = 0;
-  static unsigned long last = 0;
-  static unsigned long dif = 0;
-  now = millis();
-  dif = now - last;
-  
-  if (dif >= delayTime) {
-    light = bh1750.GetLightIntensity();
-    last = now;
-    return true;
-  }
-
-  return false;
-}
-
-void LightBH1750::dispatchEvent(uint16_t light) {
-	for (std::set<onLightChangeListener>::iterator p = _onChange.begin(); p != _onChange.end(); ++p) {
-    (*p)(light);
-  }
+bool LightBH1750::fetch() {
+  static Data newData = { { 0 } };
+  light.Light.light = bh1750.GetLightIntensity();
+  return true;
 }
 
 #endif

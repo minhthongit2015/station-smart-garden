@@ -55,6 +55,7 @@ class Config {
     static uint8_t TTP229SdoPin;
     
     static uint8_t pumpPin;
+    static uint8_t oxygenPin;
     static uint8_t ledPin;
     static uint8_t fanPin;
     static uint8_t mistingPin;
@@ -78,17 +79,18 @@ long Config::gardenPort = 0;
 String Config::gardenWifiSignal = "";
 String Config::gardenWifiPassword = "";
 
-uint8_t Config::pumpPin = D6;
-uint8_t Config::ledPin = D6;
-uint8_t Config::fanPin = D7;
-uint8_t Config::mistingPin = D8;
-uint8_t Config::nutriPin = 0;
+uint8_t Config::pumpPin = D5;
+uint8_t Config::oxygenPin = D6;
+uint8_t Config::ledPin = D7;
+uint8_t Config::fanPin = NOT_A_PIN;
+uint8_t Config::mistingPin = NOT_A_PIN;
+uint8_t Config::nutriPin = NOT_A_PIN;
 
 uint8_t Config::DhtPin = D3;
 uint8_t Config::DhtType = DHT22;
-uint8_t Config::HcSr501Pin = D5;
-uint8_t Config::TTP229SclPin = 0;
-uint8_t Config::TTP229SdoPin = 0;
+uint8_t Config::HcSr501Pin = NOT_A_PIN;
+uint8_t Config::TTP229SclPin = NOT_A_PIN;
+uint8_t Config::TTP229SdoPin = NOT_A_PIN;
 
 void Config::setup(FileSystem &pfs) {
   logStart("Config");

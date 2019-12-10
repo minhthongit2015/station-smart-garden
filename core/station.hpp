@@ -14,7 +14,8 @@
 #include "./controllers/ConfigController.hpp"
 
 
-void onKeyDown(uint8_t key) {
+void onKeyDown(KeyEvent event) {
+  uint8_t key = event.data.Key.key;
   Global::lcd.lcd->printf(" %2d", key);
   switch (key)
   {

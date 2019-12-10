@@ -5,14 +5,15 @@
 
 #include "../base/utils.hpp"
 #include "../variables/global.hpp"
+#include "../base/types.hpp"
 
 #include "./DisplayController.hpp"
 #include "./WebsocketController.hpp"
 
 
-void onHuTempChange(float temperature, float humidity);
-void onLightChange(uint16_t light);
-void onMovingChange(bool moving);
+void onHuTempChange(Event event);
+void onLightChange(Event event);
+void onMovingChange(Event event);
 
 class SensorsController {
   private:
@@ -28,12 +29,12 @@ class SensorsController {
     void setup() {
       logStart("Sensors Controller");
       randomSeed(analogRead(0));
-      Global::dht.setup();
-      Global::dht.onChange(onHuTempChange);
       Global::bh1750.setup();
       Global::bh1750.onChange(onLightChange);
-      Global::hcsr501.setup();
-      Global::hcsr501.onChange(onMovingChange);
+      Global::dht.setup();
+      Global::dht.onChange(onHuTempChange);
+      // Global::hcsr501.setup();
+      // Global::hcsr501.onChange(onMovingChange);
     }
 
     void loop() {
@@ -42,7 +43,7 @@ class SensorsController {
 
       Global::dht.loop();
       Global::bh1750.loop();
-      Global::hcsr501.loop();
+      // Global::hcsr501.loop();
       // if (millis() - last > dif) {
       //   last = millis();
       //   dif = random(10000, 15000);
@@ -57,22 +58,23 @@ class SensorsController {
     }
 } sensorsCtl;
 
-void onHuTempChange(float temperature, float humidity) {
-  if (logChannels[1]) prf("Temp: %.2f | Humi: %.2f\r\n", temperature, humidity);
-  Global::state.temperature = temperature;
-  Global::state.humidity = humidity;
+void onHuTempChange(Event event) {
+  if (logChannels[1]) prf("Temp: %.2f | Humi: %.2f\r\n",
+    event.data.HuTemp.temperature, event.data.HuTemp.humidity);
+  Global::state.temperature = event.data.HuTemp.temperature;
+  Global::state.humidity = event.data.HuTemp.humidity;
   sensorsCtl.dirty = true;
 }
 
-void onLightChange(uint16_t light) {
-  if (logChannels[1]) prf("Light: %d\r\n", light);
-  Global::state.light = light;
+void onLightChange(Event event) {
+  if (logChannels[1]) prf("Light: %d\r\n", event.data.Light.light);
+  Global::state.light = event.data.Light.light;
   sensorsCtl.dirty = true;
 }
 
-void onMovingChange(bool moving) {
-  if (logChannels[1]) prf("Moving: %s\r\n", moving ? "true" : "false");
-  Global::state.moving = moving;
+void onMovingChange(Event event) {
+  if (logChannels[1]) prf("Moving: %s\r\n", event.data.Moving.moving ? "true" : "false");
+  Global::state.moving = event.data.Moving.moving;
   sensorsCtl.dirty = true;
 }
 

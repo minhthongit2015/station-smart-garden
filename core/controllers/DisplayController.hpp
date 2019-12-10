@@ -10,9 +10,9 @@
 #include "./emotional/pikachu.hpp"
 #include "./emotional/sleep.hpp"
 
-void screenOnKeyDown(uint8_t key);
-void screenOnHuTempChange(float temperature, float humidity);
-void screenOnLightChange(uint16_t light);
+void screenOnKeyDown(KeyEvent event);
+void screenOnHuTempChange(ChangeEvent event);
+void screenOnLightChange(ChangeEvent event);
 
 void printMovingDetection();
 
@@ -82,8 +82,8 @@ void DisplayController::loop() {
 
 // --------------------------------------------------
 
-void screenOnKeyDown(uint8_t key) {
-  if (key == 16) {
+void screenOnKeyDown(KeyEvent event) {
+  if (event.data.Key.key == 16) {
     displayCtl.busy = false;
     Global::lcd.lcd->clear();
     Global::lcd.printCenterLine("Resetting...", 1);
@@ -93,11 +93,11 @@ void screenOnKeyDown(uint8_t key) {
   }
 }
 
-void screenOnHuTempChange(float temperature, float humidity) {
+void screenOnHuTempChange(ChangeEvent event) {
   displayCtl.printStationState();
 }
 
-void screenOnLightChange(uint16_t light) {
+void screenOnLightChange(ChangeEvent event) {
   displayCtl.printStationState();
 }
 

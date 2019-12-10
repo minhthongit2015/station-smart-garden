@@ -39,4 +39,8 @@
 #define SD2 9
 #define SD3 10
 
+#ifndef NOT_A_PIN
+  #define NOT_A_PIN 0
+#endif
+
 #endif

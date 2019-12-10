@@ -9,19 +9,33 @@
 class RelayController {
 
 public:
-  int pump = 13;
-  int led = 15;
-  int fan = -1;
-  int misting = -1;
-  int nutri = -1;
+  int pump = NOT_A_PIN;
+  int oxygen = NOT_A_PIN;
+  int led = NOT_A_PIN;
+  int fan = NOT_A_PIN;
+  int misting = NOT_A_PIN;
+  int nutri = NOT_A_PIN;
 
   void setup() {
     logStart("Relay Controller");
-    useOut(Global::cfg.pumpPin);     offRelay(Global::cfg.pumpPin);
-    useOut(Global::cfg.ledPin);      offRelay(Global::cfg.ledPin);
-    useOut(Global::cfg.fanPin);      offRelay(Global::cfg.fanPin);
-    useOut(Global::cfg.mistingPin);  offRelay(Global::cfg.mistingPin);
-    useOut(Global::cfg.nutriPin);    offRelay(Global::cfg.nutriPin);
+    if (Global::cfg.pumpPin != NOT_A_PIN) {
+      useOut(Global::cfg.pumpPin);     offRelay(Global::cfg.pumpPin);
+    }
+    if (Global::cfg.oxygenPin != NOT_A_PIN) {
+      useOut(Global::cfg.oxygenPin);   offRelay(Global::cfg.oxygenPin);
+    }
+    if (Global::cfg.ledPin != NOT_A_PIN) {
+      useOut(Global::cfg.ledPin);      offRelay(Global::cfg.ledPin);
+    }
+    if (Global::cfg.fanPin != NOT_A_PIN) {
+      useOut(Global::cfg.fanPin);      offRelay(Global::cfg.fanPin);
+    }
+    if (Global::cfg.mistingPin != NOT_A_PIN) {
+      useOut(Global::cfg.mistingPin);  offRelay(Global::cfg.mistingPin);
+    }
+    if (Global::cfg.nutriPin != NOT_A_PIN) {
+      useOut(Global::cfg.nutriPin);    offRelay(Global::cfg.nutriPin);
+    }
     syncState();
   }
 
@@ -33,6 +47,10 @@ public:
     if (Global::state.doc.containsKey("pump")) {
       Global::state.pump = Global::state.doc["pump"];
       this->setPump(Global::state.pump);
+    }
+    if (Global::state.doc.containsKey("oxygen")) {
+      Global::state.oxygen = Global::state.doc["oxygen"];
+      this->setOxygen(Global::state.oxygen);
     }
     if (Global::state.doc.containsKey("led")) {
       Global::state.led = Global::state.doc["led"];
@@ -53,19 +71,22 @@ public:
   }
 
   void setPump(bool isEnable) {
-    if (isEnable) onRelay(pump) else offRelay(pump);
+    if (isEnable && pump != NOT_A_PIN) onRelay(pump) else offRelay(pump);
+  }
+  void setOxygen(bool isEnable) {
+    if (isEnable && oxygen != NOT_A_PIN) onRelay(oxygen) else offRelay(oxygen);
   }
   void setLed(bool isEnable) {
-    if (isEnable) onRelay(led) else offRelay(led);
+    if (isEnable && led != NOT_A_PIN) onRelay(led) else offRelay(led);
   }
   void setFan(bool isEnable) {
-    if (isEnable) onRelay(fan) else offRelay(fan);
+    if (isEnable && fan != NOT_A_PIN) onRelay(fan) else offRelay(fan);
   }
   void setMisting(bool isEnable) {
-    if (isEnable) onRelay(misting) else offRelay(misting);
+    if (isEnable && misting != NOT_A_PIN) onRelay(misting) else offRelay(misting);
   }
   void setNutri(bool isEnable) {
-    if (isEnable) onRelay(nutri) else offRelay(nutri);
+    if (isEnable && nutri != NOT_A_PIN) onRelay(nutri) else offRelay(nutri);
   }
 } relayCtl;
 

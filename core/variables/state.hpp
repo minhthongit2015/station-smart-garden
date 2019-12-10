@@ -20,6 +20,7 @@ class StationState {
     static bool moving;
 
     static bool pump;
+    static bool oxygen;
     static bool led;
     static bool fan;
     static bool misting;
@@ -37,6 +38,7 @@ uint16_t StationState::light = 0;
 bool StationState::moving = 0;
 
 bool StationState::pump = 0;
+bool StationState::oxygen = 0;
 bool StationState::led = 0;
 bool StationState::fan = 0;
 bool StationState::misting = 0;
@@ -50,6 +52,7 @@ char* StationState::toJSON() {
   obj["light"] = light;
   obj["moving"] = moving;
   obj["pump"] = pump;
+  obj["oxygen"] = oxygen;
   obj["led"] = led;
   obj["fan"] = fan;
   obj["misting"] = misting;
