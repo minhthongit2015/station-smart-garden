@@ -1,7 +1,7 @@
 
 #pragma once
-#ifndef SMART_GARDEN_EEPROM_H
-#define SMART_GARDEN_EEPROM_H
+#ifndef BEYOND_GARDEN_EEPROM_H
+#define BEYOND_GARDEN_EEPROM_H
 
 #include <string.h>
 

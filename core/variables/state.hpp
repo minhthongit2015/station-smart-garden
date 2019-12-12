@@ -1,8 +1,7 @@
 
-
 #pragma once
-#ifndef SMART_GARDEN_STATION_STATE_H
-#define SMART_GARDEN_STATION_STATE_H
+#ifndef BEYOND_GARDEN_STATION_STATE_H
+#define BEYOND_GARDEN_STATION_STATE_H
 
 #include <ArduinoJson.h>
 
@@ -10,40 +9,26 @@
 
 class StationState {
   private:
-    static char outputBuffer[256];
+    char outputBuffer[256] = {0};
   public:
-    static StaticJsonDocument<256> doc;
-    
-    static float temperature;
-    static float humidity;
-    static uint16_t light;
-    static bool moving;
+    StaticJsonDocument<256> doc;
 
-    static bool pump;
-    static bool oxygen;
-    static bool led;
-    static bool fan;
-    static bool misting;
-    static long nutri;
+    float temperature = 0;
+    float humidity = 0;
+    uint16_t light = 0;
+    bool moving = 0;
 
-    static char* toJSON();
-};
+    bool pump = 0;
+    bool oxygen = 0;
+    bool led = 0;
+    bool fan = 0;
+    bool misting = 0;
+    long nutri = 0;
 
-StaticJsonDocument<256> StationState::doc;
-char StationState::outputBuffer[256] = {0};
+    char* toJSON();
+} state;
 
-float StationState::temperature = 0;
-float StationState::humidity = 0;
-uint16_t StationState::light = 0;
-bool StationState::moving = 0;
-
-bool StationState::pump = 0;
-bool StationState::oxygen = 0;
-bool StationState::led = 0;
-bool StationState::fan = 0;
-bool StationState::misting = 0;
-long StationState::nutri = 0;
-
+extern StationState state;
 
 char* StationState::toJSON() {
   JsonObject obj = doc.to<JsonObject>();

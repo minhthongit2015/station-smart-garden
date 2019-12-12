@@ -1,23 +1,24 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_UTILS_H
-#define SMART_GARDEN_UTILS_H
+#ifndef BEYOND_GARDEN_UTILS_H
+#define BEYOND_GARDEN_UTILS_H
 
 #define ARDUINO 10809
 
 #include <Arduino.h>
-#include <HardwareSerial.h>
 #include <string.h>
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
+#include <HardwareSerial.h>
 
 #include "../variables/pinmap.hpp"
 #include "../variables/constants.hpp"
 
 #define ENV_PROD
+
 
 /*           LED           */
 #define useIn(pin) pinMode(pin, INPUT);
@@ -26,13 +27,14 @@
 #define onRelay(pin) digitalWrite(pin, LOW);
 #define offRelay(pin) digitalWrite(pin, HIGH);
 
-#define led1 2
-#define led2 16
-#define setupLed useOut(led1); useOut(led2);
-#define onLed1 digitalWrite(led1, 0);
-#define offLed1 digitalWrite(led1, 1);
-#define onLed2 digitalWrite(led2, 0);
-#define offLed2 digitalWrite(led2, 1);
+#define useOutOn(pin) { useOut(pin); onRelay(pin); }
+#define useOutOff(pin) { useOut(pin); offRelay(pin); }
+
+#define setupLed useOut(LED1); useOut(led2);
+#define onLed1 digitalWrite(LED1, 0);
+#define offLed1 digitalWrite(LED1, 1);
+#define onLed2 digitalWrite(LED2, 0);
+#define offLed2 digitalWrite(LED2, 1);
 #define then
 
 #define sleep(sec) delay(sec*1000);
@@ -42,8 +44,8 @@
 #define pr(...) Serial.print(__VA_ARGS__);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
-#define logz(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
-#define logzBlock(moduleName, message) { pr("> [" moduleName "] ") prl(message ":") }
+#define log(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
+#define logBlock(moduleName, message) { pr("> [" moduleName "] ") prl(message ":") }
 #define error(moduleName, errorMessage) { pr("<!> [" moduleName "] ") prl(errorMessage) }
 #define logStart(moduleName) prl("<*> >>> " moduleName)
 #define logEnd(moduleName) prl("</> <<< " moduleName)

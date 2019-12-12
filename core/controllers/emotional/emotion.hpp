@@ -1,8 +1,8 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_EMOTION_H
-#define SMART_GARDEN_EMOTION_H
+#ifndef BEYOND_GARDEN_EMOTION_H
+#define BEYOND_GARDEN_EMOTION_H
 
 #include <set>
 #include "../../base/types.hpp"
@@ -15,14 +15,14 @@ class Emotion {
     std::set<emotionEndEventListener> _onEnd;
   public:
     std::set<pScreenFrame> frames;
-    LiquidCrystal20x4 *_screen = NULL;
+    LiquidCrystal20x4 *pScreen;
     std::set<pScreenFrame>::iterator curFrame;
     std::set<pScreenFrame>::iterator prevFrame;
     uint8_t offsetX = 0;
     uint8_t offsetY = 0;
 
     void setup(LiquidCrystal20x4 &screen) {
-      this->_screen = &screen;
+      this->pScreen = &screen;
       curFrame = frames.end();
       prevFrame = frames.end();
     }
@@ -66,8 +66,8 @@ void Emotion::drawFrame(ScreenFrame *frame) {
   uint8_t *coords = (*frame).coords;
 
   for (int i = 0; i < size; i++) {
-    (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
-    (*_screen).lcd->write(coords[i*3 + 2]);
+    (*pScreen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
+    (*pScreen).write(coords[i*3 + 2]);
   }
 }
 
@@ -76,7 +76,7 @@ void Emotion::prepareFrame(pScreenFrame frame) {
   uint8_t *cells = (*frame).cells;
 
   for (uint8_t i = 0; i < size; i++) {
-    (*_screen).lcd->createChar(i, &cells[i * 8]);
+    (*pScreen).createChar(i, &cells[i * 8]);
   }
 }
 
@@ -87,8 +87,8 @@ void Emotion::clearPrevFrame() {
   uint8_t *coords = (**prevFrame).coords;
 
   for (int i = 0; i < size; i++) {
-    (*_screen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
-    (*_screen).lcd->print(' ');
+    (*pScreen).setCursor(coords[i*3] + offsetX, coords[i*3 + 1] + offsetY);
+    (*pScreen).print(' ');
   }
 }
 

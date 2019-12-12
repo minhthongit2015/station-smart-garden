@@ -1,7 +1,7 @@
 
 #pragma once
-#ifndef SMART_GARDEN_CONSTANTS_H
-#define SMART_GARDEN_CONSTANTS_H
+#ifndef BEYOND_GARDEN_CONSTANTS_H
+#define BEYOND_GARDEN_CONSTANTS_H
 
 #define POST "POST"
 #define GET "GET"

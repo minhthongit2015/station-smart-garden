@@ -101,8 +101,8 @@ class Converter {
     const frameDelay = 500;
     const cpp = `
       #pragma once
-      #ifndef SMART_GARDEN_EMOTION_${frameName.toUpperCase()}_H
-      #define SMART_GARDEN_EMOTION_${frameName.toUpperCase()}_H
+      #ifndef BEYOND_GARDEN_EMOTION_${frameName.toUpperCase()}_H
+      #define BEYOND_GARDEN_EMOTION_${frameName.toUpperCase()}_H
 
       #include "../../base/types.hpp"
       

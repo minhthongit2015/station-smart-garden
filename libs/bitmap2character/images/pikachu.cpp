@@ -1,6 +1,6 @@
 #pragma once
- #ifndef SMART_GARDEN_EMOTION_PIKACHU_H
- #define SMART_GARDEN_EMOTION_PIKACHU_H
+ #ifndef BEYOND_GARDEN_EMOTION_PIKACHU_H
+ #define BEYOND_GARDEN_EMOTION_PIKACHU_H
 
  #include "../base/types.hpp"
  

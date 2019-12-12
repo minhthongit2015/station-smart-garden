@@ -1,46 +1,48 @@
 
 #pragma once
-#ifndef SMART_GARDEN_WEBSOCKET_CONTROLLER_H
-#define SMART_GARDEN_WEBSOCKET_CONTROLLER_H
+#ifndef BEYOND_GARDEN_WEBSOCKET_CONTROLLER_H
+#define BEYOND_GARDEN_WEBSOCKET_CONTROLLER_H
 
 #define NODEBUG_SOCKETIOCLIENT
 
 #include <SocketIoClient.h>
 #include "../base/utils.hpp"
-#include "../variables/global.hpp"
+#include "../variables/Configuration.hpp"
+#include "../variables/State.hpp"
+#include "./RelayController.hpp"
 
 void handleConnectEvent(const char * payload, size_t length);
 void handleDisconnectEvent(const char * payload, size_t length);
 void handleAcceptEvent(const char * payload, size_t length);
 void handleCommandEvent(const char * payload, size_t length);
 
-class WebsocketController : public SocketIoClient {
+class Network : public SocketIoClient {
   public:
     bool connected = false;
     unsigned long disconnectedAt = 0;
     bool deepSleep = false;
     unsigned long waitBeforeSleep = 15000;
     unsigned long checkOnSleepInterval = 30000;
-    WebsocketController() {
-    }
 
     void setup();
     void loop();
-} websocketCtl;
+} network;
 
-void WebsocketController::setup() {
+extern Network network;
+
+void Network::setup() {
   logStart("Websocket");
   on("connect", handleConnectEvent);
   on("disconnect", handleDisconnectEvent);
   on("accept", handleAcceptEvent);
   on("command", handleCommandEvent);
   prf("> [Websocket] Connecting to -~=> %s : %d\r\n",
-    Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
-  begin(Global::cfg.gardenHost.c_str(), Global::cfg.gardenPort);
+    cfg.gardenHost.c_str(), cfg.gardenPort);
+  begin(cfg.gardenHost.c_str(), cfg.gardenPort);
   // webSocket.setAuthorization("username", "password");
 }
 
-void WebsocketController::loop() {
+void Network::loop() {
   static unsigned long last = 0;
   
   if (!deepSleep) {
@@ -49,13 +51,13 @@ void WebsocketController::loop() {
     }
     if (millis() - disconnectedAt > waitBeforeSleep) {
       deepSleep = true;
-      logz("Websocket", "Deeply sleep... zzZ...");
+      log("Websocket", "Deeply sleep... zzZ...");
     }
   } else {
     if (millis() - last < checkOnSleepInterval) {
       return;
     } else {
-      logz("Websocket", "Wake up at the mid night.");
+      log("Websocket", "Wake up at the mid night.");
     }
   }
   last = millis();
@@ -63,30 +65,30 @@ void WebsocketController::loop() {
 }
 
 void handleConnectEvent(const char * payload, size_t length) {
-  websocketCtl.deepSleep = false;
-  websocketCtl.disconnectedAt = 0;
-  logz("Websocket", "Connected to Garden");
-  websocketCtl.emit(POST stationConnectEndpoint, DEVICE_INFO);
+  network.deepSleep = false;
+  network.disconnectedAt = 0;
+  log("Websocket", "Connected to Garden");
+  network.emit(POST stationConnectEndpoint, DEVICE_INFO);
 }
 
 void handleDisconnectEvent(const char * payload, size_t length) {
-  if (websocketCtl.connected) {
-    logz("Websocket", "Disconnected from Garden!");
-    websocketCtl.connected = false;
+  if (network.connected) {
+    log("Websocket", "Disconnected from Garden!");
+    network.connected = false;
   }
 }
 
 void handleAcceptEvent(const char * payload, size_t length) {
-  logz("Websocket", "Garden accepted!");
-  websocketCtl.connected = true;
-  websocketCtl.emit(POST stationStateEndpoint, Global::state.toJSON());
+  log("Websocket", "Garden accepted!");
+  network.connected = true;
+  network.emit(POST stationStateEndpoint, state.toJSON());
 }
 
 void handleCommandEvent(const char * payload, size_t length) {
-  logz("Websocket", "Garden Command!");
-  deserializeJson(Global::state.doc, payload);
-  serializeJsonPretty(Global::state.doc, Serial);
-  relayCtl.syncState();
+  log("Websocket", "Garden Command!");
+  deserializeJson(state.doc, payload);
+  serializeJsonPretty(state.doc, Serial);
+  relays.syncState();
 }
 
 #endif

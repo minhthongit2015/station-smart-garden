@@ -10,63 +10,42 @@
 #include <iterator>
 
 
-class BaseModule {
+class BaseModule : public Listenable {
   protected:
-    std::set<ChangeListener> changeListeners;
-    std::set<ErrorListener> errorListeners;
-    std::map<EventType, pListenerSet> listenersMap;
+    ListenerSet changeListeners;
+    ListenerSet errorListeners;
 
   public:
     unsigned long CHECK_INTERVAL = 2000;
-    pChangeEvent lastEvent = NULL;
-    pData data = NULL;
 
-    BaseModule() {
+    BaseModule() : Listenable() {
       listenersMap.insert(ListenerPair(VALUE_CHANGE, &changeListeners));
       listenersMap.insert(ListenerPair(ERROR, &errorListeners));
     }
 
-    void onChange(ChangeListener listener) {
+    void onChange(EventListener listener) {
       changeListeners.insert(listener);
     }
-    void onError(ErrorListener listener) {
+    void onError(EventListener listener) {
       errorListeners.insert(listener);
     }
-    void dispatch(ListenerSet &listeners, Event &event) {
-      for (ListenerIterator listener = listeners.begin();
-          listener != listeners.end(); ++listener) {
-        (*listener)(event);
-      }
-    }
-    void dispatch(Event event) {
-      for (ListenerSetIterator listeners = listenersMap.begin();
-          listeners != listenersMap.end(); ++listeners) {
-        if (event.type == listeners->first) {
-          dispatch(*listeners->second, event);
-        }
-      }
-    }
-    void dispatch(Data data, EventType type) {
-      Event event = { type, data };
-      BaseModule::dispatch(event);
-    }
-
-    void setup() { }
-    void loop() { }
 
     bool check() { // Check for new Data
       static unsigned long last = 0;
-      if (millis() - last >= CHECK_INTERVAL) {
-        last = millis();
-        return fetch();
+      if (millis() - last < CHECK_INTERVAL) {
+        return false;
       }
-      return false;
+      last = millis();
+      return fetch();
     }
     Data read() {
       fetch();
-      return *data;
+      return prevData;
     }
-    virtual bool fetch() { return false; }    // Override to 
+    virtual bool fetch() { return false; }
+
+    void setup() { }
+    void loop() { }
 };
 
 #endif

@@ -1,25 +1,23 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_DHT22_H
-#define SMART_GARDEN_DHT22_H
+#ifndef BEYOND_GARDEN_DHT22_H
+#define BEYOND_GARDEN_DHT22_H
 
 #include "../base/utils.hpp"
-#include "../variables/config.hpp"
+#include "../variables/Configuration.hpp"
 #include "./_BaseModule.hpp"
 #include <DHT.h>
 
 class HuTempDHT22 : public BaseModule {
   private:
   public:
-    DHT dht;
-    Data prevData = { { 80, 25 } };
+    DHT *pDHT = NULL;
     Data data = { { 80, 25 } };
 
-    HuTempDHT22()
-      :dht(Config::DhtPin, Config::DhtType)
-    {
+    HuTempDHT22() : BaseModule() {
       CHECK_INTERVAL = 2000;
+      prevData = data;
     }
 
     void setup();
@@ -29,24 +27,21 @@ class HuTempDHT22 : public BaseModule {
 
 void HuTempDHT22::setup() {
   logStart("HuTemp Sensor (DHT22)");
-  dht.begin();
+  pDHT = new DHT(cfg.DhtPin, cfg.DhtType);
+  (*pDHT).begin();
 }
 
 void HuTempDHT22::loop() {
-  if (!check()) {
-    // prl("read nothing...");
-    return;
-  }
+  if (!check()) return;
   if (data.HuTemp != prevData) {
-    dispatch(data, VALUE_CHANGE);
-    prevData = data;
+    dispatch(data, HUTEMP_CHANGE);
   }
 }
 
 bool HuTempDHT22::fetch() {
   static Data newData = { { 0, 0 } };
-  newData.HuTemp.temperature = dht.readTemperature();
-  newData.HuTemp.humidity = dht.readHumidity();
+  newData.HuTemp.temperature = (*pDHT).readTemperature();
+  newData.HuTemp.humidity = (*pDHT).readHumidity();
   if (!newData.HuTemp) {
     return false;
   }

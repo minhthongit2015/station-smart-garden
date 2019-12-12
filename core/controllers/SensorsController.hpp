@@ -1,81 +1,98 @@
 
 #pragma once
-#ifndef SMART_GARDEN_SENSORS_CONTROLLER_H
-#define SMART_GARDEN_SENSORS_CONTROLLER_H
+#ifndef BEYOND_GARDEN_SENSORS_CONTROLLER_H
+#define BEYOND_GARDEN_SENSORS_CONTROLLER_H
 
 #include "../base/utils.hpp"
-#include "../variables/global.hpp"
 #include "../base/types.hpp"
+#include "../variables/State.hpp"
 
-#include "./DisplayController.hpp"
-#include "./WebsocketController.hpp"
+#include "../modules/DHT22.hpp"
+#include "../modules/BH1750.hpp"
+#include "../modules/HCSR501.hpp"
 
+void onHuTempChange1(Event event);
+void onLightChange1(Event event);
+void onMovingChange1(Event event);
 
-void onHuTempChange(Event event);
-void onLightChange(Event event);
-void onMovingChange(Event event);
-
-class SensorsController {
+class SensorsController : public Listenable {
   private:
   public:
-    bool dirty = false;
+    HuTempDHT22 dht;
+    LightBH1750 bh1750;
+    MotionDetectorHCSR501 hcsr501;
+    ListenerSet hutempChangeListeners;
+    ListenerSet lightChangeListeners;
+    ListenerSet movingChangeListeners;
+
+    SensorsController() : Listenable() {
+      listenersMap.insert(ListenerPair(HUTEMP_CHANGE, &hutempChangeListeners));
+      listenersMap.insert(ListenerPair(LIGHT_CHANGE, &lightChangeListeners));
+      listenersMap.insert(ListenerPair(MOVING_CHANGE, &movingChangeListeners));
+    }
+
+    void onHuTempChange(EventListener listener) {
+      hutempChangeListeners.insert(listener);
+    }
+    void onLightChange(EventListener listener) {
+      lightChangeListeners.insert(listener);
+    }
+    void onMovingChange(EventListener listener) {
+      movingChangeListeners.insert(listener);
+    }
 
     void emulateState() {
-      Global::state.temperature = random(2500, 3500) / 100.0f;
-      Global::state.humidity = random(600, 900) / 10.0f;
-      Global::state.light = random(300, 1500);
+      state.temperature = random(2500, 3500) / 100.0f;
+      state.humidity = random(600, 900) / 10.0f;
+      state.light = random(300, 1500);
     }
 
     void setup() {
       logStart("Sensors Controller");
       randomSeed(analogRead(0));
-      Global::bh1750.setup();
-      Global::bh1750.onChange(onLightChange);
-      Global::dht.setup();
-      Global::dht.onChange(onHuTempChange);
-      // Global::hcsr501.setup();
-      // Global::hcsr501.onChange(onMovingChange);
+      bh1750.setup();
+      dht.setup();
+      // hcsr501.setup();
+    }
+
+    void setupListeners() {
+      bh1750.onChange(onLightChange1);
+      dht.onChange(onHuTempChange1);
+      // hcsr501.onChange(onMovingChange);
     }
 
     void loop() {
       static unsigned long last = millis();
       static unsigned long dif = 0;
 
-      Global::dht.loop();
-      Global::bh1750.loop();
-      // Global::hcsr501.loop();
+      dht.loop();
+      bh1750.loop();
+      // hcsr501.loop();
       // if (millis() - last > dif) {
       //   last = millis();
       //   dif = random(10000, 15000);
       //   this->emulateState();
       //   webSocket.emit("environment", state.toJSON());
       // }
-      
-      if (dirty && websocketCtl.connected) {
-        websocketCtl.emit(POST stationStateEndpoint, Global::state.toJSON());
-        dirty = false;
-      }
     }
-} sensorsCtl;
+} sensors;
 
-void onHuTempChange(Event event) {
+extern SensorsController sensors;
+
+void onHuTempChange1(Event event) {
   if (logChannels[1]) prf("Temp: %.2f | Humi: %.2f\r\n",
     event.data.HuTemp.temperature, event.data.HuTemp.humidity);
-  Global::state.temperature = event.data.HuTemp.temperature;
-  Global::state.humidity = event.data.HuTemp.humidity;
-  sensorsCtl.dirty = true;
+  sensors.dispatch(event);
 }
 
-void onLightChange(Event event) {
+void onLightChange1(Event event) {
   if (logChannels[1]) prf("Light: %d\r\n", event.data.Light.light);
-  Global::state.light = event.data.Light.light;
-  sensorsCtl.dirty = true;
+  sensors.dispatch(event);
 }
 
-void onMovingChange(Event event) {
+void onMovingChange1(Event event) {
   if (logChannels[1]) prf("Moving: %s\r\n", event.data.Moving.moving ? "true" : "false");
-  Global::state.moving = event.data.Moving.moving;
-  sensorsCtl.dirty = true;
+  sensors.dispatch(event);
 }
 
 #endif

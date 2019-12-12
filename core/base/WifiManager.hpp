@@ -1,23 +1,23 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_WIFI_CONTROLLER_H
-#define SMART_GARDEN_WIFI_CONTROLLER_H
+#ifndef BEYOND_GARDEN_WIFI_CONTROLLER_H
+#define BEYOND_GARDEN_WIFI_CONTROLLER_H
 
 #include "../base/utils.hpp"
 #include "../base/types.hpp"
-#include "../variables/global.hpp"
-
-#define wifiConnected (WiFi.status() == WL_CONNECTED)
+#include "../variables/constants.hpp"
+#include "../variables/DeviceInfo.hpp"
 
 bool checkGardenSignal(String ssid) {
-  return Global::cfg.gardenWifiSignal.charAt(0) && ssid.indexOf(Global::cfg.gardenWifiSignal) >= 0;
+  return cfg.gardenWifiSignal.charAt(0) && ssid.indexOf(cfg.gardenWifiSignal) >= 0;
 }
 
-class WifiController {
+class WifiManager {
   private:
   public:
   WifiInfo wifiList[30];
+  unsigned long RETRY_INTERVAL = 15000;
 
   int scanWifiNetworks(bool debug=false);
   
@@ -27,11 +27,13 @@ class WifiController {
 
   void scanAndConnect();
 
+  bool isConnected() { return WiFi.status() == WL_CONNECTED; }
+
   void setup();
   void loop();
-} wifiCtl;
+} wifiMgr;
 
-void WifiController::setup() {
+void WifiManager::setup() {
   logStart("Wifi");
   
   WiFi.mode(WIFI_STA);
@@ -39,28 +41,28 @@ void WifiController::setup() {
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
   
-  if (wifiConnected && !checkGardenSignal(WiFi.SSID())) {
-    logz("Wifi", "Garden Signal changes -> disconnect().");
+  if (wifiMgr.isConnected() && !checkGardenSignal(WiFi.SSID())) {
+    log("Wifi", "Garden Signal changes -> disconnect().");
     WiFi.disconnect(true);
   }
 
-  if (wifiConnected) {
+  if (wifiMgr.isConnected()) {
     prf("> [Wifi] Connected ---> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
   }
 }
 
-void WifiController::loop() {
+void WifiManager::loop() {
   static unsigned long last = 0;
   static unsigned long delayTime = 15000;
 
-  if (!wifiConnected && millis() - last > delayTime) {
+  if (!wifiMgr.isConnected() && millis() - last > delayTime) {
     scanAndConnect();
     last = millis();
   }
 }
 
 
-void WifiController::scanAndConnect() {
+void WifiManager::scanAndConnect() {
   int n = this->scanWifiNetworks(true);
   
   int count = 0;
@@ -80,13 +82,13 @@ void WifiController::scanAndConnect() {
 }
 
 
-int WifiController::scanWifiNetworks(bool debug) {
-  if (debug) logz("Wifi", "Scanning...");
+int WifiManager::scanWifiNetworks(bool debug) {
+  if (debug) log("Wifi", "Scanning...");
   int n = WiFi.scanNetworks();
 
   if (n > 0) {
     for (register int i = 0; i < n; ++i) {
-      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), Global::cfg.gardenWifiPassword);
+      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), cfg.gardenWifiPassword);
     }
     if (debug) {
       prl("┌────────────────── Scan Result ──────────────────┐");
@@ -104,39 +106,39 @@ int WifiController::scanWifiNetworks(bool debug) {
 }
 
 
-wl_status_t WifiController::connectWifi(String ssid, String pass) {
+wl_status_t WifiManager::connectWifi(String ssid, String pass) {
   return WiFi.begin(ssid.c_str(), pass.c_str());
 }
 
-bool WifiController::connectWifi(WifiInfo wifi, bool debug) {
+bool WifiManager::connectWifi(WifiInfo wifi, bool debug) {
   this->connectWifi(wifi, 14, 500, debug);
 }
-bool WifiController::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) {
+bool WifiManager::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) {
   if (debug) Serial.printf("> [Wifi] Joining to -~=> %s : %s\r\n", wifi.ssid.c_str(), wifi.pass.c_str());
 
   byte retry1 = maxTry/2;
-  while (!wifiConnected) { // Chờ Kết nối trong 15s
+  while (!wifiMgr.isConnected()) { // Chờ Kết nối trong 15s
     pr(retry1); pr("."); delay(wait);
     if (!--retry1) break;
   } prl();
 
   byte retry = maxTry;
-  if (!wifiConnected && connectWifi(wifi.ssid, wifi.pass) != WL_CONNECTED) {
-    while (!wifiConnected) { // Chờ Kết nối trong 15s
+  if (!wifiMgr.isConnected() && connectWifi(wifi.ssid, wifi.pass) != WL_CONNECTED) {
+    while (!wifiMgr.isConnected()) { // Chờ Kết nối trong 15s
       pr(retry); pr("."); delay(wait);
       if (!--retry) break;
     } prl();
   }
 
   if (debug) {
-    if (wifiConnected) {
+    if (wifiMgr.isConnected()) {
       Serial.printf("\r\n> [Wifi] Connected ---> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
     } else {
       Serial.printf("\r\n> [Wifi] Failed -/-> %s : %s\r\n", wifi.ssid.c_str(), wifi.pass.c_str());
     }
   }
 
-  return wifiConnected;
+  return wifiMgr.isConnected();
 }
 
 #endif

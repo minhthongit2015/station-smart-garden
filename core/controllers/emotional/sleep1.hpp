@@ -1,6 +1,6 @@
 #pragma once
- #ifndef SMART_GARDEN_EMOTION_SLEEP1_H
- #define SMART_GARDEN_EMOTION_SLEEP1_H
+ #ifndef BEYOND_GARDEN_EMOTION_SLEEP1_H
+ #define BEYOND_GARDEN_EMOTION_SLEEP1_H
 
  #include "../../base/types.hpp"
  

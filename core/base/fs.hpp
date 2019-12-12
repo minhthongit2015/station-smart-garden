@@ -1,38 +1,35 @@
 
 #pragma once
-#ifndef SMART_GARDEN_FILESYSTEM_H
-#define SMART_GARDEN_FILESYSTEM_H
+#ifndef BEYOND_GARDEN_FILESYSTEM_H
+#define BEYOND_GARDEN_FILESYSTEM_H
 
-#include "./utils.hpp"
 #include <FS.h>
+#include "./utils.hpp"
 
-class FileSystem {
+class FileSystem : public FS {
   private:
     void _listingFiles(Dir &root);
   public:
-    FS &fs;
-    FileSystem():fs(SPIFFS) { }
+    FileSystem(): FS(SPIFFS) { }
     void setup();
     void listingFiles();
     void showInfo();
-    bool format() {
-      logz("File System", "Format Disk");
-      return fs.format();
-    }
-};
+} fsz;
 
-typedef FileSystem *pFileSystem;
+typedef FileSystem* pFileSystem;
+
+extern FileSystem fsz;
 
 void FileSystem::setup() {
   logStart("File System");
-  if (!fs.begin()) {
+  if (!begin()) {
     error("File System", "Failed to mount file system");
   }
 }
 
 void FileSystem::listingFiles() {
-  logzBlock("File System", "Listing files");
-  Dir root = fs.openDir("/");
+  logBlock("File System", "Listing files");
+  Dir root = openDir("/");
   _listingFiles(root);
 }
 
@@ -49,9 +46,9 @@ void FileSystem::_listingFiles(Dir &root) {
 }
 
 void FileSystem::showInfo() {
-  logz("File System", "Disk Info");
+  log("File System", "Disk Info");
   FSInfo fs_info;
-  fs.info(fs_info);
+  info(fs_info);
   prf("> [File System] Usage: %d / %d (%d%%)\r\n",
     fs_info.usedBytes, fs_info.totalBytes,
     fs_info.usedBytes / fs_info.totalBytes);

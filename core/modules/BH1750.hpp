@@ -1,8 +1,8 @@
 
 
 #pragma once
-#ifndef SMART_GARDEN_BH1750_H
-#define SMART_GARDEN_BH1750_H
+#ifndef BEYOND_GARDEN_BH1750_H
+#define BEYOND_GARDEN_BH1750_H
 
 #include "../base/utils.hpp"
 #include "./_BaseModule.hpp"
@@ -13,14 +13,12 @@
 class LightBH1750 : public BaseModule {
   private:
   public:
-    BH1750FVI bh1750;
-    Data prevLight = { { 0 } };
+    BH1750FVI *pBH1750 = NULL;
     Data light = { { 0 } };
 
-    LightBH1750()
-      :bh1750(BH1750FVI::k_DevModeContHighRes)
-    {
+    LightBH1750() : BaseModule() {
       CHECK_INTERVAL = 2000;
+      prevData = light;
     }
 
     void setup();
@@ -30,20 +28,20 @@ class LightBH1750 : public BaseModule {
 
 void LightBH1750::setup() {
   logStart("Light Sensor (BH1750)");
-  bh1750.begin();
+  pBH1750 = new BH1750FVI(BH1750FVI::k_DevModeContHighRes);
+  (*pBH1750).begin();
 }
 
 void LightBH1750::loop() {
   if (!check()) return;
-  if (light.Light != prevLight) {
-    dispatch(light, VALUE_CHANGE);
-    prevLight = light;
+  if (light.Light != prevData) {
+    dispatch(light, LIGHT_CHANGE);
   }
 }
 
 bool LightBH1750::fetch() {
-  static Data newData = { { 0 } };
-  light.Light.light = bh1750.GetLightIntensity();
+  if (!pBH1750) return false;
+  light.Light.light = (*pBH1750).GetLightIntensity();
   return true;
 }
 

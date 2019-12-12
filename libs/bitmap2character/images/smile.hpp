@@ -1,6 +1,6 @@
 #pragma once
- #ifndef SMART_GARDEN_EMOTION_SMILE_H
- #define SMART_GARDEN_EMOTION_SMILE_H
+ #ifndef BEYOND_GARDEN_EMOTION_SMILE_H
+ #define BEYOND_GARDEN_EMOTION_SMILE_H
 
  #include "../../base/types.hpp"
  

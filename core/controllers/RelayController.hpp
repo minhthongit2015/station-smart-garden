@@ -1,93 +1,107 @@
 
 #pragma once
-#ifndef SMART_GARDEN_RELAY_CONTROLLER_H
-#define SMART_GARDEN_RELAY_CONTROLLER_H
+#ifndef BEYOND_GARDEN_RELAY_CONTROLLER_H
+#define BEYOND_GARDEN_RELAY_CONTROLLER_H
 
 #include "../base/utils.hpp"
-#include "../variables/global.hpp"
+#include "../variables/State.hpp"
+#include "../variables/Configuration.hpp"
 
 class RelayController {
+  private:
+  public:
+    int pump = NOT_A_PIN;
+    int oxygen = NOT_A_PIN;
+    int led = NOT_A_PIN;
+    int fan = NOT_A_PIN;
+    int misting = NOT_A_PIN;
+    int nutri = NOT_A_PIN;
 
-public:
-  int pump = NOT_A_PIN;
-  int oxygen = NOT_A_PIN;
-  int led = NOT_A_PIN;
-  int fan = NOT_A_PIN;
-  int misting = NOT_A_PIN;
-  int nutri = NOT_A_PIN;
+    void setPump(bool isEnable);
+    void setOxygen(bool isEnable);
+    void setLed(bool isEnable);
+    void setFan(bool isEnable);
+    void setMisting(bool isEnable);
+    void setNutri(bool isEnable);
+    void syncState();
 
-  void setup() {
-    logStart("Relay Controller");
-    if (Global::cfg.pumpPin != NOT_A_PIN) {
-      useOut(Global::cfg.pumpPin);     offRelay(Global::cfg.pumpPin);
-    }
-    if (Global::cfg.oxygenPin != NOT_A_PIN) {
-      useOut(Global::cfg.oxygenPin);   offRelay(Global::cfg.oxygenPin);
-    }
-    if (Global::cfg.ledPin != NOT_A_PIN) {
-      useOut(Global::cfg.ledPin);      offRelay(Global::cfg.ledPin);
-    }
-    if (Global::cfg.fanPin != NOT_A_PIN) {
-      useOut(Global::cfg.fanPin);      offRelay(Global::cfg.fanPin);
-    }
-    if (Global::cfg.mistingPin != NOT_A_PIN) {
-      useOut(Global::cfg.mistingPin);  offRelay(Global::cfg.mistingPin);
-    }
-    if (Global::cfg.nutriPin != NOT_A_PIN) {
-      useOut(Global::cfg.nutriPin);    offRelay(Global::cfg.nutriPin);
-    }
-    syncState();
-  }
+    void setup();
+    void loop();
+} relays;
 
-  void loop() {
-    // TODO: Check and stop nutri
-  }
+extern RelayController relays;
 
-  void syncState() {
-    if (Global::state.doc.containsKey("pump")) {
-      Global::state.pump = Global::state.doc["pump"];
-      this->setPump(Global::state.pump);
-    }
-    if (Global::state.doc.containsKey("oxygen")) {
-      Global::state.oxygen = Global::state.doc["oxygen"];
-      this->setOxygen(Global::state.oxygen);
-    }
-    if (Global::state.doc.containsKey("led")) {
-      Global::state.led = Global::state.doc["led"];
-      this->setLed(Global::state.led);
-    }
-    if (Global::state.doc.containsKey("fan")) {
-      Global::state.fan = Global::state.doc["fan"];
-      this->setFan(Global::state.fan);
-    }
-    if (Global::state.doc.containsKey("misting")) {
-      Global::state.misting = Global::state.doc["misting"];
-      this->setMisting(Global::state.misting);
-    }
-    if (Global::state.doc.containsKey("nutri")) {
-      Global::state.nutri = Global::state.doc["nutri"];
-      this->setNutri(Global::state.nutri);
-    }
+void RelayController::setup() {
+  logStart("Relay Controller");
+  if (cfg.pumpPin != NOT_A_PIN) {
+    useOut(cfg.pumpPin);     offRelay(cfg.pumpPin);
   }
+  if (cfg.oxygenPin != NOT_A_PIN) {
+    useOut(cfg.oxygenPin);   offRelay(cfg.oxygenPin);
+  }
+  if (cfg.ledPin != NOT_A_PIN) {
+    useOut(cfg.ledPin);      offRelay(cfg.ledPin);
+  }
+  if (cfg.fanPin != NOT_A_PIN) {
+    useOut(cfg.fanPin);      offRelay(cfg.fanPin);
+  }
+  if (cfg.mistingPin != NOT_A_PIN) {
+    useOut(cfg.mistingPin);  offRelay(cfg.mistingPin);
+  }
+  if (cfg.nutriPin != NOT_A_PIN) {
+    useOut(cfg.nutriPin);    offRelay(cfg.nutriPin);
+  }
+  syncState();
+}
 
-  void setPump(bool isEnable) {
-    if (isEnable && pump != NOT_A_PIN) onRelay(pump) else offRelay(pump);
+void RelayController::loop() {
+  // TODO: Check and stop nutri
+}
+
+void RelayController::syncState() {
+  if (state.doc.containsKey("pump")) {
+    state.pump = state.doc["pump"];
+    this->setPump(state.pump);
   }
-  void setOxygen(bool isEnable) {
-    if (isEnable && oxygen != NOT_A_PIN) onRelay(oxygen) else offRelay(oxygen);
+  if (state.doc.containsKey("oxygen")) {
+    state.oxygen = state.doc["oxygen"];
+    this->setOxygen(state.oxygen);
   }
-  void setLed(bool isEnable) {
-    if (isEnable && led != NOT_A_PIN) onRelay(led) else offRelay(led);
+  if (state.doc.containsKey("led")) {
+    state.led = state.doc["led"];
+    this->setLed(state.led);
   }
-  void setFan(bool isEnable) {
-    if (isEnable && fan != NOT_A_PIN) onRelay(fan) else offRelay(fan);
+  if (state.doc.containsKey("fan")) {
+    state.fan = state.doc["fan"];
+    this->setFan(state.fan);
   }
-  void setMisting(bool isEnable) {
-    if (isEnable && misting != NOT_A_PIN) onRelay(misting) else offRelay(misting);
+  if (state.doc.containsKey("misting")) {
+    state.misting = state.doc["misting"];
+    this->setMisting(state.misting);
   }
-  void setNutri(bool isEnable) {
-    if (isEnable && nutri != NOT_A_PIN) onRelay(nutri) else offRelay(nutri);
+  if (state.doc.containsKey("nutri")) {
+    state.nutri = state.doc["nutri"];
+    this->setNutri(state.nutri);
   }
-} relayCtl;
+}
+
+void RelayController::setPump(bool isEnable) {
+  if (isEnable && pump != NOT_A_PIN) onRelay(pump) else offRelay(pump);
+}
+void RelayController::setOxygen(bool isEnable) {
+  if (isEnable && oxygen != NOT_A_PIN) onRelay(oxygen) else offRelay(oxygen);
+}
+void RelayController::setLed(bool isEnable) {
+  if (isEnable && led != NOT_A_PIN) onRelay(led) else offRelay(led);
+}
+void RelayController::setFan(bool isEnable) {
+  if (isEnable && fan != NOT_A_PIN) onRelay(fan) else offRelay(fan);
+}
+void RelayController::setMisting(bool isEnable) {
+  if (isEnable && misting != NOT_A_PIN) onRelay(misting) else offRelay(misting);
+}
+void RelayController::setNutri(bool isEnable) {
+  if (isEnable && nutri != NOT_A_PIN) onRelay(nutri) else offRelay(nutri);
+}
 
 #endif
