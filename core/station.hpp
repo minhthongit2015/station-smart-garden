@@ -6,11 +6,11 @@
 
 #include "./base/utils.hpp"
 #include "./variables/Configuration.hpp"
-#include "./base/WifiManager.hpp"
 #include "./controllers/Display.hpp"
 #include "./controllers/Keyboard.hpp"
-#include "./controllers/RelayController.hpp"
 #include "./controllers/SensorsController.hpp"
+#include "./controllers/RelayController.hpp"
+#include "./base/WifiManager.hpp"
 #include "./controllers/Network.hpp"
 
 
@@ -33,7 +33,7 @@ void SmartGardenStation::setup() {
   logStart("Station");
 
   togglePerformanceChannel(0, false);
-  toggleLogChannel(1, false); // Hide sensor value
+  toggleLogChannel(1, true); // Hide sensor value
 
   i2cScanner();
 
@@ -46,6 +46,8 @@ void SmartGardenStation::setup() {
 
   wifiMgr.setup();
   network.setup();
+
+  setupListeners();
 }
 
 void SmartGardenStation::setupListeners() {

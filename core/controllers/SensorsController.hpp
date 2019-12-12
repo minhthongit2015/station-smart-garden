@@ -53,6 +53,8 @@ class SensorsController : public Listenable {
       bh1750.setup();
       dht.setup();
       // hcsr501.setup();
+      
+      setupListeners();
     }
 
     void setupListeners() {
