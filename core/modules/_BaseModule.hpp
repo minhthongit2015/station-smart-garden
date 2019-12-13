@@ -12,14 +12,19 @@
 
 class BaseModule : public Listenable {
   protected:
-    ListenerSet changeListeners;
-    ListenerSet errorListeners;
+    ListenerSet changeListeners;  // built-in supported listener
+    ListenerSet errorListeners;   // built-in supported listener
 
   public:
     unsigned long CHECK_INTERVAL = 2000;
-
-    BaseModule() : Listenable() {
-      listenersMap.insert(ListenerPair(VALUE_CHANGE, &changeListeners));
+    unsigned long last = 0;
+    virtual EventType getDefaultEventType() override {
+      return VALUE_CHANGE;
+    }
+    
+    BaseModule() : BaseModule(NULL) { }
+    BaseModule(pData pDataz) : Listenable(pDataz) {
+      listenersMap.insert(ListenerPair(getDefaultEventType(), &changeListeners));
       listenersMap.insert(ListenerPair(ERROR, &errorListeners));
     }
 
@@ -30,22 +35,26 @@ class BaseModule : public Listenable {
       errorListeners.insert(listener);
     }
 
-    bool check() { // Check for new Data
-      static unsigned long last = 0;
+    virtual bool check() { // Check for new Data
       if (millis() - last < CHECK_INTERVAL) {
         return false;
       }
       last = millis();
+      // prl("<Checking Data>");
       return fetch();
     }
-    Data read() {
+    virtual Data read() {
+      // prl("<Reading Data>");
       fetch();
-      return prevData;
+      return pDataz ? *pDataz : prevData; // return Data;
     }
-    virtual bool fetch() { return false; }
+    virtual bool fetch() {
+      // prl("<Fetching Data>");
+      return false;
+    }
 
-    void setup() { }
-    void loop() { }
+    virtual void setup() { }
+    virtual void loop() { }
 };
 
 #endif

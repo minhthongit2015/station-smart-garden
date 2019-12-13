@@ -13,17 +13,20 @@
 class LightBH1750 : public BaseModule {
   private:
   public:
+    EventType getDefaultEventType() override {
+      return LIGHT_CHANGE;
+    }
     BH1750FVI *pBH1750 = NULL;
     Data light = { { 0 } };
 
-    LightBH1750() : BaseModule() {
+    LightBH1750() : BaseModule(&light) {
       CHECK_INTERVAL = 2000;
-      prevData = light;
+      listenersMap.insert(ListenerPair(getDefaultEventType(), &changeListeners));
     }
 
-    void setup();
-    void loop();
-    bool fetch();
+    void setup() override;
+    void loop() override;
+    bool fetch() override;
 };
 
 void LightBH1750::setup() {
@@ -35,7 +38,7 @@ void LightBH1750::setup() {
 void LightBH1750::loop() {
   if (!check()) return;
   if (light.Light != prevData) {
-    dispatch(light, LIGHT_CHANGE);
+    dispatch(light);
   }
 }
 

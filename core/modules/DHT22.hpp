@@ -12,17 +12,20 @@
 class HuTempDHT22 : public BaseModule {
   private:
   public:
+    EventType getDefaultEventType() override {
+      return HUTEMP_CHANGE;
+    }
     DHT *pDHT = NULL;
     Data data = { { 80, 25 } };
 
-    HuTempDHT22() : BaseModule() {
+    HuTempDHT22() : BaseModule(&data) {
       CHECK_INTERVAL = 2000;
-      prevData = data;
+      listenersMap.insert(ListenerPair(getDefaultEventType(), &changeListeners));
     }
 
-    void setup();
-    void loop();
-    bool fetch();
+    void setup() override;
+    void loop() override;
+    bool fetch() override;
 };
 
 void HuTempDHT22::setup() {
@@ -34,7 +37,7 @@ void HuTempDHT22::setup() {
 void HuTempDHT22::loop() {
   if (!check()) return;
   if (data.HuTemp != prevData) {
-    dispatch(data, HUTEMP_CHANGE);
+    dispatch(data);
   }
 }
 

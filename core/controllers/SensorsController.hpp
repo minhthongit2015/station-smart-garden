@@ -67,8 +67,8 @@ class SensorsController : public Listenable {
       static unsigned long last = millis();
       static unsigned long dif = 0;
 
-      dht.loop();
       bh1750.loop();
+      dht.loop();
       // hcsr501.loop();
       // if (millis() - last > dif) {
       //   last = millis();

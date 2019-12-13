@@ -10,11 +10,14 @@
 #include "../variables/Configuration.hpp"
 #include "../variables/State.hpp"
 #include "./RelayController.hpp"
+#include "../base/WifiManager.hpp"
 
 void handleConnectEvent(const char * payload, size_t length);
 void handleDisconnectEvent(const char * payload, size_t length);
 void handleAcceptEvent(const char * payload, size_t length);
 void handleCommandEvent(const char * payload, size_t length);
+
+
 
 class Network : public SocketIoClient {
   public:
@@ -23,6 +26,12 @@ class Network : public SocketIoClient {
     bool deepSleep = false;
     unsigned long waitBeforeSleep = 15000;
     unsigned long checkOnSleepInterval = 30000;
+    bool initialized = false;
+
+    void initialize() {
+      initialized = true;
+      begin(cfg.gardenHost.c_str(), cfg.gardenPort);
+    }
 
     void setup();
     void loop();
@@ -38,12 +47,19 @@ void Network::setup() {
   on("command", handleCommandEvent);
   prf("> [Websocket] Connecting to -~=> %s : %d\r\n",
     cfg.gardenHost.c_str(), cfg.gardenPort);
-  begin(cfg.gardenHost.c_str(), cfg.gardenPort);
+  if (wifiMgr.isConnected()) {
+    initialize();
+  }
   // webSocket.setAuthorization("username", "password");
 }
 
+
+
 void Network::loop() {
   static unsigned long last = 0;
+  if (!wifiMgr.isConnected()) {
+    return;
+  }
   
   if (!deepSleep) {
     if (!connected && disconnectedAt == 0) { // First time disconnect

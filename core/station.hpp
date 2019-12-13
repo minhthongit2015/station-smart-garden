@@ -5,6 +5,7 @@
 #define BEYOND_GARDEN_WIFI_STA_H
 
 #include "./base/utils.hpp"
+#include "./base/fs.hpp"
 #include "./variables/Configuration.hpp"
 #include "./controllers/Display.hpp"
 #include "./controllers/Keyboard.hpp"
@@ -33,10 +34,11 @@ void SmartGardenStation::setup() {
   logStart("Station");
 
   togglePerformanceChannel(0, false);
-  toggleLogChannel(1, true); // Hide sensor value
+  toggleLogChannel(1, false); // false: Hide sensor value
 
   i2cScanner();
 
+  fsz.setup();
   cfg.setup();
 
   display.setup();
@@ -77,7 +79,7 @@ void SmartGardenStation::loop() {
   #ifndef ENV_PROD
   performance("keyboard");
   #endif
-  keyboard.loop();
+  // keyboard.loop();
 
   #ifndef ENV_PROD
   performance("displayCtl");

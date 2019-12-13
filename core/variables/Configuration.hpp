@@ -63,6 +63,7 @@ class Configuration : public Listenable {
     
     void setup() {
       logStart("Configuration Manager");
+      loadConfigurations();
     }
     void loop() {
       if (Serial.available()) {

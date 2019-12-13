@@ -98,26 +98,37 @@ class Listenable {
   protected:
 
   public:
+    virtual EventType getDefaultEventType() {
+      return ON_EVENT;
+    }
     pEvent pLastEvent = NULL;
     Data prevData = { { 0 } };
-    std::set<EventListener> listeners;
+    pData pDataz = NULL;
+    std::set<EventListener> listeners;  // demo usage
     std::map<EventType, pListenerSet> listenersMap;
-    Listenable() {
-      listenersMap.insert(ListenerPair(ON_EVENT, &listeners));
+    Listenable() : Listenable(NULL) { }
+    Listenable(pData pDataz) {
+      if (pDataz) {
+        this->pDataz = pDataz;
+        prevData = *pDataz;
+      }
+      listenersMap.insert(ListenerPair(getDefaultEventType(), &listeners)); // demo usage
     }
-    void onEvent(EventListener listener) {
+    void onEvent(EventListener listener) {  // demo usage
       listeners.insert(listener);
+    }
+    void dispatch(Data data) {
+      Event event = { getDefaultEventType(), data };
+      dispatch(event);
     }
     void dispatch(Data data, EventType type) {
       Event event = { type, data };
       dispatch(event);
     }
-    void dispatch(Event event) {
-      for (ListenerSetIterator listeners = listenersMap.begin();
-          listeners != listenersMap.end(); ++listeners) {
-        if (event.type == listeners->first) {
-          dispatch(*listeners->second, event);
-        }
+    void dispatch(Event &event) {
+      ListenerSetIterator listeners = listenersMap.find(event.type);
+      if (listeners->second) {
+        dispatch(*listeners->second, event);
       }
     }
     void dispatch(ListenerSet &listeners, Event &event) {
