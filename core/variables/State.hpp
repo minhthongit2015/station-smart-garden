@@ -25,12 +25,12 @@ class StationState {
     bool misting = 0;
     long nutri = 0;
 
-    char* toJSON();
+    char *toJSON();
 } state;
 
 extern StationState state;
 
-char* StationState::toJSON() {
+char *StationState::toJSON() {
   JsonObject obj = doc.to<JsonObject>();
   obj["temperature"] = temperature;
   obj["humidity"] = humidity;

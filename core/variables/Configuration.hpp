@@ -39,7 +39,7 @@ class Configuration : public Listenable {
     uint8_t TTP229SclPin = NOT_A_PIN;
     uint8_t TTP229SdoPin = NOT_A_PIN;
     
-    uint8_t pumpPin = NOT_A_PIN;
+    uint8_t pumpPin = D3;
     uint8_t oxygenPin = NOT_A_PIN;
     uint8_t ledPin = NOT_A_PIN;
     uint8_t fanPin = NOT_A_PIN;

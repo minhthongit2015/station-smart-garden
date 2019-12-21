@@ -3,19 +3,20 @@
 #ifndef BEYOND_GARDEN_WEBSOCKET_CONTROLLER_H
 #define BEYOND_GARDEN_WEBSOCKET_CONTROLLER_H
 
-#define NODEBUG_SOCKETIOCLIENT
+// #define NODEBUG_SOCKETIOCLIENT
 
-#include <SocketIoClient.h>
+// #include <SocketIoClient.h>
+#include "../base/socket-io-client.hpp"
 #include "../base/utils.hpp"
 #include "../variables/Configuration.hpp"
 #include "../variables/State.hpp"
 #include "./RelayController.hpp"
 #include "../base/WifiManager.hpp"
 
-void handleConnectEvent(const char * payload, size_t length);
-void handleDisconnectEvent(const char * payload, size_t length);
-void handleAcceptEvent(const char * payload, size_t length);
-void handleCommandEvent(const char * payload, size_t length);
+void handleConnectEvent(const char *payload, size_t length);
+void handleDisconnectEvent(const char *payload, size_t length);
+void handleAcceptEvent(const char *payload, size_t length);
+void handleCommandEvent(const char *payload, size_t length);
 
 
 
@@ -24,7 +25,7 @@ class Network : public SocketIoClient {
     bool connected = false;
     unsigned long disconnectedAt = 0;
     bool deepSleep = false;
-    unsigned long waitBeforeSleep = 15000;
+    unsigned long waitBeforeSleep = 30000;
     unsigned long checkOnSleepInterval = 30000;
     bool initialized = false;
 
@@ -53,8 +54,6 @@ void Network::setup() {
   // webSocket.setAuthorization("username", "password");
 }
 
-
-
 void Network::loop() {
   static unsigned long last = 0;
   if (!wifiMgr.isConnected()) {
@@ -62,17 +61,23 @@ void Network::loop() {
   }
   
   if (!deepSleep) {
-    if (!connected && disconnectedAt == 0) { // First time disconnect
-      disconnectedAt = millis();
-    }
-    if (millis() - disconnectedAt > waitBeforeSleep) {
-      deepSleep = true;
-      log("Websocket", "Deeply sleep... zzZ...");
+    if (connected) {
+
+    } else {
+      if (disconnectedAt == 0) { // First time disconnect
+        disconnectedAt = millis();
+      }
+      if (millis() - disconnectedAt > waitBeforeSleep) {
+        deepSleep = true;
+        log("Websocket", "Deeply sleep... zzZ...");
+        return;
+      }
     }
   } else {
     if (millis() - last < checkOnSleepInterval) {
       return;
     } else {
+      network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
       log("Websocket", "Wake up at the mid night.");
     }
   }
@@ -80,27 +85,27 @@ void Network::loop() {
   SocketIoClient::loop();
 }
 
-void handleConnectEvent(const char * payload, size_t length) {
+void handleConnectEvent(const char *payload, size_t length) {
   network.deepSleep = false;
   network.disconnectedAt = 0;
   log("Websocket", "Connected to Garden");
-  network.emit(POST stationConnectEndpoint, DEVICE_INFO);
+  network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
 }
 
-void handleDisconnectEvent(const char * payload, size_t length) {
+void handleDisconnectEvent(const char *payload, size_t length) {
   if (network.connected) {
     log("Websocket", "Disconnected from Garden!");
     network.connected = false;
   }
 }
 
-void handleAcceptEvent(const char * payload, size_t length) {
+void handleAcceptEvent(const char *payload, size_t length) {
   log("Websocket", "Garden accepted!");
   network.connected = true;
-  network.emit(POST stationStateEndpoint, state.toJSON());
+  network.emit(POST RecordsEndpoint, state.toJSON());
 }
 
-void handleCommandEvent(const char * payload, size_t length) {
+void handleCommandEvent(const char *payload, size_t length) {
   log("Websocket", "Garden Command!");
   deserializeJson(state.doc, payload);
   serializeJsonPretty(state.doc, Serial);

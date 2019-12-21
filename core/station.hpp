@@ -150,21 +150,21 @@ void onHuTempChange(Event event) {
   state.humidity = event.data.HuTemp.humidity;
   display.printStationState();
   if (network.connected) {
-    network.emit(POST stationStateEndpoint, state.toJSON());
+    network.emit(POST RecordsEndpoint, state.toJSON());
   }
 }
 void onLightChange(Event event) {
   state.light = event.data.Light.light;
   display.printStationState();
   if (network.connected) {
-    network.emit(POST stationStateEndpoint, state.toJSON());
+    network.emit(POST RecordsEndpoint, state.toJSON());
   }
 }
 void onMovingChange(Event event) {
   state.moving = event.data.Moving.moving;
   display.printStationState();
   if (network.connected) {
-    network.emit(POST stationStateEndpoint, state.toJSON());
+    network.emit(POST RecordsEndpoint, state.toJSON());
   }
 }
 

@@ -9,9 +9,11 @@
 #define PATCH "PATCH"
 #define DELETE "DELETE"
 
-#define apiEndpoint "/api/v1"
-#define stationsEndPoint apiEndpoint "/stations"
-#define stationConnectEndpoint stationsEndPoint "/connect"
-#define stationStateEndpoint stationsEndPoint "/state"
+#define ApiEndpoint "/api/v1"
+#define GardenEndpoint ApiEndpoint "/garden"
+#define GardensEndpoint GardenEndpoint "/gardens"
+#define StationsEndPoint GardenEndpoint "/stations"
+#define RecordsEndpoint GardenEndpoint "/records"
+#define VerifyStationEndpoint StationsEndPoint "/verify"
 
 #endif
