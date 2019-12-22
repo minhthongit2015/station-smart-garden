@@ -68,8 +68,8 @@ void Network::loop() {
         disconnectedAt = millis();
       }
       if (millis() - disconnectedAt > waitBeforeSleep) {
-        deepSleep = true;
         log("Websocket", "Deeply sleep... zzZ...");
+        deepSleep = true;
         return;
       }
     }
@@ -77,8 +77,8 @@ void Network::loop() {
     if (millis() - last < checkOnSleepInterval) {
       return;
     } else {
-      network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
       log("Websocket", "Wake up at the mid night.");
+      network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
     }
   }
   last = millis();

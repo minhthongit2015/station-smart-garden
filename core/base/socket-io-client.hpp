@@ -14,7 +14,7 @@
    #define SOCKETIOCLIENT_DEBUG(...)
 #endif
 
-#define PING_INTERVAL 25000 //TODO: use socket.io server response
+#define PING_INTERVAL 20000 //TODO: use socket.io server response
 
 //#define SOCKETIOCLIENT_USE_SSL
 #ifdef SOCKETIOCLIENT_USE_SSL
@@ -29,16 +29,24 @@
 #define PING "2"
 #define PONG "3"
 
+struct EventNameComparator {
+  bool operator () (const char *eventName1, const char *eventName2) const {
+    return strcmp(eventName1, eventName2) < 0;
+  }
+};
+
 class SocketIoClient {
 private:
   char buffer[256];
   WebSocketsClient _webSocket;
-  int _lastPing;
-  std::map<String, std::function<void (const char *payload, size_t length)>> _events;
+  int _lastPing = -PING_INTERVAL;
+  std::map<const char*, std::function<void (const char *payload, size_t length)>, EventNameComparator> _events;
 
   void trigger(const char *event, const char *payload, size_t length);
   void webSocketEvent(WStype_t type, uint8_t *payload, size_t length);
   void initialize();
+  void ping();
+  void pong();
 public:
   bool isConnected = false;
   void beginSSL(const char *host, const int port = DEFAULT_PORT, const char *url = DEFAULT_URL, const char *fingerprint = DEFAULT_FINGERPRINT);
@@ -63,25 +71,20 @@ char *getEventName(char *payload) {
       break;
     }
   }
-  SOCKETIOCLIENT_DEBUG("[SIoC] > End: %d\n", end);
   payload[end] = '\0';
-  SOCKETIOCLIENT_DEBUG("[SIoC] > Event Name: %s\n", &payload[4]);
   return &payload[4];
 }
 
 char *getEventPayload(char *payload) {
   size_t end = strlen(payload) - 1;
   if (end < 0) return NULL;
-  SOCKETIOCLIENT_DEBUG("[SIoC] > End payload: %d\n", end);
   payload[end] = '\0';
   if (payload[end - 1] == '\"') {
     payload[end - 1] = '\0';
   }
   if (payload[0] = '\"') {
-    SOCKETIOCLIENT_DEBUG("[SIoC] > Event Payload: %s\n", payload + 1);
     return payload + 1;
   }
-  SOCKETIOCLIENT_DEBUG("[SIoC] > Event Payload: %s\n", payload);
   return payload;
 }
 
@@ -115,16 +118,18 @@ void SocketIoClient::webSocketEvent(WStype_t type, uint8_t *payload, size_t leng
       SOCKETIOCLIENT_DEBUG("[SIoC] Connected to url: %s\n",  payload);
       break;
     case WStype_TEXT:
-      SOCKETIOCLIENT_DEBUG("[SIoC] > msg: %s\n", payload);
+      SOCKETIOCLIENT_DEBUG("[SIoC] > Receive: %s\n", payload);
       if (isEvent(payload)) {
         eventName = getEventName((char*)payload);
         eventPayload = getEventPayload((char*)(payload) + strlen(eventName) + 5);
         trigger(eventName, eventPayload, length);
       } else if (isPing(payload)) {
-        _webSocket.sendTXT(PONG);
+        pong();
         SOCKETIOCLIENT_DEBUG("[SIoC] Pong!\n");
       } else if (isConnectEvent(payload)) {
         isConnected = true;
+        _lastPing = -PING_INTERVAL;
+        ping();
         trigger("connect", NULL, 0);
       } else if (isDisconnectEvent(payload)) {
         isConnected = false;
@@ -150,16 +155,22 @@ void SocketIoClient::begin(const char *host, const int port, const char *url) {
 
 void SocketIoClient::initialize() {
   _webSocket.onEvent(std::bind(&SocketIoClient::webSocketEvent, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-  _lastPing = millis();
 }
 
 void SocketIoClient::loop() {
   _webSocket.loop();
+  ping();
+}
 
-  if (millis() - _lastPing > PING_INTERVAL) {
+void SocketIoClient::ping() {
+  if (isConnected && millis() - _lastPing > PING_INTERVAL) {
     _webSocket.sendTXT(PING);
     _lastPing = millis();
   }
+}
+
+void SocketIoClient::pong() {
+  _webSocket.sendTXT(PONG);
 }
 
 void SocketIoClient::on(const char *event, std::function<void (const char *payload, size_t length)> func) {
@@ -172,7 +183,7 @@ void SocketIoClient::emit(const char *event, const char *payload) {
   }
   static char buffer[256] = { "\0" };
   sprintf(buffer, "42[\"%s\",%s]", event, payload ? payload : "");
-  SOCKETIOCLIENT_DEBUG("[SIoC] > Emit %s : %s\n", event, payload ? payload : "");
+  SOCKETIOCLIENT_DEBUG("[SIoC] > Emit: %s\n", buffer);
   _webSocket.sendTXT(buffer);
 }
 
