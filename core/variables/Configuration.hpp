@@ -41,7 +41,7 @@ class Configuration : public Listenable {
     
     uint8_t pumpPin = D3;
     uint8_t oxygenPin = NOT_A_PIN;
-    uint8_t ledPin = NOT_A_PIN;
+    uint8_t ledPin = D4;
     uint8_t fanPin = NOT_A_PIN;
     uint8_t mistingPin = NOT_A_PIN;
     uint8_t nutriPin = NOT_A_PIN;

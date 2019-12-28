@@ -109,6 +109,7 @@ void handleCommandEvent(const char *payload, size_t length) {
   log("Websocket", "Garden Command!");
   deserializeJson(state.doc, payload);
   serializeJsonPretty(state.doc, Serial);
+  state.fromDoc(state.doc);
   relays.syncState();
 }
 

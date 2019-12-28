@@ -49,7 +49,7 @@
 #define LED2 16
 
 #ifndef NOT_A_PIN
-  #define NOT_A_PIN 0
+  #define NOT_A_PIN 99
 #endif
 
 #endif
