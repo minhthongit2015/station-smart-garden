@@ -31,7 +31,20 @@ class Network : public SocketIoClient {
 
     void initialize() {
       initialized = true;
-      begin(cfg.gardenHost.c_str(), cfg.gardenPort);
+      begin(cfg.gardenHost.c_str(), cfg.gardenPort, getConnectionUrlPath());
+    }
+
+    const char *getConnectionUrlPath() {
+      static char urlPathBuffer[100];
+      #define DEFAULT_URL_PATH "/socket.io/?EIO=3&transport=websocket"
+      #define WITH_SESSION_URL_PATH DEFAULT_URL_PATH "&token=%s"
+      
+      if (cfg.sessionId.length() > 0) {
+        sprintf(urlPathBuffer, WITH_SESSION_URL_PATH, cfg.sessionId.c_str());
+        return urlPathBuffer;
+      } else {
+        return DEFAULT_URL_PATH;
+      }
     }
 
     void setup();
@@ -102,6 +115,9 @@ void handleDisconnectEvent(const char *payload, size_t length) {
 void handleAcceptEvent(const char *payload, size_t length) {
   log("Websocket", "Garden accepted!");
   network.connected = true;
+  prl(payload);
+  cfg.sessionId = payload;
+  cfg.saveConfigurations();
   network.emit(POST RecordsEndpoint, state.toJSON());
 }
 

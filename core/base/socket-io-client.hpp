@@ -82,7 +82,7 @@ char *getEventPayload(char *payload) {
   if (payload[end - 1] == '\"') {
     payload[end - 1] = '\0';
   }
-  if (payload[0] = '\"') {
+  if (payload[0] == '\"') {
     return payload + 1;
   }
   return payload;
@@ -121,7 +121,7 @@ void SocketIoClient::webSocketEvent(WStype_t type, uint8_t *payload, size_t leng
       SOCKETIOCLIENT_DEBUG("[SIoC] > Receive: %s\n", payload);
       if (isEvent(payload)) {
         eventName = getEventName((char*)payload);
-        eventPayload = getEventPayload((char*)(payload) + strlen(eventName) + 5);
+        eventPayload = getEventPayload((char*)(payload) + strlen(eventName) + 6);
         trigger(eventName, eventPayload, length);
       } else if (isPing(payload)) {
         pong();

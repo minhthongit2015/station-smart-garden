@@ -6,7 +6,9 @@
 #define DEVICE_ID "Alpha One"
 #define DEVICE_INFO "\
 {\
-  \"id\": \"A1-01\", \
+  \"_id\": \"5e0760cafa35674becf0ff2d\", \
+  \"__t\": \"Station\", \
+  \"garden\": \"5e073c59fa35674becf0ff28\", \
   \"role\": \"station\", \
   \"name\": \"Alpha Once\", \
   \"type\": \"A1\", \

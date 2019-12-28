@@ -20,7 +20,7 @@ typedef void (*configListener)();
 #define CONFIG_FILE_PATH "/config.json"
 #define TEMP_CONFIG_FILE_PATH "/config.json.temp"
 
-#define CONFIG_BUFFER_SIZE 256
+#define CONFIG_BUFFER_SIZE 384
 
 class Configuration : public Listenable {
   private:
@@ -28,10 +28,11 @@ class Configuration : public Listenable {
   public:
     StaticJsonDocument<CONFIG_BUFFER_SIZE> doc;
 
-    String gardenHost = "";
+    String gardenHost;
     long gardenPort = 0;
-    String gardenWifiSignal = "";
-    String gardenWifiPassword = "";
+    String gardenWifiSignal;
+    String gardenWifiPassword;
+    String sessionId;
 
     uint8_t DhtPin = D5;
     uint8_t DhtType = DHT22;
@@ -85,6 +86,17 @@ void Configuration::loadConfigurations() {
     fromDoc(doc);
     serializeJsonPretty(doc, Serial); prl();
     file.close();
+  } else {
+    if (fsz.exists(TEMP_CONFIG_FILE_PATH)) {
+      File file = fsz.open(TEMP_CONFIG_FILE_PATH, "r");
+      if (!file) {
+        error("Config", "Cannot open config file (" TEMP_CONFIG_FILE_PATH ")");
+      }
+      deserializeJson(doc, file);
+      fromDoc(doc);
+      serializeJsonPretty(doc, Serial); prl();
+      file.close();
+    }
   }
 }
 
@@ -120,6 +132,7 @@ void Configuration::toDoc() {
   doc["gardenPort"] = gardenPort;
   doc["gardenWifiSignal"] = gardenWifiSignal;
   doc["gardenWifiPassword"] = gardenWifiPassword;
+  doc["sessionId"] = sessionId;
 }
 
 void Configuration::fromDoc(StaticJsonDocument<CONFIG_BUFFER_SIZE> &doc) {
@@ -127,6 +140,7 @@ void Configuration::fromDoc(StaticJsonDocument<CONFIG_BUFFER_SIZE> &doc) {
   if (doc.containsKey("gardenPort")) gardenPort = doc["gardenPort"].as<long>();
   if (doc.containsKey("gardenWifiSignal")) gardenWifiSignal = doc["gardenWifiSignal"].as<String>();
   if (doc.containsKey("gardenWifiPassword")) gardenWifiPassword = doc["gardenWifiPassword"].as<String>();
+  if (doc.containsKey("sessionId")) sessionId = doc["sessionId"].as<String>();
 }
 
 #endif
