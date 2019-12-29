@@ -35,6 +35,7 @@ class Network : public SocketIoClient {
       if (testServer()) {
         isInitialized = true;
         deepSleep = false;
+        disconnectedAt = false;
         begin(cfg.gardenHost.c_str(), cfg.gardenPort, getConnectionUrlPath());
       }
       return isInitialized;
