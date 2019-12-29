@@ -13,12 +13,12 @@
 #include "./RelayController.hpp"
 #include "../base/WifiManager.hpp"
 
+WiFiClient client;
+
 void handleConnectEvent(const char *payload, size_t length);
 void handleDisconnectEvent(const char *payload, size_t length);
 void handleAcceptEvent(const char *payload, size_t length);
 void handleCommandEvent(const char *payload, size_t length);
-
-
 
 class Network : public SocketIoClient {
   public:
@@ -27,11 +27,23 @@ class Network : public SocketIoClient {
     bool deepSleep = false;
     unsigned long waitBeforeSleep = 30000;
     unsigned long checkOnSleepInterval = 30000;
-    bool initialized = false;
+    int maxRetryTimes = 10;
+    bool isInitialized = false;
 
-    void initialize() {
-      initialized = true;
-      begin(cfg.gardenHost.c_str(), cfg.gardenPort, getConnectionUrlPath());
+    bool initialize() {
+      log("Websocket", "Initializing...");
+      if (testServer()) {
+        isInitialized = true;
+        deepSleep = false;
+        begin(cfg.gardenHost.c_str(), cfg.gardenPort, getConnectionUrlPath());
+      }
+      return isInitialized;
+    }
+
+    bool testServer() {
+      bool isServerUp = client.connect(cfg.gardenHost.c_str(), cfg.gardenPort);
+      client.stop();
+      return isServerUp;
     }
 
     const char *getConnectionUrlPath() {
@@ -59,8 +71,7 @@ void Network::setup() {
   on("disconnect", handleDisconnectEvent);
   on("accept", handleAcceptEvent);
   on("command", handleCommandEvent);
-  prf("> [Websocket] Connecting to -~=> %s : %d\r\n",
-    cfg.gardenHost.c_str(), cfg.gardenPort);
+  prf("> [Websocket] Connecting to -~=> %s : %d\r\n", cfg.gardenHost.c_str(), cfg.gardenPort);
   if (wifiMgr.isConnected()) {
     initialize();
   }
@@ -69,20 +80,21 @@ void Network::setup() {
 
 void Network::loop() {
   static unsigned long last = 0;
+  static int retryTimes = 0;
   if (!wifiMgr.isConnected()) {
     return;
   }
   
   if (!deepSleep) {
-    if (connected) {
-
-    } else {
+    if (!connected) {
       if (disconnectedAt == 0) { // First time disconnect
         disconnectedAt = millis();
       }
       if (millis() - disconnectedAt > waitBeforeSleep) {
         log("Websocket", "Deeply sleep... zzZ...");
+        retryTimes = 0;
         deepSleep = true;
+        last = millis();
         return;
       }
     }
@@ -91,11 +103,21 @@ void Network::loop() {
       return;
     } else {
       log("Websocket", "Wake up at the mid night.");
-      network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
+      ++retryTimes;
+      if (retryTimes > maxRetryTimes) {
+        return reset();
+      }
+      if (!isInitialized) {
+        initialize();
+      } else {
+        network.emit(POST VerifyStationEndpoint, DEVICE_INFO);
+      }
     }
   }
   last = millis();
-  SocketIoClient::loop();
+  if (isInitialized) {
+    SocketIoClient::loop();
+  }
 }
 
 void handleConnectEvent(const char *payload, size_t length) {
@@ -115,7 +137,6 @@ void handleDisconnectEvent(const char *payload, size_t length) {
 void handleAcceptEvent(const char *payload, size_t length) {
   log("Websocket", "Garden accepted!");
   network.connected = true;
-  prl(payload);
   cfg.sessionId = payload;
   cfg.saveConfigurations();
   network.emit(POST RecordsEndpoint, state.toJSON());

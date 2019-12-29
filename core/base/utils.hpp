@@ -20,7 +20,7 @@
 #define ENV_PROD
 
 
-/*           LED           */
+/*           Relay           */
 #define useIn(pin) pinMode(pin, INPUT);
 #define useOut(pin) pinMode(pin, OUTPUT);
 
@@ -30,6 +30,7 @@
 #define useOutOn(pin) { useOut(pin); onRelay(pin); }
 #define useOutOff(pin) { useOut(pin); offRelay(pin); }
 
+/*           LED           */
 #define setupLed useOut(LED1); useOut(led2);
 #define onLed1 digitalWrite(LED1, 0);
 #define offLed1 digitalWrite(LED1, 1);

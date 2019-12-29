@@ -13,6 +13,7 @@
 class LightBH1750 : public BaseModule {
   private:
   public:
+    uint16_t NULL_VALUE = 54612;
     EventType getDefaultEventType() override {
       return LIGHT_CHANGE;
     }
@@ -44,7 +45,14 @@ void LightBH1750::loop() {
 
 bool LightBH1750::fetch() {
   if (!pBH1750) return false;
-  light.Light.light = (*pBH1750).GetLightIntensity();
+  static Data newData = { { 0, 0 } };
+
+  newData.Light.light = (*pBH1750).GetLightIntensity();
+  if (newData.Light.light == NULL_VALUE) {
+    return false;
+  }
+
+  light = newData;
   return true;
 }
 

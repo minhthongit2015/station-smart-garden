@@ -12,6 +12,7 @@
 class HuTempDHT22 : public BaseModule {
   private:
   public:
+    int precision = 100;
     EventType getDefaultEventType() override {
       return HUTEMP_CHANGE;
     }

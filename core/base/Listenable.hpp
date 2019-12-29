@@ -7,6 +7,9 @@
 #include <map>
 #include <iterator>
 
+#define DEFAULT_PRECISION 100
+#define compareFloat(n1, n2, precision) (((int)(n1*precision)) == ((int)(n2*precision)))
+
 enum EventType {
   ERROR = 1,
   ON_EVENT,
@@ -25,15 +28,15 @@ union Data {
     float temperature;
     float humidity;
     bool operator == (Data data) {
-      return data.HuTemp.humidity == this->humidity
-        && data.HuTemp.humidity == this->temperature;
+      return compareFloat(data.HuTemp.humidity, this->humidity, DEFAULT_PRECISION)
+        && compareFloat(data.HuTemp.temperature, this->temperature, DEFAULT_PRECISION);
     }
     bool operator != (Data data) {
-      return data.HuTemp.humidity != this->humidity
-        || data.HuTemp.humidity != this->temperature;
+      return !compareFloat(data.HuTemp.humidity, this->humidity, DEFAULT_PRECISION)
+        || !compareFloat(data.HuTemp.temperature, this->temperature, DEFAULT_PRECISION);
     }
     bool operator ! () {
-      return isnan(this->humidity) && isnan(this->temperature);
+      return isnan(this->humidity) || isnan(this->temperature);
     }
   } HuTemp;
   struct {
@@ -118,8 +121,7 @@ class Listenable {
       listeners.insert(listener);
     }
     void dispatch(Data data) {
-      Event event = { getDefaultEventType(), data };
-      dispatch(event);
+      dispatch(data, getDefaultEventType());
     }
     void dispatch(Data data, EventType type) {
       Event event = { type, data };

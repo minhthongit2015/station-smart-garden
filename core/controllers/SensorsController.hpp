@@ -82,7 +82,7 @@ class SensorsController : public Listenable {
 extern SensorsController sensors;
 
 void onHuTempChange1(Event event) {
-  if (logChannels[1]) prf("Temp: %.2f | Humi: %.2f\r\n",
+  if (logChannels[1]) prf("Temp: %f | Humi: %f\r\n",
     event.data.HuTemp.temperature, event.data.HuTemp.humidity);
   sensors.dispatch(event);
 }
