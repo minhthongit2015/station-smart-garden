@@ -6,7 +6,6 @@
 
 #include "../base/utils.hpp"
 #include "./_BaseModule.hpp"
-#include "../variables/Configuration.hpp"
 #include <set>
 
 #define HCSR501_DELAY 6000
@@ -15,42 +14,35 @@ class MotionDetectorHCSR501 : public BaseModule {
   private:
     ListenerSet afterMovingListeners;
   public:
-    Data moving = { { false } };
     unsigned long delayTime = 0;
+    uint8_t pin;
 
     MotionDetectorHCSR501() {
-      CHECK_INTERVAL = 200;
+      checkInterval = 200;
       listenersMap.insert(ListenerPair(MOVING_CHANGE, &afterMovingListeners));
     }
 
-    bool fetch();
     void onAfterMoving(EventListener callback, unsigned long timeout = 0) {
       this->afterMovingListeners.insert(callback);
     }
 
-    void setup();
-    void loop();
+    void setup(uint8_t pin) {
+      logStart("Motion Detector (HC-SR501)");
+      this->pin = pin;
+      if (!isAPin(pin)) {
+        useIn(pin);
+      }
+    }
+    void fetch(EventData &newData) override {
+      if (notAPin(pin)) return;
+      newData.Moving.moving = digitalRead(pin);
+    }
+    bool validate(EventData &newData) override {
+      return !!newData.Moving;
+    }
+    bool hasChange() override {
+      return data.Moving != prevData;
+    };
 };
-
-void MotionDetectorHCSR501::setup() {
-  logStart("Motion Detector (HC-SR501)");
-  if (cfg.HcSr501Pin != NOT_A_PIN) {
-    pinMode(cfg.HcSr501Pin, INPUT);
-  }
-}
-
-void MotionDetectorHCSR501::loop() {
-  if (cfg.HcSr501Pin == NOT_A_PIN) return;
-  if (!check()) return;
-  if (moving.Moving != prevData) {
-    dispatch(moving, MOVING_CHANGE);
-  }
-}
-
-bool MotionDetectorHCSR501::fetch() {
-  moving.Moving.moving = digitalRead(cfg.HcSr501Pin);
-  // prf("isMove: %s\r\n", newMoving ? "true" : "false");
-  return true;
-}
 
 #endif

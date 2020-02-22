@@ -5,12 +5,18 @@
 
 #include "../base/utils.hpp"
 #include "../variables/State.hpp"
-#include "../variables/Configuration.hpp"
+#include "../controllers/ConfigManager.hpp"
+
+#define PIN_PUMP "PIN_PUMP"
+#define PIN_OXYGEN "PIN_OXYGEN"
+#define PIN_LED "PIN_LED"
+#define PIN_FAN "PIN_FAN"
+#define PIN_MISTING "PIN_MISTING"
+#define PIN_NUTRIENT "PIN_NUTRIENT"
 
 class RelayController {
   private:
   public:
-    void setupPin(uint8_t pin);
     void setRelay(uint8_t pin, bool isEnable);
     void syncState();
 
@@ -22,12 +28,18 @@ extern RelayController relays;
 
 void RelayController::setup() {
   logStart("Relay Controller");
-  setupPin(cfg.pumpPin);
-  setupPin(cfg.oxygenPin);
-  setupPin(cfg.ledPin);
-  setupPin(cfg.fanPin);
-  setupPin(cfg.mistingPin);
-  setupPin(cfg.nutriPin);
+  cfg.setDefault(PIN_PUMP, D3);
+  cfg.setDefault(PIN_OXYGEN, NOT_A_PIN);
+  cfg.setDefault(PIN_LED, D4);
+  cfg.setDefault(PIN_FAN, NOT_A_PIN);
+  cfg.setDefault(PIN_MISTING, NOT_A_PIN);
+  cfg.setDefault(PIN_NUTRIENT, NOT_A_PIN);
+  useOutOff(cfg.getUInt8(PIN_PUMP));
+  useOutOff(cfg.getUInt8(PIN_OXYGEN));
+  useOutOff(cfg.getUInt8(PIN_LED));
+  useOutOff(cfg.getUInt8(PIN_FAN));
+  useOutOff(cfg.getUInt8(PIN_MISTING));
+  useOutOff(cfg.getUInt8(PIN_NUTRIENT));
   syncState();
 }
 
@@ -35,35 +47,29 @@ void RelayController::loop() {
   // TODO: Check and stop nutri
 }
 
-void RelayController::setupPin(uint8_t pin) {
-  if (pin != NOT_A_PIN) {
-    useOutOff(pin);
-  }
-}
-
 void RelayController::syncState() {
   if (state.doc.containsKey("pump")) {
-    this->setRelay(cfg.pumpPin, state.pump);
+    this->setRelay(cfg.getUInt8(PIN_PUMP), state.pump);
   }
   if (state.doc.containsKey("oxygen")) {
-    this->setRelay(cfg.oxygenPin, state.oxygen);
+    this->setRelay(cfg.getUInt8(PIN_OXYGEN), state.oxygen);
   }
   if (state.doc.containsKey("led")) {
-    this->setRelay(cfg.ledPin, state.led);
+    this->setRelay(cfg.getUInt8(PIN_LED), state.led);
   }
   if (state.doc.containsKey("fan")) {
-    this->setRelay(cfg.fanPin, state.fan);
+    this->setRelay(cfg.getUInt8(PIN_FAN), state.fan);
   }
   if (state.doc.containsKey("misting")) {
-    this->setRelay(cfg.mistingPin, state.misting);
+    this->setRelay(cfg.getUInt8(PIN_MISTING), state.misting);
   }
   if (state.doc.containsKey("nutri")) {
-    this->setRelay(cfg.nutriPin, state.nutri);
+    this->setRelay(cfg.getUInt8(PIN_NUTRIENT), state.nutri);
   }
 }
 
 void RelayController::setRelay(uint8_t pin, bool isEnable) {
-  if (pin == NOT_A_PIN) return;
+  if (notAPin(pin)) return;
   if (isEnable) {
     onRelay(pin);
   } else {

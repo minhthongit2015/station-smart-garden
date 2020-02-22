@@ -1,4 +1,5 @@
 {
+  // "C_Cpp.intelliSenseEngine": "Tag Parser",
   "files.associations": {
     "list": "cpp",
     "xstring": "cpp",
@@ -72,6 +73,8 @@
     "stack": "cpp",
     "build": "cpp",
     "core": "cpp",
-    "xfunctional": "cpp"
+    "xfunctional": "cpp",
+    "*.rh": "cpp",
+    "*.inc": "cpp"
   }
 }

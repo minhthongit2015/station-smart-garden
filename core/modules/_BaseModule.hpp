@@ -16,14 +16,14 @@ class BaseModule : public Listenable {
     ListenerSet errorListeners;   // built-in supported listener
 
   public:
-    unsigned long CHECK_INTERVAL = 2000;
+    EventData newData = EMPTY_EVENT_DATA;
+    unsigned long checkInterval = 2000;
     unsigned long last = 0;
     virtual EventType getDefaultEventType() override {
       return VALUE_CHANGE;
     }
     
-    BaseModule() : BaseModule(NULL) { }
-    BaseModule(pData pDataz) : Listenable(pDataz) {
+    BaseModule() : Listenable() {
       listenersMap.insert(ListenerPair(getDefaultEventType(), &changeListeners));
       listenersMap.insert(ListenerPair(ERROR, &errorListeners));
     }
@@ -31,30 +31,42 @@ class BaseModule : public Listenable {
     void onChange(EventListener listener) {
       changeListeners.insert(listener);
     }
+
     void onError(EventListener listener) {
       errorListeners.insert(listener);
     }
 
-    virtual bool check() { // Check for new Data
-      if (millis() - last < CHECK_INTERVAL) {
-        return false;
+    virtual EventData read() {
+      fetch(newData);
+      if (validate(newData)) {
+        data = newData;
       }
-      last = millis();
-      // prl("<Checking Data>");
-      return fetch();
+      return data;
     }
-    virtual Data read() {
-      // prl("<Reading Data>");
-      fetch();
-      return pDataz ? *pDataz : prevData; // return Data;
+
+    virtual void fetch(EventData &newData) {
+      // assign new value to newData
     }
-    virtual bool fetch() {
-      // prl("<Fetching Data>");
+
+    virtual bool validate(EventData &newData) {
       return false;
     }
 
+    virtual bool hasChange() {
+      return data != prevData;
+    }
+
     virtual void setup() { }
-    virtual void loop() { }
+    virtual void loop() {
+      if (millis() - last < checkInterval) {
+        return;
+      }
+      read();
+      if (hasChange()) {
+        dispatch(data);
+      }
+      last = millis();
+    }
 };
 
 #endif

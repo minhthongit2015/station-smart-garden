@@ -3,10 +3,7 @@
 #ifndef BEYOND_GARDEN_TYPES_H
 #define BEYOND_GARDEN_TYPES_H
 
-#include <set>
-#include <map>
-#include <iterator>
-#include "./Listenable.hpp"
+#include "./events/Listenable.hpp"
 
 typedef unsigned long timestamp_t;
 
@@ -41,5 +38,7 @@ class WifiInfo {
     this->pass = pass;
   }
 };
+
+
 
 #endif

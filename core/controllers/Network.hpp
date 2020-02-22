@@ -6,12 +6,16 @@
 // #define NODEBUG_SOCKETIOCLIENT
 
 // #include <SocketIoClient.h>
-#include "../base/socket-io-client.hpp"
+#include "../base/connection/socket-io-client.hpp"
+#include "./WifiManager.hpp"
 #include "../base/utils.hpp"
-#include "../variables/Configuration.hpp"
+#include "../controllers/ConfigManager.hpp"
 #include "../variables/State.hpp"
 #include "./RelayController.hpp"
-#include "../base/WifiManager.hpp"
+
+#define GARDEN_HOST "GARDEN_HOST"
+#define GARDEN_PORT "GARDEN_PORT"
+#define SESSION_ID "SESSION_ID"
 
 WiFiClient client;
 
@@ -36,13 +40,13 @@ class Network : public SocketIoClient {
         isInitialized = true;
         deepSleep = false;
         disconnectedAt = false;
-        begin(cfg.gardenHost.c_str(), cfg.gardenPort, getConnectionUrlPath());
+        begin(cfg.getCStr(GARDEN_HOST), cfg.getLong(GARDEN_PORT), getConnectionUrlPath());
       }
       return isInitialized;
     }
 
     bool testServer() {
-      bool isServerUp = client.connect(cfg.gardenHost.c_str(), cfg.gardenPort);
+      bool isServerUp = client.connect(cfg.getCStr(GARDEN_HOST), cfg.getLong(GARDEN_PORT));
       client.stop();
       return isServerUp;
     }
@@ -52,8 +56,8 @@ class Network : public SocketIoClient {
       #define DEFAULT_URL_PATH "/socket.io/?EIO=3&transport=websocket"
       #define WITH_SESSION_URL_PATH DEFAULT_URL_PATH "&token=%s"
       
-      if (cfg.sessionId.length() > 0) {
-        sprintf(urlPathBuffer, WITH_SESSION_URL_PATH, cfg.sessionId.c_str());
+      if (cfg.getStr(SESSION_ID).length() > 0) {
+        sprintf(urlPathBuffer, WITH_SESSION_URL_PATH, cfg.getCStr(SESSION_ID));
         return urlPathBuffer;
       } else {
         return DEFAULT_URL_PATH;
@@ -72,7 +76,8 @@ void Network::setup() {
   on("disconnect", handleDisconnectEvent);
   on("accept", handleAcceptEvent);
   on("command", handleCommandEvent);
-  prf("> [Websocket] Connecting to -~=> %s : %d\r\n", cfg.gardenHost.c_str(), cfg.gardenPort);
+  prf("> [Websocket] Connecting to -~=> %s : %d\r\n",
+    cfg.getCStr(GARDEN_HOST), cfg.getLong(GARDEN_PORT));
   if (wifiMgr.isConnected()) {
     initialize();
   }
@@ -138,7 +143,7 @@ void handleDisconnectEvent(const char *payload, size_t length) {
 void handleAcceptEvent(const char *payload, size_t length) {
   log("Websocket", "Garden accepted!");
   network.connected = true;
-  cfg.sessionId = payload;
+  cfg.set(SESSION_ID, payload);
   cfg.saveConfigurations();
   network.emit(POST RecordsEndpoint, state.toJSON());
 }

@@ -1,10 +1,7 @@
 
-
 #pragma once
 #ifndef BEYOND_GARDEN_UTILS_H
 #define BEYOND_GARDEN_UTILS_H
-
-#define ARDUINO 10809
 
 #include <Arduino.h>
 #include <string.h>
@@ -14,11 +11,12 @@
 #include <Wire.h>
 #include <HardwareSerial.h>
 
-#include "../variables/pinmap.hpp"
+#include "../base/pinmap.hpp"
 #include "../variables/constants.hpp"
 
-#define ENV_PROD
 
+#define isAPin(pin) (pin != NOT_A_PIN)
+#define notAPin(pin) (pin == NOT_A_PIN)
 
 /*           Relay           */
 #define useIn(pin) pinMode(pin, INPUT);
@@ -27,11 +25,11 @@
 #define onRelay(pin) digitalWrite(pin, LOW);
 #define offRelay(pin) digitalWrite(pin, HIGH);
 
-#define useOutOn(pin) { useOut(pin); onRelay(pin); }
-#define useOutOff(pin) { useOut(pin); offRelay(pin); }
+#define useOutOn(pin) { if (isAPin(pin)) { useOut(pin); onRelay(pin); } }
+#define useOutOff(pin) { if (isAPin(pin)) { useOut(pin); offRelay(pin); } }
 
 /*           LED           */
-#define setupLed useOut(LED1); useOut(led2);
+#define setupLed useOut(LED1); useOut(LED2);
 #define onLed1 digitalWrite(LED1, 0);
 #define offLed1 digitalWrite(LED1, 1);
 #define onLed2 digitalWrite(LED2, 0);

@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/core/**",
                 "${env:ProgramFiles(x86)}/Arduino/hardware/**",
                 "${env:ProgramFiles(x86)}/Arduino/libraries/**",
                 "${env:USERPROFILE}/AppData/Local/Arduino15/packages/esp8266/tools/**",
@@ -23,7 +23,13 @@
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [],
             "cStandard": "c11",
-            "cppStandard": "c++11"
+            "cppStandard": "c++11",
+            "compilerArgs": [
+                "-Wno-write-strings"
+            ],
+            "defines": [
+                "USBCON"
+            ]
         }
     ],
     "version": 4

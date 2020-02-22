@@ -6,14 +6,23 @@
 #include "../base/utils.hpp"
 #include "../base/types.hpp"
 #include "../variables/State.hpp"
+#include "../controllers/ConfigManager.hpp"
+#include "../base/pinmap.hpp"
+#include "../base/events/Listenable.hpp"
 
 #include "../modules/DHT22.hpp"
 #include "../modules/BH1750.hpp"
 #include "../modules/HCSR501.hpp"
 
-void onHuTempChange1(Event event);
-void onLightChange1(Event event);
-void onMovingChange1(Event event);
+#define PIN_DHT "PIN_DHT"
+#define DHT_TYPE "DHT_TYPE"
+
+#define PIN_HCSR_501 "PIN_HCSR_501"
+
+
+void handleHuTempChange(pEvent event);
+void handleLightChange(pEvent event);
+void handleMovingChange(pEvent event);
 
 class SensorsController : public Listenable {
   private:
@@ -50,17 +59,23 @@ class SensorsController : public Listenable {
     void setup() {
       logStart("Sensors Controller");
       randomSeed(analogRead(0));
+
       bh1750.setup();
-      dht.setup();
-      // hcsr501.setup();
+
+      cfg.setDefault(PIN_DHT, D5);
+      cfg.setDefault(DHT_TYPE, DHT22);
+      dht.setup(cfg.getUInt8(PIN_DHT), cfg.getUInt8(DHT_TYPE));
+
+      cfg.setDefault(PIN_HCSR_501, NOT_A_PIN);
+      // hcsr501.setup(cfg.getUInt8(PIN_HCSR_501));
       
       setupListeners();
     }
 
     void setupListeners() {
-      bh1750.onChange(onLightChange1);
-      dht.onChange(onHuTempChange1);
-      // hcsr501.onChange(onMovingChange);
+      bh1750.onChange(handleLightChange);
+      dht.onChange(handleHuTempChange);
+      // hcsr501.onChange(handleMovingChange);
     }
 
     void loop() {
@@ -81,19 +96,22 @@ class SensorsController : public Listenable {
 
 extern SensorsController sensors;
 
-void onHuTempChange1(Event event) {
+void handleHuTempChange(pEvent event) {
   if (logChannels[1]) prf("Temp: %f | Humi: %f\r\n",
-    event.data.HuTemp.temperature, event.data.HuTemp.humidity);
+    event->data.HuTemp.temperature, event->data.HuTemp.humidity);
+  event->type = HUTEMP_CHANGE;
   sensors.dispatch(event);
 }
 
-void onLightChange1(Event event) {
-  if (logChannels[1]) prf("Light: %d\r\n", event.data.Light.light);
+void handleLightChange(pEvent event) {
+  if (logChannels[1]) prf("Light: %d\r\n", event->data.Light.light);
+  event->type = LIGHT_CHANGE;
   sensors.dispatch(event);
 }
 
-void onMovingChange1(Event event) {
-  if (logChannels[1]) prf("Moving: %s\r\n", event.data.Moving.moving ? "true" : "false");
+void handleMovingChange(pEvent event) {
+  if (logChannels[1]) prf("Moving: %s\r\n", event->data.Moving.moving ? "true" : "false");
+  event->type = MOVING_CHANGE;
   sensors.dispatch(event);
 }
 

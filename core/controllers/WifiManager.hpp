@@ -1,16 +1,21 @@
 
 
 #pragma once
-#ifndef BEYOND_GARDEN_WIFI_CONTROLLER_H
-#define BEYOND_GARDEN_WIFI_CONTROLLER_H
+#ifndef BEYOND_GARDEN_WIFI_MANAGER_H
+#define BEYOND_GARDEN_WIFI_MANAGER_H
 
 #include "../base/utils.hpp"
 #include "../base/types.hpp"
+#include "../controllers/ConfigManager.hpp"
 #include "../variables/constants.hpp"
 #include "../variables/DeviceInfo.hpp"
 
+#define GARDEN_WIFI_SIGNAL "GARDEN_WIFI_SIGNAL"
+#define GARDEN_WIFI_PASSWORD "GARDEN_WIFI_PASSWORD"
+
 bool checkGardenSignal(String ssid) {
-  return cfg.gardenWifiSignal.charAt(0) && ssid.indexOf(cfg.gardenWifiSignal) >= 0;
+  return cfg.getStr(GARDEN_WIFI_SIGNAL).charAt(0)
+    && ssid.indexOf(cfg.getStr(GARDEN_WIFI_SIGNAL)) >= 0;
 }
 
 class WifiManager {
@@ -84,15 +89,15 @@ void WifiManager::scanAndConnect() {
 
 int WifiManager::scanWifiNetworks(bool debug) {
   if (debug) log("Wifi", "Scanning...");
-  int n = WiFi.scanNetworks();
+  int numNetworks = WiFi.scanNetworks();
 
-  if (n > 0) {
-    for (register int i = 0; i < n; ++i) {
-      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), cfg.gardenWifiPassword);
+  if (numNetworks > 0) {
+    for (register int i = 0; i < numNetworks; ++i) {
+      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), cfg.getStr(GARDEN_WIFI_PASSWORD));
     }
     if (debug) {
       prl("┌────────────────── Scan Result ──────────────────┐");
-      for (register int i = 0; i < n; ++i) {
+      for (register int i = 0; i < numNetworks; ++i) {
         Serial.printf("├ [%02d] > (%s) %3d : %s\r\n", i + 1,
           checkGardenSignal(wifiList[i].ssid) ? "Garden" : "------",
           wifiList[i].rssi,
@@ -102,7 +107,7 @@ int WifiManager::scanWifiNetworks(bool debug) {
     }
   }
 
-  return n;
+  return numNetworks;
 }
 
 
@@ -132,7 +137,7 @@ bool WifiManager::connectWifi(WifiInfo wifi, byte maxTry, int wait, bool debug) 
 
   if (debug) {
     if (wifiMgr.isConnected()) {
-      Serial.printf("\r\n> [Wifi] Connected ---> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
+      Serial.printf("\r\n> [Wifi] Connected ===> %s : %s\r\n", WiFi.SSID().c_str(), WiFi.psk().c_str());
     } else {
       Serial.printf("\r\n> [Wifi] Failed -/-> %s : %s\r\n", wifi.ssid.c_str(), wifi.pass.c_str());
     }

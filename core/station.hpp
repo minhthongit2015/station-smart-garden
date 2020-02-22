@@ -4,22 +4,23 @@
 #ifndef BEYOND_GARDEN_WIFI_STA_H
 #define BEYOND_GARDEN_WIFI_STA_H
 
+#include "./base/ArduinoDefine.hpp"
 #include "./base/utils.hpp"
 #include "./base/fs.hpp"
-#include "./variables/Configuration.hpp"
+#include "./controllers/ConfigManager.hpp"
 #include "./controllers/Display.hpp"
 #include "./controllers/Keyboard.hpp"
 #include "./controllers/SensorsController.hpp"
 #include "./controllers/RelayController.hpp"
-#include "./base/WifiManager.hpp"
+#include "./controllers/WifiManager.hpp"
 #include "./controllers/Network.hpp"
 
 
-void onConfigChange(Event event);
-void onHuTempChange(Event event);
-void onLightChange(Event event);
-void onMovingChange(Event event);
-void onKeyDown(Event event);
+void onConfigChange(pEvent event);
+void onHuTempChange(pEvent event);
+void onLightChange(pEvent event);
+void onMovingChange(pEvent event);
+void onKeyDown(pEvent event);
 
 class SmartGardenStation {
   public:
@@ -66,55 +67,55 @@ void SmartGardenStation::loop() {
   //  digitalWrite(equips[0], 1);
   // if (millis() - timer > 1800000) reset(); // Khởi động lại ESP mỗi 30p để tránh treo
 
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("sensorsCtl");
   #endif
   sensors.loop();
   
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("relayCtl");
   #endif
   relays.loop();
   
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("keyboard");
   #endif
   // keyboard.loop();
 
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("displayCtl");
   #endif
   display.loop();
 
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("configCtl");
   #endif
   cfg.loop();
 
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("websocketLoop");
   #endif
   network.loop();
   
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("wifiMgr");
   #endif
   wifiMgr.loop();
 
-  #ifndef ENV_PROD
+  #ifdef ENV_DEV
   performance("end loop ------\r\n");
   #endif
   delay(MAIN_LOOP_DELAY_TIME);
 }
 
-void onConfigChange(Event event) {
+void onConfigChange(pEvent event) {
   log("Station", "Configurations change -> resetup wifi");
   wifiMgr.setup();
   network.setup();
 }
 
-void onKeyDown(Event event) {
-  uint8_t key = event.data.Key.key;
+void onKeyDown(pEvent event) {
+  uint8_t key = event->data.Key.key;
   display.lcd.printf(" %2d", key);
   switch (key) {
     case 1:
@@ -145,23 +146,23 @@ void onKeyDown(Event event) {
   }
 }
 
-void onHuTempChange(Event event) {
-  state.temperature = event.data.HuTemp.temperature;
-  state.humidity = event.data.HuTemp.humidity;
+void onHuTempChange(pEvent event) {
+  state.temperature = event->data.HuTemp.temperature;
+  state.humidity = event->data.HuTemp.humidity;
   display.printStationState();
   if (network.connected) {
     network.emit(POST RecordsEndpoint, state.toJSON());
   }
 }
-void onLightChange(Event event) {
-  state.light = event.data.Light.light;
+void onLightChange(pEvent event) {
+  state.light = event->data.Light.light;
   display.printStationState();
   if (network.connected) {
     network.emit(POST RecordsEndpoint, state.toJSON());
   }
 }
-void onMovingChange(Event event) {
-  state.moving = event.data.Moving.moving;
+void onMovingChange(pEvent event) {
+  state.moving = event->data.Moving.moving;
   display.printStationState();
   if (network.connected) {
     network.emit(POST RecordsEndpoint, state.toJSON());

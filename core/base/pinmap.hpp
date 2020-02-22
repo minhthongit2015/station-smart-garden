@@ -3,7 +3,7 @@
 #ifndef BEYOND_GARDEN_PIN_MAP_H
 #define BEYOND_GARDEN_PIN_MAP_H
 
-#include <Arduino.h>
+#include "./ArduinoDefine.hpp"
 
 #ifndef D0
   #define D0 16
