@@ -1,0 +1,21 @@
+#pragma once
+ #ifndef BEYOND_GARDEN_EMOTION_SLEEP2_H
+ #define BEYOND_GARDEN_EMOTION_SLEEP2_H
+
+#include "../../../models/ScreenFrame.hpp"
+ 
+ unsigned char sleep2_cells[] = {
+ 0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000111,0b00000000,
+  0b00000000,0b00000000,0b00000000,0b00000011,0b00000001,0b00000000,0b00011100,0b00000000,
+  0b00000000,0b00001110,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000,0b00000000
+ };
+ unsigned char sleep2_coords[] = {
+ 15,2,0,
+  17,2,1,
+  16,3,2
+ };
+ ScreenFrame sleep2 = {
+ 3, sleep2_cells, sleep2_coords, 1500
+ };
+
+ #endif

@@ -1,3 +1,6 @@
 /build
 /libs/bitmap2character/node_modules
 /.vscode/ipch
+/libs/*
+!/libs/*.zip
+!/libs/*.bat

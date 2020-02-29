@@ -76,5 +76,6 @@
     "xfunctional": "cpp",
     "*.rh": "cpp",
     "*.inc": "cpp"
-  }
+  },
+  "git.ignoreLimitWarning": true
 }
