@@ -5,6 +5,7 @@
 
 #include "../../utils/Utils.hpp"
 #include <LiquidCrystal_I2C.h>
+#include "../../utils/Constants.hpp"
 
 
 class LiquidCrystal20x4 : public LiquidCrystal_I2C {
@@ -12,9 +13,7 @@ class LiquidCrystal20x4 : public LiquidCrystal_I2C {
   public:
     uint8_t width = 20;
     uint8_t height = 4;
-    char screen[4][20] = {
-      {0}, {0}, {0}, {0}
-    };
+    uint8_t line = 0;
 
     LiquidCrystal20x4() : LiquidCrystal20x4(0x27, 20, 4) {
     }
@@ -28,11 +27,15 @@ class LiquidCrystal20x4 : public LiquidCrystal_I2C {
     // void hScroll(const char *message, int delayTime, int shiftCol = -1, int8_t row = -1);
     // void vScroll(const char *message, int delayTime, int shiftRow = 1, int8_t col = -1);
     
-    void print(const char *text);
+    void resetCursor();
+    void setLine(uint8_t line);
     void print(char c);
-    void printCenterLine(const char *text, uint8_t line, uint8_t lineLength = 20);
-    void printLeftLine(const char *text, uint8_t line, uint8_t lineLength = 20);
-    void printCenter(const char *text, uint8_t x = 0, uint8_t y = 0, uint8_t width = 20, uint8_t height = 4);
+    void printCenter(const char *text, uint8_t line, uint8_t lineLength = 20);
+    void printLeft(const char *text, uint8_t line, uint8_t lineLength = 20);
+
+    void print(const char *text, TextAlign align = LEFT, bool resetLine = false);
+    void printRight(const char *text);
+    void println(const char *text, TextAlign align = LEFT, bool resetLine = false);
 };
 
 void LiquidCrystal20x4::setup() {
@@ -50,26 +53,47 @@ void LiquidCrystal20x4::setup() {
 void LiquidCrystal20x4::loop() {
 }
 
-void LiquidCrystal20x4::print(const char *text) {
+void LiquidCrystal20x4::resetCursor() {
+  setCursor(0, 0);
+}
+
+void LiquidCrystal20x4::setLine(uint8_t line) {
+  this->line = line % height;
+  setCursor(0, this->line);
+}
+
+void LiquidCrystal20x4::print(const char *text, TextAlign align, bool resetLine) {
   printstr(text);
+}
+
+void LiquidCrystal20x4::println(const char *text, TextAlign align, bool resetLine) {
+  if (resetLine) {
+    resetCursor();
+  }
+  printstr(text);
+  setLine(++line);
 }
 
 void LiquidCrystal20x4::print(char c) {
   LiquidCrystal_I2C::print(c);
 }
 
-void LiquidCrystal20x4::printCenterLine(const char *text, uint8_t line, uint8_t lineLength) {
-  uint8_t length = strlen(text);
-  setCursor((lineLength - length) / 2, line);
-  print(text);
+void LiquidCrystal20x4::printRight(const char *text) {
+  setCursor(width - strlen(text), line);
+  printstr(text);
 }
-void LiquidCrystal20x4::printLeftLine(const char *text, uint8_t line, uint8_t lineLength) {
+
+void LiquidCrystal20x4::printCenter(const char *text, uint8_t line, uint8_t lineLength) {
+  uint8_t length = strlen(text);
+  setCursor((lineLength - length) / 2, line % height);
+  print(text);
+  setLine(++line);
+}
+void LiquidCrystal20x4::printLeft(const char *text, uint8_t line, uint8_t lineLength) {
   uint8_t length = strlen(text);
   setCursor(0, line);
   print(text);
 }
-void LiquidCrystal20x4::printCenter(const char *text, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
-} 
 
 // void scrollText(int row, String message, int delayTime, int lcdColumns) {
 //   for (int i=0; i < lcdColumns; i++) {

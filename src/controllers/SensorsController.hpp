@@ -85,20 +85,20 @@ class SensorsController : public Listenable {
 extern SensorsController sensors;
 
 void handleHuTempChange1(pEvent event) {
-  if (logChannels[1]) prf("Temp: %f | Humi: %f\r\n",
+  prf("Temp: %f | Humi: %f\r\n",
     event->data.HuTemp.temperature, event->data.HuTemp.humidity);
   event->type = HUTEMP_CHANGE;
   sensors.dispatch(event);
 }
 
 void handleLightChange1(pEvent event) {
-  if (logChannels[1]) prf("Light: %d\r\n", event->data.Light.light);
+  prf("Light: %d\r\n", event->data.Light.light);
   event->type = LIGHT_CHANGE;
   sensors.dispatch(event);
 }
 
 void handleMovingChange1(pEvent event) {
-  if (logChannels[1]) prf("Moving: %s\r\n", event->data.Moving.moving ? "true" : "false");
+  prf("Moving: %s\r\n", event->data.Moving.moving ? "true" : "false");
   event->type = MOVING_CHANGE;
   sensors.dispatch(event);
 }

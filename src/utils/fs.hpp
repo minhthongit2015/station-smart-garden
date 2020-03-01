@@ -6,6 +6,10 @@
 #include <FS.h>
 #include "./utils.hpp"
 
+// const char FILE_SYSTEM[] = "File System";
+#define FILE_SYSTEM "File System"
+
+
 class FileSystem : public FS {
   private:
     void _listingFiles(Dir &root);
@@ -21,14 +25,14 @@ typedef FileSystem* pFileSystem;
 extern FileSystem fsz;
 
 void FileSystem::setup() {
-  logStart("File System");
+  logStart(FILE_SYSTEM);
   if (!begin()) {
-    error("File System", "Failed to mount file system");
+    error(FILE_SYSTEM, "Failed to mount file system");
   }
 }
 
 void FileSystem::listingFiles() {
-  logBlock("File System", "Listing files");
+  logBlock(FILE_SYSTEM, "Listing files");
   Dir root = openDir("/");
   _listingFiles(root);
 }
@@ -37,24 +41,24 @@ void FileSystem::_listingFiles(Dir &root) {
   while (root.next()) {
     if (root.isFile()) {
       File file = root.openFile("r");
-      prf("> [File System] \"%s\" (%d Bytes)\r\n", file.fullName(), file.size());
+      logf(FILE_SYSTEM, "\"%s\" (%d Bytes)\r\n", file.fullName(), file.size());
     } else {
-      prf("> [File System] Dir: \"%s\"\r\n", root.fileName().c_str());
+      logf(FILE_SYSTEM, "Dir: \"%s\"\r\n", root.fileName().c_str());
       _listingFiles(root);
     }
   }
 }
 
 void FileSystem::showInfo() {
-  log("File System", "Disk Info");
+  log(FILE_SYSTEM, "Disk Info");
   FSInfo fs_info;
   info(fs_info);
-  prf("> [File System] Usage: %d / %d (%d%%)\r\n",
+  logf(FILE_SYSTEM, "Usage: %d / %d (%d%%)\r\n",
     fs_info.usedBytes, fs_info.totalBytes,
     fs_info.usedBytes / fs_info.totalBytes);
-  prf("> [File System] Block Size: %d / Page Size: %d\r\n",
+  logf(FILE_SYSTEM, "Block Size: %d / Page Size: %d\r\n",
     fs_info.blockSize, fs_info.pageSize);
-  prf("> [File System] Max Open Files: %d / Max Path Length: %d\r\n",
+  logf(FILE_SYSTEM, "Max Open Files: %d / Max Path Length: %d\r\n",
     fs_info.maxOpenFiles, fs_info.maxPathLength);
 }
 

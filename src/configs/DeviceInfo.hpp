@@ -6,11 +6,11 @@
 #define DEVICE_ID "Alpha One"
 #define DEVICE_INFO "\
 {\
-  \"_id\": \"5e0760cafa35674becf0ff2d\", \
-  \"__t\": \"Station\", \
-  \"garden\": \"5e073c59fa35674becf0ff28\", \
-  \"name\": \"Alpha Once\", \
-  \"model\": \"A1\", \
+  \"_id\": \"5e0760cafa35674becf0ff2d\",\
+  \"__t\": \"Station\",\
+  \"garden\": \"5e073c59fa35674becf0ff28\",\
+  \"name\": \"Alpha Once\",\
+  \"model\": \"A1\"\
 }"
 
 struct DeviceInfo {

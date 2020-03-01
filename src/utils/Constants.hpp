@@ -14,7 +14,7 @@
 #define GardensEndpoint GardenEndpoint "/gardens"
 #define StationsEndPoint GardenEndpoint "/stations"
 #define RecordsEndpoint GardenEndpoint "/records"
-#define VerifyStationEndpoint StationsEndPoint "/verify"
+#define AuthorizeStationEndpoint StationsEndPoint "/verify"
 
 
 enum EventType {
@@ -38,6 +38,26 @@ enum TimerIdType {
   DEFAULT_TIMER = 0,
   WS_DISCONNECTED = 1,
   WS_CHECK_ON_SLEEP
+};
+
+struct {
+  const char *CONNECT;
+  const char *DISCONNECT;
+  const char *AUTHORIZED;
+  const char *UNAUTHORIZED;
+  const char *SET_STATE;
+} WSEvent = {
+  "connect",
+  "disconnect",
+  "authorized",
+  "unauthorized",
+  "setState"
+};
+
+enum TextAlign {
+  LEFT = 1,
+  RIGHT,
+  CENTER
 };
 
 #endif

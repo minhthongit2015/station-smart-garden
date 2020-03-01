@@ -10,36 +10,35 @@
 
 #define HCSR501_DELAY 6000
 
-class MotionDetectorHCSR501 : public BaseModule {
-  public:
-    unsigned long delayTime = 0;
-    uint8_t pin;
+struct MotionDetectorHCSR501 : BaseModule {
+  unsigned long delayTime = 0;
+  uint8_t pin;
 
-    MotionDetectorHCSR501() {
-      checkInterval = 200;
-    }
+  MotionDetectorHCSR501() {
+    checkInterval = 200;
+  }
 
-    void onAfterMoving(EventListener callback, unsigned long timeout = 0) {
-      onEvent(callback);
-    }
+  void onAfterMoving(EventListener callback, unsigned long timeout = 0) {
+    onEvent(callback);
+  }
 
-    void setup(uint8_t pin) {
-      logStart("Motion Detector (HC-SR501)");
-      this->pin = pin;
-      if (!isAPin(pin)) {
-        useIn(pin);
-      }
+  void setup(uint8_t pin) {
+    logStart("Motion Detector (HC-SR501)");
+    this->pin = pin;
+    if (!isAPin(pin)) {
+      useIn(pin);
     }
-    void fetch(EventData &newData) override {
-      if (notAPin(pin)) return;
-      newData.Moving.moving = digitalRead(pin);
-    }
-    bool validate(EventData &newData) override {
-      return !!newData.Moving;
-    }
-    bool hasChange() override {
-      return data.Moving != prevData;
-    };
+  }
+  void fetch(EventData &newData) override {
+    if (notAPin(pin)) return;
+    newData.Moving.moving = digitalRead(pin);
+  }
+  bool validate(EventData &newData) override {
+    return !!newData.Moving;
+  }
+  bool hasChange() override {
+    return data.Moving != prevData;
+  };
 };
 
 #endif

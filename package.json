@@ -1,0 +1,21 @@
+{
+  "name": "beyond-garden-station",
+  "version": "1.0.0",
+  "description": "",
+  "main": "station-smart-garden.ino",
+  "scripts": {
+    "install": "npm-install.bat"
+  },
+  "author": "Alpha Team",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^18.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.3"
+  },
+  "dependencies": {
+    "bmp-js": "^0.1.0"
+  }
+}

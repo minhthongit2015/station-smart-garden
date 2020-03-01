@@ -5,21 +5,10 @@
 
 #include <Arduino.h>
 
-class WifiInfo {
-  public:
+struct WifiInfo {
   int32_t rssi;
   String ssid;
   String pass;
-  
-  WifiInfo() {
-    this->pass;
-  }
-
-  WifiInfo(int32_t rssi, String ssid, String pass) {
-    this->rssi = rssi;
-    this->ssid = ssid;
-    this->pass = pass;
-  }
 
   void set(int32_t rssi, String ssid, String pass) {
     this->rssi = rssi;

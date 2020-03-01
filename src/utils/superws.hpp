@@ -13,6 +13,7 @@
 #include <iterator>
 #include "../utils/Utils.hpp"
 #include "../utils/Console.hpp"
+#include "../utils/Constants.hpp"
 #include "../configs/DeviceInfo.hpp"
 
 #define WEBSOCKET "WebSocket"
@@ -21,36 +22,45 @@
 
 defineWSListener(handleConnectEvent);
 defineWSListener(handleDisconnectEvent);
-defineWSListener(handleAcceptEvent);
+defineWSListener(handleAuthorizedEvent);
+defineWSListener(handleUnauthorizedEvent);
 
 
 class SuperWebsocket : public Listenable {
   private:
   bool testServer() {
     static WiFiClient testSocket;
-    if (testSocket.connected()) {
-      return true;
-    }
     bool isServerUp = testSocket.connect(gardenHost, gardenPort);
     testSocket.stop();
+    if (isServerUp) {
+      log(WEBSOCKET, "Server is up!");
+    } else {
+      log(WEBSOCKET, "Server is down!")
+    }
     return isServerUp;
   }
   bool isInitialized = false;
+
   bool sleeping = false;
   timestamp_t waitBeforeSleep = 30000;
   timestamp_t checkOnSleepInterval = 30000;
   int maxRetryTimes = 10;
-  char *gardenHost;
+
+  const char *gardenHost;
   long gardenPort;
-  char *token;
-  bool connected = false;
+
+  const char *token;
+  bool authorized = false;
 
   public:
   SocketIoClient socket;
-  bool isConnected() { return connected; }
-  void setConnected(bool connected) {
-    this->connected = connected;
+  bool isConnected() { return socket.isConnected; }
+
+  bool isAuthorized() { return authorized; }
+  void setAuthorized(bool authorized) {
+    this->authorized = authorized;
   }
+
   bool isSleeping() { return sleeping; }
   void setSleeping(bool sleeping) {
     this->sleeping = sleeping;
@@ -61,37 +71,82 @@ class SuperWebsocket : public Listenable {
     defineEvent(DISCONNECTED);
   }
 
-  void setup(char *gardenHost, long gardenPort, char *token) {
+  void setup(const char *gardenHost, long gardenPort, const char *token) {
     logStart(WEBSOCKET);
     configEndpoint(gardenHost, gardenPort, token);
-    prf("> [" WEBSOCKET "] Connecting to -~=> %s : %d\r\n", gardenHost, gardenPort);
-    if (wifiMgr.isConnected()) {
+    if (!isValidEndpoint(gardenHost, gardenPort)) {
+      logf(WEBSOCKET, "Unknow Garden: %s : %d\r\n", gardenHost, gardenPort);
+      return;
+    }
+    logf(WEBSOCKET, "Set Garden to -~=> %s : %d\r\n", gardenHost, gardenPort);
+    logf(WEBSOCKET, "> with Token: %s\r\n", token);
+    if (wifi.isConnected()) {
       initialize();
     }
   }
 
+  void configEndpoint(const char *gardenHost, long gardenPort, const char *token) {
+    this->gardenHost = gardenHost;
+    this->gardenPort = gardenPort;
+    this->setToken(token);
+  }
+
+  bool isValidEndpoint(const char *gardenHost, long gardenPort) {
+    return gardenPort > 0 && !isBlank(gardenHost) && strlen(gardenHost) > 5;
+  }
+
+  void setToken(const char *token) {
+    this->token = token;
+    setAuthorized(!isBlank(token));
+  }
+
+  bool initialize() {
+    if (!isValidEndpoint(gardenHost, gardenPort)) {
+      logf(WEBSOCKET, "Unknow Garden: %s : %d\r\n", gardenHost, gardenPort);
+      return false;
+    }
+    log(WEBSOCKET, "Initializing...");
+    if (testServer()) {
+      isInitialized = true;
+      socket.begin(gardenHost, gardenPort, getConnectionUrlPath());
+      setupEventListeners();
+    }
+    return isInitialized;
+  }
+
+  void setupEventListeners() {
+    on(WSEvent.CONNECT, handleConnectEvent);
+    on(WSEvent.DISCONNECT, handleDisconnectEvent);
+    on(WSEvent.AUTHORIZED, handleAuthorizedEvent);
+    on(WSEvent.UNAUTHORIZED, handleUnauthorizedEvent);
+  }
+
   void loop() {
     static int retryTimes = 0;
-    if (!wifiMgr.isConnected()) {
+    if (!wifi.isConnected()) {
       return;
     }
 
-    if (!connected) {
+    if (!isConnected()) {
       if (!sleeping) {
         if (Console::timeOver(WS_DISCONNECTED, waitBeforeSleep)) {
+          log(WEBSOCKET, "Sleeping...");
           sleeping = true;
           retryTimes = 0;
           Console::time(WS_CHECK_ON_SLEEP, "WS_CHECK_ON_SLEEP");
         }
       } else {
         if (Console::timeOver(WS_CHECK_ON_SLEEP, checkOnSleepInterval)) {
+          log(WEBSOCKET, "Wake up at the mid night");
           if (++retryTimes > maxRetryTimes) {
             return reset();
           }
           if (!isInitialized) {
-            initialize();
+            if (initialize()) {
+              setSleeping(false);
+            }
           } else {
-            emit(POST VerifyStationEndpoint, DEVICE_INFO);
+            authorizeStationWithServer();
           }
           Console::time(WS_CHECK_ON_SLEEP);
         } else {
@@ -104,14 +159,10 @@ class SuperWebsocket : public Listenable {
     }
   }
 
-  bool initialize() {
-    log(WEBSOCKET, "Initializing...");
-    if (testServer()) {
-      isInitialized = true;
-      socket.begin(gardenHost, gardenPort, getConnectionUrlPath());
-      setupEventListeners();
+  void authorizeStationWithServer() {
+    if (isConnected()) {
+      emit(POST AuthorizeStationEndpoint, DEVICE_INFO);
     }
-    return isInitialized;
   }
 
   void emit(const char *event, const char *payload) {
@@ -131,29 +182,13 @@ class SuperWebsocket : public Listenable {
     onEvent(DISCONNECTED, listener);
   }
 
-  void setupEventListeners() {
-    on("connect", handleConnectEvent);
-    on("disconnect", handleDisconnectEvent);
-    on("accept", handleDisconnectEvent);
-  }
-
-  void configEndpoint(char *gardenHost, long gardenPort, char *token) {
-    this->gardenHost = gardenHost;
-    this->gardenPort = gardenPort;
-    this->setToken(token);
-  }
-
-  void setToken(char *token) {
-    this->token = token;
-  }
-
   const char *getConnectionUrlPath() {
     static char urlPathBuffer[100];
     #define DEFAULT_URL_PATH "/socket.io/?EIO=3&transport=websocket"
-    #define WITH_SESSION_URL_PATH DEFAULT_URL_PATH "&token=%s"
+    #define URL_PATH_WITH_TOKEN DEFAULT_URL_PATH "&token=%s"
     
     if (!isBlank(this->token)) {
-      sprintf(urlPathBuffer, WITH_SESSION_URL_PATH, this->token);
+      sprintf(urlPathBuffer, URL_PATH_WITH_TOKEN, this->token);
       return urlPathBuffer;
     } else {
       return DEFAULT_URL_PATH;
@@ -163,30 +198,39 @@ class SuperWebsocket : public Listenable {
 
 extern SuperWebsocket ws;
 
-void handleConnectEvent(const char *payload, size_t length) {
+defineWSListener(handleConnectEvent) {
   log(WEBSOCKET, "Connected to the Garden!");
   ws.setSleeping(false);
-  ws.emit(POST VerifyStationEndpoint, DEVICE_INFO);
+  if (!ws.isAuthorized()) {
+    ws.authorizeStationWithServer();
+  } else {
+    ws.dispatch(CONNECTED);
+  }
 }
 
-void handleDisconnectEvent(const char *payload, size_t length) {
+defineWSListener(handleDisconnectEvent) {
   if (ws.isConnected()) {
     log(WEBSOCKET, "Disconnected from the Garden!");
     Console::time(WS_DISCONNECTED, "WS_DISCONNECTED");
-    ws.setConnected(false);
     ws.dispatch(DISCONNECTED);
   }
 }
 
-void handleAcceptEvent(const char *payload, size_t length) {
-  log(WEBSOCKET, "Garden accepted!");
-  static char token[50];
+defineWSListener(handleAuthorizedEvent) {
+  log(WEBSOCKET, "Garden authorized!");
+  static char token[100];
   strcpy(token, payload);
   ws.data.Payload.payload = token;
   ws.data.Payload.length = length;
-  ws.setConnected(true);
   ws.setToken(token);
+  ws.setAuthorized(true);
   ws.dispatch(CONNECTED, ws.data);
+}
+
+defineWSListener(handleUnauthorizedEvent) {
+  log(WEBSOCKET, "Garden unauthorized!");
+  delay(5000);
+  ws.authorizeStationWithServer();
 }
 
 #endif

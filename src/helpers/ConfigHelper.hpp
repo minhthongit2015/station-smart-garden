@@ -10,87 +10,102 @@
 #include "../configs/Common.hpp"
 #include "../libs/Listenable.hpp"
 
+String BLANK_STRING = "";
 
-class ConfigManager : public Listenable {
-  public:
-    StaticJsonDocument<CONFIG_BUFFER_SIZE> doc;
+#define CONFIG_HELPER "Config Helper"
 
-    ConfigManager() : Listenable() {
-      defineEvent(CONFIGURATION_CHANGE);
-    }
+#define returnIfNotContains(key, value) if (!doc.containsKey(key)) { log("Config not found", key); return value; }
+#define returnNull(key) returnIfNotContains(key, NULL)
+#define returnNegative(key) returnIfNotContains(key, -1)
+#define returnBlank(key) returnIfNotContains(key, BLANK_STRING)
 
-    void onChange(EventListener listener) {
-      onEvent(CONFIGURATION_CHANGE, listener);
-    }
+struct ConfigManager : Listenable {
+  StaticJsonDocument<CONFIG_BUFFER_SIZE> doc;
 
-    bool loadConfigurations();
-    bool loadConfigurations(const char* filePath);
-    bool save();
-    void putConfigurations(Stream &stream);
-    void dumpConfigurations();
+  ConfigManager() : Listenable() {
+    defineEvent(CONFIGURATION_CHANGE);
+  }
 
-    void toDoc();
-    void fromDoc(StaticJsonDocument<CONFIG_BUFFER_SIZE> &doc);
+  void onChange(EventListener listener) {
+    onEvent(CONFIGURATION_CHANGE, listener);
+  }
 
-    template<typename Type, typename KeyType>
-    ConfigManager &set(KeyType key, Type value) {
+  bool loadConfigurations();
+  bool loadConfigurations(const char* filePath);
+  bool save();
+  void putConfigurations(Stream &stream);
+  void dumpConfigurations();
+
+  void toDoc();
+  void fromDoc(StaticJsonDocument<CONFIG_BUFFER_SIZE> &doc);
+
+  template<typename Type, typename KeyType>
+  ConfigManager &set(KeyType key, Type value) {
+    doc[key] = value;
+    return *this;
+  }
+
+  template<typename Type, typename KeyType>
+  ConfigManager &setDefault(KeyType key, Type value) {
+    if (!doc.containsKey(key)) {
+      logf(CONFIG_HELPER, "Set default \"%s\" -> ", key); prl(value);
       doc[key] = value;
-      return *this;
     }
-    template<typename Type, typename KeyType>
-    ConfigManager &setDefault(KeyType key, Type value) {
-      if (!doc.containsKey(key)) {
-        doc[key] = value;
-      }
-      return *this;
-    }
+    return *this;
+  }
 
-    template<typename Type>
-    Type get(char *key) {
-      return doc[key].as<Type>();
-    }
+  template<typename Type>
+  Type get(const char *key) {
+    return doc[key].as<Type>();
+  }
 
-    String getStr(char *key) {
-      return doc[key].as<String>();
-    }
+  String getStr(const char *key) {
+    returnBlank(key);
+    return doc[key].as<String>();
+  }
 
-    const char* getCStr(char *key) {
-      return doc[key].as<String>().c_str();
-    }
+  const char* getCStr(const char *key) {
+    returnNull(key);
+    return doc[key].as<const char *>();
+  }
 
-    char* getCStrz(char *key) {
-      return (char*)doc[key].as<String>().c_str();
-    }
-    
-    uint8_t getUInt8(char *key) {
-      return doc[key].as<uint8_t>();
-    }
-    
-    long getLong(char *key) {
-      return doc[key].as<long>();
-    }
-    
-    void setup() {
-      logStart("Configurations Manager");
-      loadConfigurations();
-    }
+  char* getCStrz(const char *key) {
+    returnNull(key);
+    return (char*)getCStr(key);
+  }
+  
+  uint8_t getUInt8(const char *key) {
+    returnNegative(key);
+    return doc[key].as<uint8_t>();
+  }
+  
+  long getLong(const char *key) {
+    returnNegative(key);
+    return doc[key].as<long>();
+  }
+  
+  void setup() {
+    logStart(CONFIG_HELPER);
+    loadConfigurations();
+    Serial.flush();
+  }
 
-    void loop() {
-      if (Serial.available()) {
-        putConfigurations(Serial);
-      }
+  void loop() {
+    if (Serial.available()) {
+      putConfigurations(Serial);
     }
+  }
 } cfg;
 
 extern ConfigManager cfg;
 
 bool ConfigManager::loadConfigurations() {
-  log("Config", "Load Configurations");
+  log(CONFIG_HELPER, "Load Configurations");
   if (fsz.exists(CONFIG_FILE_PATH)) {
     if (loadConfigurations(CONFIG_FILE_PATH)) {
       return true;
     } else {
-      error("Config", "Cannot open config file (" CONFIG_FILE_PATH ")");
+      error(CONFIG_HELPER, "Cannot open config file (" CONFIG_FILE_PATH ")");
     }
   }
   if (fsz.exists(CONFIG_TEMP_FILE_PATH)) {
@@ -98,7 +113,7 @@ bool ConfigManager::loadConfigurations() {
       fsz.rename(CONFIG_TEMP_FILE_PATH, CONFIG_FILE_PATH);
       return true;
     } else {
-      error("Config", "Cannot open config temporary file (" CONFIG_TEMP_FILE_PATH ")");
+      error(CONFIG_HELPER, "Cannot open config temporary file (" CONFIG_TEMP_FILE_PATH ")");
     }
   }
   if (fsz.exists(CONFIG_BACKUP_FILE_PATH)) {
@@ -106,7 +121,7 @@ bool ConfigManager::loadConfigurations() {
       fsz.rename(CONFIG_BACKUP_FILE_PATH, CONFIG_FILE_PATH);
       return true;
     } else {
-      error("Config", "Cannot open config backup file (" CONFIG_BACKUP_FILE_PATH ")");
+      error(CONFIG_HELPER, "Cannot open config backup file (" CONFIG_BACKUP_FILE_PATH ")");
     }
   }
 }
@@ -126,10 +141,10 @@ bool ConfigManager::loadConfigurations(const char* filePath) {
 }
 
 bool ConfigManager::save() {
-  log("Config", "Save Configurations");
+  log(CONFIG_HELPER, "Save Configurations");
   File file = fsz.open(CONFIG_TEMP_FILE_PATH, "w");
   if (!file) {
-    error("Config", "Cannot open config file (" CONFIG_TEMP_FILE_PATH ")");
+    error(CONFIG_HELPER, "Cannot open config file (" CONFIG_TEMP_FILE_PATH ")");
     return false;
   }
   serializeJson(doc, file);
@@ -138,23 +153,28 @@ bool ConfigManager::save() {
   fsz.remove(CONFIG_BACKUP_FILE_PATH);
   fsz.rename(CONFIG_FILE_PATH, CONFIG_BACKUP_FILE_PATH);
   if (!fsz.rename(CONFIG_TEMP_FILE_PATH, CONFIG_FILE_PATH)) {
-    error("Config", "Cannot rename " CONFIG_TEMP_FILE_PATH " to " CONFIG_FILE_PATH);
+    error(CONFIG_HELPER, "Cannot rename " CONFIG_TEMP_FILE_PATH " to " CONFIG_FILE_PATH);
     return false;
   }
   return true;
 }
 
 void ConfigManager::putConfigurations(Stream &stream) {
-  log("Config", "Put Configurations");
   static StaticJsonDocument<CONFIG_BUFFER_SIZE> newDoc;
   deserializeJson(newDoc, stream);
+  if (newDoc.isNull()) {
+    return;
+  }
+  log(CONFIG_HELPER, "Put Configurations");
+  serializeJsonPretty(newDoc, Serial); prl();
 
   JsonObject root = newDoc.as<JsonObject>();
   for (JsonPair entry : root) {
-    doc[entry.key().c_str()] = entry.value();
+    doc[entry.key().c_str()] = newDoc[entry.key().c_str()];
   }
 
   save();
+  log(CONFIG_HELPER, "Saved Configurations");
   dumpConfigurations();
   dispatch(CONFIGURATION_CHANGE);
 }

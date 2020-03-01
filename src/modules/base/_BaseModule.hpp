@@ -7,58 +7,57 @@
 #include "../../libs/Listenable.hpp"
 
 
-class BaseModule : public Listenable {
-  public:
-    EventData newData = EMPTY_EVENT_DATA;
-    unsigned long checkInterval = 2000;
-    unsigned long last = 0;
-    virtual EventType getDefaultEventType() override {
-      return VALUE_CHANGE;
-    }
-    
-    BaseModule() : Listenable() {
-      defineEvent(ERROR);
-    }
+struct BaseModule : Listenable {
+  EventData newData = EMPTY_EVENT_DATA;
+  unsigned long checkInterval = 2000;
+  unsigned long last = 0;
+  virtual EventType getDefaultEventType() override {
+    return VALUE_CHANGE;
+  }
+  
+  BaseModule() : Listenable() {
+    defineEvent(ERROR);
+  }
 
-    void onChange(EventListener listener) {
-      onEvent(listener);
-    }
+  void onChange(EventListener listener) {
+    onEvent(listener);
+  }
 
-    void onError(EventListener listener) {
-      onEvent(ERROR, listener);
-    }
+  void onError(EventListener listener) {
+    onEvent(ERROR, listener);
+  }
 
-    virtual EventData read() {
-      fetch(newData);
-      if (validate(newData)) {
-        data = newData;
-      }
-      return data;
+  virtual EventData read() {
+    fetch(newData);
+    if (validate(newData)) {
+      data = newData;
     }
+    return data;
+  }
 
-    virtual void fetch(EventData &newData) {
-      // assign new value to newData
-    }
+  virtual void fetch(EventData &newData) {
+    // assign new value to newData
+  }
 
-    virtual bool validate(EventData &newData) {
-      return false;
-    }
+  virtual bool validate(EventData &newData) {
+    return false;
+  }
 
-    virtual bool hasChange() {
-      return data != prevData;
-    }
+  virtual bool hasChange() {
+    return data != prevData;
+  }
 
-    virtual void setup() { }
-    virtual void loop() {
-      if (millis() - last < checkInterval) {
-        return;
-      }
-      read();
-      if (hasChange()) {
-        dispatch(data);
-      }
-      last = millis();
+  virtual void setup() { }
+  virtual void loop() {
+    if (millis() - last < checkInterval) {
+      return;
     }
+    read();
+    if (hasChange()) {
+      dispatch(data);
+    }
+    last = millis();
+  }
 };
 
 #endif

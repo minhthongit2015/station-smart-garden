@@ -7,14 +7,15 @@
 #include "../utils/Utils.hpp"
 #include "../helpers/ConfigHelper.hpp"
 #include "../models/StationState.hpp"
+#include "../configs/Common.hpp"
 #include "../controllers/WifiManager.hpp"
 #include "../utils/superws.hpp"
 
 #define NETWORK_CONTROLLER "Network Controller"
 
-#define GARDEN_HOST "GARDEN_HOST"
-#define GARDEN_PORT "GARDEN_PORT"
-#define SESSION_ID "SESSION_ID"
+#define GARDEN_HOST "gardenHost"
+#define GARDEN_PORT "gardenPort"
+#define SESSION_ID "sessionId"
 
 defineListener(handleConnected);
 
@@ -22,14 +23,16 @@ defineListener(handleConnected);
 struct Network {
   void setup() {
     logStart(NETWORK_CONTROLLER);
-    wifiMgr.setup();
-    cfg.setDefault(GARDEN_HOST, "beyond-garden.herokuapp.com");
-    cfg.setDefault(GARDEN_PORT, 5000);
-    ws.setup(cfg.getCStrz(GARDEN_HOST), cfg.getLong(GARDEN_PORT), cfg.getCStrz(SESSION_ID));
+    wifi.setup();
+
+    cfg.setDefault(GARDEN_HOST, DEFAULT_HOST);
+    cfg.setDefault(GARDEN_PORT, DEFAULT_PORT);
+    ws.setup(cfg.getCStr(GARDEN_HOST), cfg.getLong(GARDEN_PORT), cfg.getCStr(SESSION_ID));
     ws.onConnect(handleConnected);
   }
+
   void loop() {
-    wifiMgr.loop();
+    wifi.loop();
     ws.loop();
   }
 } network;
@@ -37,7 +40,9 @@ struct Network {
 extern Network network;
 
 void handleConnected(pEvent event) {
-  cfg.set(SESSION_ID, event->data.Payload.payload).save();
+  if (!isBlank(event->data.Payload.payload)) {
+    cfg.set(SESSION_ID, event->data.Payload.payload).save();
+  }
   ws.emit(POST RecordsEndpoint, state.toJSON());
 }
 

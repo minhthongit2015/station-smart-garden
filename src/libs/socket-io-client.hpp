@@ -181,7 +181,7 @@ void SocketIoClient::emit(const char *event, const char *payload) {
   if (!isConnected) {
     return;
   }
-  static char buffer[256] = { "\0" };
+  static char buffer[512] = { "\0" };
   sprintf(buffer, "42[\"%s\",%s]", event, payload ? payload : "");
   SOCKETIOCLIENT_DEBUG("[SIoC] > Emit: %s\n", buffer);
   _webSocket.sendTXT(buffer);

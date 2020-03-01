@@ -1,6 +1,7 @@
 @echo off
 
 set LIBS_FOLDER=%USERPROFILE%/Documents/Arduino/libraries
+set LOCAL_LIBS_FOLDER=libs
 
 REM Extract lib packages and install
 

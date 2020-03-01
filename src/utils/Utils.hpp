@@ -38,21 +38,23 @@
 
 
 /*           String           */
-#define isBlank(str) (str && str[0])
+#define isBlank(str) (!str || !str[0])
 
 
 /*           Print           */
 #define pr(...) Serial.print(__VA_ARGS__);
 #define prl(...) Serial.println(__VA_ARGS__);
 #define prf(...) Serial.printf(__VA_ARGS__);
-#define log(moduleName, message) { pr("> [" moduleName "] ") prl(message) }
+#define wait(times, timeDelay) { pr(times) pr(".") delay(timeDelay); }
+#define waitFor(condiciton, times, timeDelay) {\
+  while (!condiciton && times > 0) { wait(times, timeDelay); --times; } prl()\
+}
+#define log(moduleName, ...) { pr("> [" moduleName "] ") prl(__VA_ARGS__) }
+#define logf(moduleName, ...) { pr("> [" moduleName "] ") prf(__VA_ARGS__) }
 #define logBlock(moduleName, message) { pr("> [" moduleName "] ") prl(message ":") }
 #define error(moduleName, errorMessage) { pr("<!> [" moduleName "] ") prl(errorMessage) }
 #define logStart(moduleName) prl("<*> >>> " moduleName)
 #define logEnd(moduleName) prl("</> <<< " moduleName)
-
-static bool logChannels[10] = {true};
-#define toggleLogChannel(channel, state) logChannels[channel] = state;
 
 
 /*         Performance       */

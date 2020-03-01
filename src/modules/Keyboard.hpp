@@ -12,6 +12,7 @@
 class Keyboard : public TouchPadTTP229 {
   public:
   void setup() override {
+    logStart("Keyboard");
     cfg.setDefault(PIN_TTP229_SCL, NOT_A_PIN);
     cfg.setDefault(PIN_TTP229_SDO, NOT_A_PIN);
     TouchPadTTP229::setup(cfg.getUInt8(PIN_TTP229_SCL), cfg.getUInt8(PIN_TTP229_SDO));

@@ -21,9 +21,6 @@ struct SmartGardenStation {
   void setup() {
     logStart("Station");
 
-    togglePerformanceChannel(0, false);
-    toggleLogChannel(1, false); // false: Hide sensor value
-
     i2cScanner();
 
     fsz.setup();
@@ -47,7 +44,7 @@ struct SmartGardenStation {
     cfg.loop();
     display.loop();
     network.loop();
-    gardener.loop();
+    // gardener.loop();
     delay(MAIN_LOOP_DELAY_TIME);
   }
 } station;
@@ -79,10 +76,10 @@ void onKeyDown(pEvent event) {
       fsz.showInfo();
       break;
     case 16:
-      display.busy = false;
+      display.busy = true;
       display.lcd.clear();
-      display.lcd.printCenterLine("Resetting...", 1);
-      display.lcd.printCenterLine("(._.)zZ", 2);
+      display.lcd.printCenter("Resetting...", 1);
+      display.lcd.printCenter("(=_=)zZ", 2);
       delay(1000);
       reset();
       break;
