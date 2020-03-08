@@ -25,6 +25,7 @@ struct Console {
   }
 
   static bool timeOver(TimerIdType timerId, timestamp_t timeout) {
+    if (!timers[timerId]) return false;
     return millis() - timers[timerId] > timeout;
   }
 
@@ -36,7 +37,10 @@ struct Console {
   }
 
   static timestamp_t timeEnd(TimerIdType timerId) {
-    return timeLog(timerId);
+    static timestamp_t endTime;
+    endTime = timeLog(timerId);
+    timers[timerId] = 0;
+    return endTime;
   }
 };
 

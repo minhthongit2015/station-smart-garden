@@ -14,10 +14,10 @@
 
 #define GARDENER "Gardener"
 
-defineWSListener(handleSetState);
-defineListener(handleHuTempChange);
-defineListener(handleLightChange);
-defineListener(handleMovingChange);
+declareWSListener(handleSetState);
+declareListener(handleHuTempChange);
+declareListener(handleLightChange);
+declareListener(handleMovingChange);
 
 
 struct Gardener {
@@ -25,6 +25,7 @@ struct Gardener {
     sensors.setup();
     relays.setup();
     setupListeners();
+    displayStationStatus();
   }
 
   void setupListeners() {
@@ -35,13 +36,12 @@ struct Gardener {
   }
 
   void loop() {
-    log(GARDENER, "Loop");
     sensors.loop();
     relays.loop();
   }
 
   void handleStateChange() {
-    log(GARDENER, "Station state change");
+    // log(GARDENER, "Station state change");
     displayStationStatus();
     if (ws.isConnected()) {
       ws.emit(POST RecordsEndpoint, state.toJSON());
@@ -54,26 +54,26 @@ struct Gardener {
 
 extern Gardener gardener;
 
-defineWSListener(handleSetState) {
+declareWSListener(handleSetState) {
   log(GARDENER, "Garden set station state");
   deserializeJson(state.doc, payload);
   state.fromDoc(state.doc);
   relays.syncState();
-  serializeJsonPretty(state.doc, Serial);
+  serializeJsonPretty(state.doc, Serial); prl();
 }
 
-defineListener(handleHuTempChange) {
+declareListener(handleHuTempChange) {
   state.temperature = event->data.HuTemp.temperature;
   state.humidity = event->data.HuTemp.humidity;
   gardener.handleStateChange();
 }
 
-defineListener(handleLightChange) {
+declareListener(handleLightChange) {
   state.light = event->data.Light.light;
   gardener.handleStateChange();
 }
 
-defineListener(handleMovingChange) {
+declareListener(handleMovingChange) {
   state.moving = event->data.Moving.moving;
   gardener.handleStateChange();
 }
@@ -91,8 +91,7 @@ void Gardener::displayStationStatus() {
   } else {
     display.lcd.print("  ----  ");
   }
-  display.lcd.setLine(0);
-  display.lcd.printRight(WiFi.SSID().c_str());
+  display.lcd.printRight(WiFi.SSID().c_str(), 0);
 }
 
 void Gardener::printMovingDetection() {

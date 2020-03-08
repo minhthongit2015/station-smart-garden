@@ -18,6 +18,7 @@ String BLANK_STRING = "";
 #define returnNull(key) returnIfNotContains(key, NULL)
 #define returnNegative(key) returnIfNotContains(key, -1)
 #define returnBlank(key) returnIfNotContains(key, BLANK_STRING)
+#define returnNotAPin(key) returnIfNotContains(key, NOT_A_PIN)
 
 struct ConfigManager : Listenable {
   StaticJsonDocument<CONFIG_BUFFER_SIZE> doc;
@@ -76,6 +77,11 @@ struct ConfigManager : Listenable {
   
   uint8_t getUInt8(const char *key) {
     returnNegative(key);
+    return doc[key].as<uint8_t>();
+  }
+  
+  uint8_t getPin(const char *key) {
+    returnNotAPin(key);
     return doc[key].as<uint8_t>();
   }
   

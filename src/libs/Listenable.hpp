@@ -8,11 +8,8 @@
 
 struct Listenable {
   virtual EventType getDefaultEventType() {
-    return ON_EVENT;
+    return DEFAULT_EVENT;
   }
-  pEvent pLastEvent = NULL;
-  EventData data = EMPTY_EVENT_DATA;
-  EventData prevData = EMPTY_EVENT_DATA;
   ListenerMap listenerMap;
 
   Listenable() {
@@ -24,12 +21,34 @@ struct Listenable {
   }
 
   pListenerSet defineEvent(EventType type, pListenerSet listenerSet) {
-    listenerMap.insert(ListenerEntry(type, listenerSet));
+    listenerMap[type] = listenerSet;
+    // listenerMap.insert(ListenerEntry(type, listenerSet));
     return listenerSet;
   }
 
   pListenerSet getListenerSet(EventType type) {
-    return listenerMap.find(type)->second;
+    pListenerSet listenerSet = listenerMap[type];
+    if (!listenerSet) {
+      prf("> Event \"%d\" was not defined\r\n", type);
+    }
+    return listenerSet;
+  }
+
+  void removeAllListeners() {
+    ListenerMapIterator end = listenerMap.end();
+    for (ListenerMapIterator listenerSet = listenerMap.begin(); listenerSet != end; ++listenerSet) {
+      if (listenerSet->second) {
+        delete listenerSet->second;
+      }
+    }
+    listenerMap.clear();
+  }
+
+  void listListeners() {
+    ListenerMapIterator end = listenerMap.end();
+    for (ListenerMapIterator listenerSet = listenerMap.begin(); listenerSet != end; ++listenerSet) {
+      prf("> Defined Event: %d\r\n", listenerSet->first);
+    }
   }
 
   void onEvent(EventListener listener) {
@@ -38,9 +57,11 @@ struct Listenable {
 
   void onEvent(EventType type, EventListener listener) {
     pListenerSet listenerSet = getListenerSet(type);
-    if (listenerSet) {
-      listenerSet->insert(listener);
+    if (!listenerSet) {
+      prf("> Please define event \"%d\" before setup its listeners\r\n", type);
+      return;
     }
+    listenerSet->insert(listener);
   }
   
   void dispatch(EventData data) {
@@ -64,16 +85,16 @@ struct Listenable {
     pListenerSet listenerSet = getListenerSet(event->type);
     if (listenerSet) {
       dispatch(*listenerSet, *event);
+    } else {
+      prf("Cannot dispatch undefined event type %d\r\n", event->type);
     }
   }
 
   void dispatch(ListenerSet &listenerSet, Event &event) {
-    pLastEvent = &event;
-    for (ListenerIterator listener = listenerSet.begin();
-        listener != listenerSet.end(); ++listener) {
+    ListenerIterator end = listenerSet.end();
+    for (ListenerIterator listener = listenerSet.begin(); listener != end; ++listener) {
       (*listener)(&event);
     }
-    prevData = data;
   }
 };
 

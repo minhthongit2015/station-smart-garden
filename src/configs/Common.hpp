@@ -14,4 +14,7 @@
 #define DEFAULT_HOST "beyond-garden.herokuapp.com"
 #define DEFAULT_PORT 80
 
+#define WS_HOST_URL_PATH_SIZE 200
+#define WS_TOKEN_SIZE 100
+
 #endif

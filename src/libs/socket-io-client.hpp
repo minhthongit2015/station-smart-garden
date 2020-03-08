@@ -175,6 +175,7 @@ void SocketIoClient::pong() {
 
 void SocketIoClient::on(const char *event, std::function<void (const char *payload, size_t length)> func) {
   _events[event] = func;
+  // _events.insert(event, func);
 }
 
 void SocketIoClient::emit(const char *event, const char *payload) {

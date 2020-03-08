@@ -51,10 +51,10 @@
 }
 #define log(moduleName, ...) { pr("> [" moduleName "] ") prl(__VA_ARGS__) }
 #define logf(moduleName, ...) { pr("> [" moduleName "] ") prf(__VA_ARGS__) }
-#define logBlock(moduleName, message) { pr("> [" moduleName "] ") prl(message ":") }
-#define error(moduleName, errorMessage) { pr("<!> [" moduleName "] ") prl(errorMessage) }
-#define logStart(moduleName) prl("<*> >>> " moduleName)
-#define logEnd(moduleName) prl("</> <<< " moduleName)
+#define logBlock(moduleName, message) { pr("> [" moduleName "] ") pr(message) prl(":") }
+#define error(moduleName, errorMessage) { pr("<!> Error [" moduleName "] ") prl(errorMessage) }
+#define logStart(moduleName) prl("<*> START >>> " moduleName " <<< START")
+#define logEnd(moduleName) prl("</> END <<< " moduleName " >>> END")
 
 
 /*         Performance       */

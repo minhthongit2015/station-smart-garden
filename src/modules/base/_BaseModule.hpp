@@ -8,15 +8,21 @@
 
 
 struct BaseModule : Listenable {
+  EventData data = EMPTY_EVENT_DATA;
   EventData newData = EMPTY_EVENT_DATA;
+  EventData prevData = EMPTY_EVENT_DATA;
   unsigned long checkInterval = 2000;
   unsigned long last = 0;
   virtual EventType getDefaultEventType() override {
     return VALUE_CHANGE;
   }
+  virtual bool isReady() {
+    return true;
+  }
   
   BaseModule() : Listenable() {
-    defineEvent(ERROR);
+    defineEvent(ERROR_EVENT);
+    defineEvent(getDefaultEventType());
   }
 
   void onChange(EventListener listener) {
@@ -24,7 +30,21 @@ struct BaseModule : Listenable {
   }
 
   void onError(EventListener listener) {
-    onEvent(ERROR, listener);
+    onEvent(ERROR_EVENT, listener);
+  }
+
+  virtual void setup() { }
+  virtual void loop() {
+    if (millis() - last < checkInterval || !isReady()) {
+      return;
+    }
+    read();
+    if (hasChange()) {
+      dispatchModuleEvent();
+      afterChange();
+      prevData = data;
+    }
+    last = millis();
   }
 
   virtual EventData read() {
@@ -47,16 +67,12 @@ struct BaseModule : Listenable {
     return data != prevData;
   }
 
-  virtual void setup() { }
-  virtual void loop() {
-    if (millis() - last < checkInterval) {
-      return;
-    }
-    read();
-    if (hasChange()) {
-      dispatch(data);
-    }
-    last = millis();
+  virtual void dispatchModuleEvent() {
+    dispatch(getDefaultEventType(), data);
+  }
+
+  virtual void afterChange() {
+
   }
 };
 

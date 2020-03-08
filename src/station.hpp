@@ -27,7 +27,7 @@ struct SmartGardenStation {
     cfg.setup();
 
     display.setup();
-    keyboard.setup();
+    // keyboard.setup();
 
     network.setup();
     gardener.setup();
@@ -37,15 +37,24 @@ struct SmartGardenStation {
 
   void setupListeners() {
     cfg.onChange(onConfigChange);
-    keyboard.onKeyDown(onKeyDown);
+    // keyboard.onKeyDown(onKeyDown);
   }
 
   void loop() {
     cfg.loop();
     display.loop();
     network.loop();
-    // gardener.loop();
+    gardener.loop();
     delay(MAIN_LOOP_DELAY_TIME);
+  }
+
+  void softReset() {
+    display.busy = true;
+    display.lcd.clear();
+    display.lcd.printCenter("Resetting...", 1);
+    display.lcd.printCenter("z(^.^)z", 2);
+    delay(1000);
+    reset();
   }
 } station;
 
@@ -53,7 +62,7 @@ extern SmartGardenStation station;
 
 void onConfigChange(pEvent event) {
   log("Station", "Configurations change!");
-  reset();
+  station.softReset();
 }
 
 void onKeyDown(pEvent event) {
@@ -76,12 +85,7 @@ void onKeyDown(pEvent event) {
       fsz.showInfo();
       break;
     case 16:
-      display.busy = true;
-      display.lcd.clear();
-      display.lcd.printCenter("Resetting...", 1);
-      display.lcd.printCenter("(=_=)zZ", 2);
-      delay(1000);
-      reset();
+      station.softReset();
       break;
     default:
       break;

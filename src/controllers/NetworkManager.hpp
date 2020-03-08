@@ -17,7 +17,7 @@
 #define GARDEN_PORT "gardenPort"
 #define SESSION_ID "sessionId"
 
-defineListener(handleConnected);
+declareListener(handleConnected);
 
 
 struct Network {
@@ -39,7 +39,7 @@ struct Network {
 
 extern Network network;
 
-void handleConnected(pEvent event) {
+declareListener(handleConnected) {
   if (!isBlank(event->data.Payload.payload)) {
     cfg.set(SESSION_ID, event->data.Payload.payload).save();
   }

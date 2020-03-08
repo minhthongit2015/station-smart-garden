@@ -5,9 +5,7 @@
 
 #include <ArduinoJson.h>
 
-#define STATE_BUFFER_SIZE 384
-
-#define toBool(val) (val ? "true" : "false")
+#define STATE_BUFFER_SIZE 512
 
 class StationState {
   private:

@@ -32,9 +32,9 @@ class LiquidCrystal20x4 : public LiquidCrystal_I2C {
     void print(char c);
     void printCenter(const char *text, uint8_t line, uint8_t lineLength = 20);
     void printLeft(const char *text, uint8_t line, uint8_t lineLength = 20);
+    void printRight(const char *text, uint8_t line, uint8_t lineLength = 20);
 
     void print(const char *text, TextAlign align = LEFT, bool resetLine = false);
-    void printRight(const char *text);
     void println(const char *text, TextAlign align = LEFT, bool resetLine = false);
 };
 
@@ -78,7 +78,7 @@ void LiquidCrystal20x4::print(char c) {
   LiquidCrystal_I2C::print(c);
 }
 
-void LiquidCrystal20x4::printRight(const char *text) {
+void LiquidCrystal20x4::printRight(const char *text, uint8_t line, uint8_t lineLength) {
   setCursor(width - strlen(text), line);
   printstr(text);
 }

@@ -15,9 +15,9 @@ class TouchPadTTP229 : public BaseModule {
     void resolveKey(EventData &key);
     bool blocking = false;
     bool keys[16] = {0};
+
   public:
     TTP229 *ttp229;
-
     TouchPadTTP229() : BaseModule() {
       defineEvent(KEY_DOWN);
       defineEvent(KEY_UP);

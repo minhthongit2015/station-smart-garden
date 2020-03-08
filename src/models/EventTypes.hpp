@@ -3,6 +3,7 @@
 #ifndef BEYOND_GARDEN_EVENT_TYPES_H
 #define BEYOND_GARDEN_EVENT_TYPES_H
 
+#include <Arduino.h>
 #include <set>
 #include <map>
 #include <iterator>
@@ -10,8 +11,10 @@
 #include "../utils/Constants.hpp"
 
 
-#define DEFAULT_PRECISION 100
-#define compareFloat(n1, n2, precision) (((int)(n1*precision)) == ((int)(n2*precision)))
+#define DEFAULT_PRECISION 0.01 // đúng tới 2 chữ số sau dấu .
+#define abs(a, b) (a - b > 0 ? a - b : b - a)
+#define isEqualz(n1, n2, precision) (abs(n1, n2) < precision)
+#define isEqual(n1, n2) isEqualz(n1, n2, DEFAULT_PRECISION)
 #define maxNum(a, b) (a > b ? a : b)
 #define findLength(str1, str2) maxNum(strlen(str1), strlen(str2))
 
@@ -19,13 +22,13 @@ union EventData {
   struct {
     float temperature;
     float humidity;
-    bool operator == (EventData data) {
-      return compareFloat(data.HuTemp.humidity, this->humidity, DEFAULT_PRECISION)
-        && compareFloat(data.HuTemp.temperature, this->temperature, DEFAULT_PRECISION);
+    bool operator == (EventData &data) {
+      return ((!!data.HuTemp || !!(*this)) && !(!data.HuTemp ^ !(*this)))
+        && isEqual(data.HuTemp.humidity, this->humidity)
+        && isEqual(data.HuTemp.temperature, this->temperature);
     }
-    bool operator != (EventData data) {
-      return !compareFloat(data.HuTemp.humidity, this->humidity, DEFAULT_PRECISION)
-        || !compareFloat(data.HuTemp.temperature, this->temperature, DEFAULT_PRECISION);
+    bool operator != (EventData &data) {
+      return !((*this) == data);
     }
     bool operator ! () {
       return isnan(this->humidity) || isnan(this->temperature);
@@ -34,10 +37,10 @@ union EventData {
 
   struct {
     uint16_t light;
-    bool operator == (EventData data) {
+    bool operator == (EventData &data) {
       return data.Light.light == this->light;
     }
-    bool operator != (EventData data) {
+    bool operator != (EventData &data) {
       return data.Light.light != this->light;
     }
     bool operator ! () {
@@ -47,10 +50,10 @@ union EventData {
 
   struct {
     bool moving;
-    bool operator == (EventData data) {
+    bool operator == (EventData &data) {
       return data.Moving.moving == this->moving;
     }
-    bool operator != (EventData data) {
+    bool operator != (EventData &data) {
       return data.Moving.moving != this->moving;
     }
     bool operator ! () {
@@ -85,9 +88,10 @@ union EventData {
     }
   } Payload;
 
-  EventData operator = (EventData &data) {
-    memcpy(this, &data, sizeof(EventData));
-  }
+  // EventData& operator = (EventData &data) {
+  //   memcpy(this, &data, sizeof(EventData));
+  //   return *this;
+  // }
 
   bool operator == (EventData &data) {
     return memcmp(this, &data, sizeof(EventData)) == 0;
@@ -103,13 +107,13 @@ struct Event {
   EventType type;
   EventData data;
   bool isError() {
-    return this->type == ERROR;
+    return this->type == ERROR_EVENT;
   }
 };
 typedef Event *pEvent;
 typedef void (*EventListener)(pEvent event);
 // typedef std::function<void (pEvent event)> EventListener;
-#define defineListener(name) void name(pEvent event)
+#define declareListener(name) void name(pEvent event)
 
 typedef std::set<EventListener> ListenerSet;
 typedef ListenerSet *pListenerSet;

@@ -38,36 +38,36 @@ class Display {
       delay(2000);
       lcd.clear();
 
-      // pikachuEmotion.setup(lcd);
-      // pikachuEmotion.insert(&pikachu1);
-      // pikachuEmotion.insert(&pikachu2);
-      // pikachuEmotion.insert(&pikachu3);
-      // pikachuEmotion.insert(&pikachu4);
+      pikachuEmotion.setup(lcd);
+      pikachuEmotion.insert(&pikachu1);
+      pikachuEmotion.insert(&pikachu2);
+      pikachuEmotion.insert(&pikachu3);
+      pikachuEmotion.insert(&pikachu4);
 
-      // sleepEmotion.setup(lcd);
-      // sleepEmotion.insert(&sleep1);
-      // sleepEmotion.insert(&sleep2);
-      // sleepEmotion.insert(&sleep3);
-      // sleepEmotion.insert(&sleep4);
-      // sleepEmotion.insert(&sleep5);
+      sleepEmotion.setup(lcd);
+      sleepEmotion.insert(&sleep1);
+      sleepEmotion.insert(&sleep2);
+      sleepEmotion.insert(&sleep3);
+      sleepEmotion.insert(&sleep4);
+      sleepEmotion.insert(&sleep5);
 
-      // prevEmotion = &sleepEmotion;
+      prevEmotion = &sleepEmotion;
     }
 
     void loop() {
-      // if (state.moving) {
-      //   if (prevEmotion != &pikachuEmotion) {
-      //     (*prevEmotion).clearPrevFrame();
-      //     prevEmotion = &pikachuEmotion;
-      //   }
-      //   pikachuEmotion.play();
-      // } else {
-      //   if (prevEmotion != &sleepEmotion) {
-      //     (*prevEmotion).clearPrevFrame();
-      //     prevEmotion = &sleepEmotion;
-      //   }
-      //   sleepEmotion.play();
-      // }
+      if (state.moving) {
+        if (prevEmotion != &pikachuEmotion) {
+          (*prevEmotion).clearPrevFrame();
+          prevEmotion = &pikachuEmotion;
+        }
+        pikachuEmotion.play();
+      } else {
+        if (prevEmotion != &sleepEmotion) {
+          (*prevEmotion).clearPrevFrame();
+          prevEmotion = &sleepEmotion;
+        }
+        sleepEmotion.play();
+      }
     }
 } display;
 

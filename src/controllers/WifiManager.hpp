@@ -15,16 +15,17 @@
 #define GARDEN_WIFI_SIGNAL "gardenWifiSignal"
 #define GARDEN_WIFI_PASSWORD "gardenWifiPassword"
 
+#define MAX_NUM_NETWORKS 30
 
-bool checkGardenSignal(String ssid) {
-  return cfg.getStr(GARDEN_WIFI_SIGNAL).charAt(0)
-    && ssid.indexOf(cfg.getStr(GARDEN_WIFI_SIGNAL)) >= 0;
-}
+#define isGarden(ssid) (\
+  !gardenWifiSignal.isEmpty() && ssid.indexOf(gardenWifiSignal) >= 0\
+)
 
 struct WifiManager {
-  WifiInfo wifiList[30];
+  WifiInfo wifiList[MAX_NUM_NETWORKS];
   unsigned long RETRY_INTERVAL = 15000;
   bool isConnected() { return WiFi.status() == WL_CONNECTED; }
+  String gardenWifiSignal = "";
 
   void setup();
   void loop();
@@ -46,8 +47,10 @@ void WifiManager::setup() {
   WiFi.hostname(DEVICE_ID);
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
+
+  gardenWifiSignal = cfg.getStr(GARDEN_WIFI_SIGNAL);
   
-  if (wifi.isConnected() && !checkGardenSignal(WiFi.SSID())) {
+  if (wifi.isConnected() && !isGarden(WiFi.SSID())) {
     log(WIFI, "Garden Signal changes -> disconnect().");
     WiFi.disconnect(true);
   }
@@ -74,18 +77,19 @@ void WifiManager::loop() {
 void WifiManager::scanAndConnect() {
   int numNetworks = scanWifiNetworks();
   
-  int count = 0;
+  int numGardens = 0;
   for (int i = 0; i < numNetworks; ++i) {
-    if (checkGardenSignal(wifiList[i].ssid)) {
-      ++count;
+    if (wifiList[i].isGarden) {
+      ++numGardens;
     }
   }
-  logf(WIFI, "Found: %d garden / %d AP\r\n", count, numNetworks);
+  logf(WIFI, "Found: %d garden / %d AP\r\n", numGardens, numNetworks);
 
-  if (count > 0) {
+  if (numGardens > 0) {
     for (int i = 0; i < numNetworks; ++i) {
-      if (checkGardenSignal(wifiList[i].ssid))
+      if (wifiList[i].isGarden) {
         connectWifi(wifiList[i]);
+      }
     }
   }
 }
@@ -94,16 +98,18 @@ void WifiManager::scanAndConnect() {
 int WifiManager::scanWifiNetworks() {
   log("Wifi", "Scanning...");
   int numNetworks = WiFi.scanNetworks();
+  numNetworks = numNetworks > MAX_NUM_NETWORKS ? MAX_NUM_NETWORKS : numNetworks;
 
   if (numNetworks > 0) {
-    for (register int i = 0; i < numNetworks; ++i) {
-      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), cfg.getStr(GARDEN_WIFI_PASSWORD));
+    for (int i = 0; i < numNetworks; ++i) {
+      wifiList[i].set(WiFi.RSSI(i), WiFi.SSID(i), cfg.getStr(GARDEN_WIFI_PASSWORD), isGarden(WiFi.SSID(i)));
     }
-    #ifdef EVN_DEV
+
+    #ifdef ENV_DEV
     prl("┌────────────────── Scan Result ──────────────────┐");
-    for (register int i = 0; i < numNetworks; ++i) {
+    for (int i = 0; i < numNetworks; ++i) {
       Serial.printf("├ [%02d] > (%s) %3d : %s\r\n", i + 1,
-        checkGardenSignal(wifiList[i].ssid) ? "Garden" : "------",
+        wifiList[i].isGarden ? "Garden" : "------",
         wifiList[i].rssi,
         wifiList[i].ssid.c_str());
     }

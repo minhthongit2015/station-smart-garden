@@ -9,11 +9,13 @@ struct WifiInfo {
   int32_t rssi;
   String ssid;
   String pass;
+  bool isGarden;
 
-  void set(int32_t rssi, String ssid, String pass) {
+  void set(int32_t rssi, String ssid, String pass, bool isGarden) {
     this->rssi = rssi;
     this->ssid = ssid;
     this->pass = pass;
+    this->isGarden = isGarden;
   }
 };
 

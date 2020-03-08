@@ -5,6 +5,7 @@
 #define ENV_DEV
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
+#define USBCON
 #include <Arduino.h>
 #ifndef ARDUINO
 #define ARDUINO 10809

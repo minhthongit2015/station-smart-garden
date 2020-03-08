@@ -1,8 +1,8 @@
 {
-  "gardenHost": "beyond-garden.herokuapp.com",
-  "gardenPort": 80,
-  "gardenWifiSignal": "Beyond Garden Skynet",
-  "gardenWifiPassword": "beyond-garden",
+  "gardenHost": "192.168.1.21",
+  "gardenPort": 5000,
+  "gardenWifiSignal": "moidoiten",
+  "gardenWifiPassword": "passla123",
   
   "PIN_DHT": 14,
   "DHT_TYPE": 22,
