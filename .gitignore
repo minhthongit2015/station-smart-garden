@@ -4,3 +4,4 @@
 /libs/*
 !/libs/*.zip
 !/libs/*.bat
+node_modules/**

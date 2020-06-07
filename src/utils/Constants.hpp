@@ -47,12 +47,16 @@ struct {
   const char *AUTHORIZED;
   const char *UNAUTHORIZED;
   const char *SET_STATE;
+  const char *MANUAL_SET_STATE;
+  const char *REQUEST_STATE;
 } WSEvent = {
   "connect",
   "disconnect",
   "authorized",
   "unauthorized",
-  "setState"
+  "SetState",
+  "ManualSetState",
+  "RequestState"
 };
 
 enum TextAlign {

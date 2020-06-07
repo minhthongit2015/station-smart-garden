@@ -15,6 +15,8 @@
 #define GARDENER "Gardener"
 
 declareWSListener(handleSetState);
+declareWSListener(handleManualSetState);
+declareWSListener(handleRequestState);
 declareListener(handleHuTempChange);
 declareListener(handleLightChange);
 declareListener(handleMovingChange);
@@ -30,6 +32,8 @@ struct Gardener {
 
   void setupListeners() {
     ws.on(WSEvent.SET_STATE, handleSetState);
+    ws.on(WSEvent.MANUAL_SET_STATE, handleManualSetState);
+    ws.on(WSEvent.REQUEST_STATE, handleRequestState);
     sensors.onHuTempChange(handleHuTempChange);
     sensors.onLightChange(handleLightChange);
     sensors.onMovingChange(handleMovingChange);
@@ -55,11 +59,24 @@ struct Gardener {
 extern Gardener gardener;
 
 declareWSListener(handleSetState) {
-  log(GARDENER, "Garden set station state");
+  log(GARDENER, "Server set station state");
   deserializeJson(state.doc, payload);
   state.fromDoc(state.doc);
   relays.syncState();
   serializeJsonPretty(state.doc, Serial); prl();
+}
+
+declareWSListener(handleManualSetState) {
+  log(GARDENER, "User set station state");
+  deserializeJson(state.doc, payload);
+  state.fromDoc(state.doc);
+  relays.syncState();
+  serializeJsonPretty(state.doc, Serial); prl();
+  gardener.handleStateChange();
+}
+
+declareWSListener(handleRequestState) {
+  gardener.handleStateChange();
 }
 
 declareListener(handleHuTempChange) {

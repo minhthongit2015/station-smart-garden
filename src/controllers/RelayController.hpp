@@ -21,9 +21,9 @@ struct RelayController {
   void setup() {
     logStart(RELAY_CONTROLLER);
     logf(RELAY_CONTROLLER, "> constant \"NOT_A_PIN\" is defined as \"%d\"\r\n", NOT_A_PIN);
-    cfg.setDefault(PIN_PUMP, D3);
+    cfg.setDefault(PIN_PUMP, D4);
     cfg.setDefault(PIN_OXYGEN, NOT_A_PIN);
-    cfg.setDefault(PIN_LED, D4);
+    cfg.setDefault(PIN_LED, D3);
     cfg.setDefault(PIN_FAN, NOT_A_PIN);
     cfg.setDefault(PIN_MISTING, NOT_A_PIN);
     cfg.setDefault(PIN_NUTRIENT, NOT_A_PIN);

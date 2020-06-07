@@ -1,21 +1,25 @@
 {
   "name": "beyond-garden-station",
   "version": "1.0.0",
-  "description": "",
-  "main": "station-smart-garden.ino",
+  "description": "From Alpha Team with Love!",
+  "main": "index.js",
   "scripts": {
-    "install": "npm-install.bat"
+    "postinstall": "node scripts/npm-install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minhthongit2015/station-smart-garden.git"
   },
   "author": "Alpha Team",
   "license": "ISC",
-  "devDependencies": {
-    "eslint": "^6.1.0",
-    "eslint-config-airbnb": "^18.0.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.14.3"
+  "bugs": {
+    "url": "https://github.com/minhthongit2015/station-smart-garden/issues"
   },
+  "homepage": "https://github.com/minhthongit2015/station-smart-garden#readme",
   "dependencies": {
-    "bmp-js": "^0.1.0"
+    "colors": "^1.4.0",
+    "eslint": "^7.0.0",
+    "fs-extra": "^9.0.0",
+    "simple-git": "^2.5.0"
   }
 }
