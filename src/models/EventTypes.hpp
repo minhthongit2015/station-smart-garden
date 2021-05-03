@@ -46,7 +46,27 @@ union EventData {
     bool operator ! () {
       return isnan(this->light) || this->light == 54612;
     }
+    bool operator = (uint16_t light) {
+      return this->light = (!isnan(light) && light != 54612) ? light : 0;
+    }
   } Light;
+
+  struct {
+    float soilMoisture;
+    bool operator == (EventData &data) {
+      return ((!!data.SoilMoisture || !!(*this)) && !(!data.SoilMoisture ^ !(*this)))
+        && isEqual(data.SoilMoisture.soilMoisture, this->soilMoisture);
+    }
+    bool operator != (EventData &data) {
+      return !((*this) == data);
+    }
+    bool operator ! () {
+      return this->soilMoisture < 0 || this->soilMoisture > 100;
+    }
+    bool operator = (float soilMoisture) {
+      return this->soilMoisture = soilMoisture;
+    }
+  } SoilMoisture;
 
   struct {
     bool moving;

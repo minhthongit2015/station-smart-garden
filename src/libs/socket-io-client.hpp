@@ -3,6 +3,8 @@
 #ifndef __SOCKET_IO_CLIENT_H__
 #define __SOCKET_IO_CLIENT_H__
 
+#define SSL_AXTLS
+
 #include <Arduino.h>
 #include <map>
 #include <vector>
@@ -144,6 +146,14 @@ void SocketIoClient::webSocketEvent(WStype_t type, uint8_t *payload, size_t leng
 }
 
 void SocketIoClient::beginSSL(const char *host, const int port, const char *url, const char *fingerprint) {
+  // invalid conversion from 'const char*' to 'const uint8_t*
+  // const uint8_t* hostz = new uint8_t[strlen(host)];
+  // size_t i = 0;
+  // const char* beg = msg1;
+  // const char* end = msg1 + length;
+  // for (; beg != end; ++beg, ++i) {
+  //   hostz[i] = (uint8_t)(*beg);
+  // }
   _webSocket.beginSSL(host, port, url, fingerprint);
   initialize();
 }

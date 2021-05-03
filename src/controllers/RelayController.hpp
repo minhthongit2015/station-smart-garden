@@ -9,54 +9,63 @@
 
 #define RELAY_CONTROLLER "Relay Controller"
 
-#define PIN_PUMP "PIN_PUMP"
-#define PIN_OXYGEN "PIN_OXYGEN"
-#define PIN_LED "PIN_LED"
-#define PIN_FAN "PIN_FAN"
-#define PIN_MISTING "PIN_MISTING"
-#define PIN_NUTRIENT "PIN_NUTRIENT"
+const struct {
+  const char* PUMP;
+  const char* OXYGEN;
+  const char* LED;
+  const char* FAN;
+  const char* MISTING;
+  const char* NUTRIENT;
+} RelayPin = {
+  "PIN_PUMP",
+  "PIN_OXYGEN",
+  "PIN_LED",
+  "PIN_FAN",
+  "PIN_MISTING",
+  "PIN_NUTRIENT"
+};
 
 
 struct RelayController {
   void setup() {
     logStart(RELAY_CONTROLLER);
     logf(RELAY_CONTROLLER, "> constant \"NOT_A_PIN\" is defined as \"%d\"\r\n", NOT_A_PIN);
-    cfg.setDefault(PIN_PUMP, D4);
-    cfg.setDefault(PIN_OXYGEN, NOT_A_PIN);
-    cfg.setDefault(PIN_LED, D3);
-    cfg.setDefault(PIN_FAN, NOT_A_PIN);
-    cfg.setDefault(PIN_MISTING, NOT_A_PIN);
-    cfg.setDefault(PIN_NUTRIENT, NOT_A_PIN);
-    useOutOff(cfg.getPin(PIN_PUMP));
-    useOutOff(cfg.getPin(PIN_OXYGEN));
-    useOutOff(cfg.getPin(PIN_LED));
-    useOutOff(cfg.getPin(PIN_FAN));
-    useOutOff(cfg.getPin(PIN_MISTING));
-    useOutOff(cfg.getPin(PIN_NUTRIENT));
+    configRelay(RelayPin.PUMP, D4);
+    configRelay(RelayPin.OXYGEN, NOT_A_PIN);
+    configRelay(RelayPin.LED, D3);
+    configRelay(RelayPin.FAN, NOT_A_PIN);
+    configRelay(RelayPin.MISTING, NOT_A_PIN);
+    configRelay(RelayPin.NUTRIENT, NOT_A_PIN);
     syncState();
   }
+
+  void configRelay(const char *pinKey, int pinNumber) {
+    cfg.setDefault(pinKey, pinNumber);
+    useOutOff(cfg.getPin(pinKey));
+  }
+
   void loop() {
     // TODO: Check and stop nutri
   }
   
   void syncState() {
     if (state.doc.containsKey("pump")) {
-      this->setRelay(cfg.getPin(PIN_PUMP), state.pump);
+      setRelay(cfg.getPin(RelayPin.PUMP), state.pump);
     }
     if (state.doc.containsKey("oxygen")) {
-      this->setRelay(cfg.getPin(PIN_OXYGEN), state.oxygen);
+      setRelay(cfg.getPin(RelayPin.OXYGEN), state.oxygen);
     }
     if (state.doc.containsKey("led")) {
-      this->setRelay(cfg.getPin(PIN_LED), state.led);
+      setRelay(cfg.getPin(RelayPin.LED), state.led);
     }
     if (state.doc.containsKey("fan")) {
-      this->setRelay(cfg.getPin(PIN_FAN), state.fan);
+      setRelay(cfg.getPin(RelayPin.FAN), state.fan);
     }
     if (state.doc.containsKey("misting")) {
-      this->setRelay(cfg.getPin(PIN_MISTING), state.misting);
+      setRelay(cfg.getPin(RelayPin.MISTING), state.misting);
     }
     if (state.doc.containsKey("nutri")) {
-      this->setRelay(cfg.getPin(PIN_NUTRIENT), state.nutri);
+      setRelay(cfg.getPin(RelayPin.NUTRIENT), state.nutri);
     }
   }
 

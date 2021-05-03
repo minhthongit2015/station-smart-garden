@@ -12,8 +12,14 @@
 
 #define WIFI "Wifi"
 
-#define GARDEN_WIFI_SIGNAL "gardenWifiSignal"
-#define GARDEN_WIFI_PASSWORD "gardenWifiPassword"
+#define GARDEN_WIFI_SIGNAL "moidoiten"
+#define GARDEN_WIFI_PASSWORD "passla123"
+
+// #define DEFAULT_WIFI_SIGNAL "PhongTroXanhLau4"
+// #define DEFAULT_WIFI_PASSWORD "locphat68"
+#define DEFAULT_WIFI_SIGNAL "moidoiten"
+#define DEFAULT_WIFI_PASSWORD "passla123"
+
 
 #define MAX_NUM_NETWORKS 30
 
@@ -47,6 +53,9 @@ void WifiManager::setup() {
   WiFi.hostname(DEVICE_ID);
   WiFi.setAutoConnect(true);
   WiFi.setAutoReconnect(true);
+
+  cfg.setDefault(GARDEN_WIFI_SIGNAL, DEFAULT_WIFI_SIGNAL);
+  cfg.setDefault(GARDEN_WIFI_PASSWORD, DEFAULT_WIFI_PASSWORD);
 
   gardenWifiSignal = cfg.getStr(GARDEN_WIFI_SIGNAL);
   

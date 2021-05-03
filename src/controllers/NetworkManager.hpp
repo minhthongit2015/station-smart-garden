@@ -27,6 +27,7 @@ struct Network {
 
     cfg.setDefault(GARDEN_HOST, DEFAULT_HOST);
     cfg.setDefault(GARDEN_PORT, DEFAULT_PORT);
+    cfg.setDefault(SESSION_ID, "");
     ws.setup(cfg.getCStr(GARDEN_HOST), cfg.getLong(GARDEN_PORT), cfg.getCStr(SESSION_ID));
     ws.onConnect(handleConnected);
   }
